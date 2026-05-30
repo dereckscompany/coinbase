@@ -22,6 +22,7 @@ Imports:
     data.table,
     httr2 (>= 1.0.0),
     jose,
+    openssl,
     lubridate,
     assert
 Suggests:
