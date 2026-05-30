@@ -130,6 +130,39 @@ CoinbaseMarketData <- R6::R6Class(
       ))
     },
 
+    #' @description Retrieve deep tick history by paging the trades endpoint
+    #'   backwards in time. This is the backfill path: pages from the most recent
+    #'   trade toward `start` (or the product's first-ever trade if `start` is
+    #'   NULL), then deduplicates and sorts ascending. Aggregate the result with
+    #'   [trades_to_ohlcv()] for deep OHLCV at any timeframe.
+    #' @param product_id Character; the pair symbol, e.g. `"BTC-USD"`.
+    #' @param start POSIXct or NULL; stop once trades older than this are reached.
+    #' @param end POSIXct or NULL; drop trades newer than this. Paging always
+    #'   begins at the most recent trade.
+    #' @param max_pages Numeric; cap on pages fetched (each up to 1000 trades).
+    #'   Default `Inf`.
+    #' @return A [data.table::data.table] with columns `trade_id`, `side`,
+    #'   `price`, `size`, `time` sorted ascending by `time`, or a promise thereof.
+    get_trades_history = function(product_id, start = NULL, end = NULL, max_pages = Inf) {
+      assert::assert_scalar_character(product_id)
+      return(coinbase_fetch_trades_history(
+        product_id = product_id,
+        start = start,
+        end = end,
+        max_pages = max_pages,
+        .req_fn = function(endpoint, query, .parser) {
+          private$.request(
+            endpoint = endpoint,
+            query = query,
+            auth = FALSE,
+            base_url = private$.exchange_base_url,
+            .parser = .parser
+          )
+        },
+        is_async = private$.is_async
+      ))
+    },
+
     #' @description Retrieve an order book snapshot for a product.
     #' @param product_id Character; the pair symbol, e.g. `"BTC-USD"`.
     #' @param level Integer; `1` (best bid/ask), `2` (top 50 aggregated), or

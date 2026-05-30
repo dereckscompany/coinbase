@@ -14,5 +14,8 @@ utils::globalVariables(c(
   "size",
   # Trade columns
   "trade_id",
-  "time"
+  "time",
+  # Backfill columns
+  "symbol",
+  "max_time"
 ))

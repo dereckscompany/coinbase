@@ -53,6 +53,7 @@ p <- market_async$get_trades("BTC-USD")
     \item \href{#method-CoinbaseMarketData-get_product}{\code{CoinbaseMarketData$get_product()}}
     \item \href{#method-CoinbaseMarketData-get_ohlcv}{\code{CoinbaseMarketData$get_ohlcv()}}
     \item \href{#method-CoinbaseMarketData-get_trades}{\code{CoinbaseMarketData$get_trades()}}
+    \item \href{#method-CoinbaseMarketData-get_trades_history}{\code{CoinbaseMarketData$get_trades_history()}}
     \item \href{#method-CoinbaseMarketData-get_orderbook}{\code{CoinbaseMarketData$get_orderbook()}}
     \item \href{#method-CoinbaseMarketData-get_ticker}{\code{CoinbaseMarketData$get_ticker()}}
     \item \href{#method-CoinbaseMarketData-get_server_time}{\code{CoinbaseMarketData$get_server_time()}}
@@ -157,6 +158,43 @@ back, pass the smallest \code{trade_id} seen as \code{after}.
   \subsection{Returns}{
     A \link[data.table:data.table]{data.table::data.table} with columns \code{trade_id}, \code{side},
 \code{price}, \code{size}, \code{time}, or a promise thereof.
+  }
+}
+
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-CoinbaseMarketData-get_trades_history"></a>}}
+\if{latex}{\out{\hypertarget{method-CoinbaseMarketData-get_trades_history}{}}}
+\subsection{\code{CoinbaseMarketData$get_trades_history()}}{
+  Retrieve deep tick history by paging the trades endpoint
+backwards in time. This is the backfill path: pages from the most recent
+trade toward \code{start} (or the product's first-ever trade if \code{start} is
+NULL), then deduplicates and sorts ascending. Aggregate the result with
+\code{\link[=trades_to_ohlcv]{trades_to_ohlcv()}} for deep OHLCV at any timeframe.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{CoinbaseMarketData$get_trades_history(
+  product_id,
+  start = NULL,
+  end = NULL,
+  max_pages = Inf
+)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{product_id}}{Character; the pair symbol, e.g. \code{"BTC-USD"}.}
+      \item{\code{start}}{POSIXct or NULL; stop once trades older than this are reached.}
+      \item{\code{end}}{POSIXct or NULL; drop trades newer than this. Paging always
+begins at the most recent trade.}
+      \item{\code{max_pages}}{Numeric; cap on pages fetched (each up to 1000 trades).
+Default \code{Inf}.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    A \link[data.table:data.table]{data.table::data.table} with columns \code{trade_id}, \code{side},
+\code{price}, \code{size}, \code{time} sorted ascending by \code{time}, or a promise thereof.
   }
 }
 
