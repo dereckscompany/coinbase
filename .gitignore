@@ -3,6 +3,13 @@ deprecated/
 *.ignore
 *.ignore.*
 
+# secrets — never commit credentials (public repo)
+cdp_api_key*.json
+*.pem
+*.key
+.env
+.env.*
+
 # build
 docs/
 *html

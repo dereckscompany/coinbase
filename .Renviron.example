@@ -1,0 +1,12 @@
+# Coinbase Advanced Trade API credentials
+# Copy this file to .Renviron (which is gitignored) and fill in your own values.
+# Generate a key at https://www.coinbase.com/settings/api (NOT portal.cdp.coinbase.com).
+# The key download is a JSON file with "name" and "privateKey" fields.
+
+# The "name" field, e.g. organizations/<org-uuid>/apiKeys/<key-uuid>
+COINBASE_API_KEY_NAME="organizations/YOUR-ORG-UUID/apiKeys/YOUR-KEY-UUID"
+
+# The "privateKey" field. PEM newlines must be escaped as \n so the value sits
+# on a single line; the package unescapes them when signing.
+# EC keys begin with "-----BEGIN EC PRIVATE KEY-----"; Ed25519 keys are base64.
+COINBASE_API_PRIVATE_KEY="-----BEGIN EC PRIVATE KEY-----\nYOUR\nKEY\nLINES\n-----END EC PRIVATE KEY-----\n"
