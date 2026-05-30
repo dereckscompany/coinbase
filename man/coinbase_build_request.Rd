@@ -14,8 +14,7 @@ coinbase_build_request(
   .perform = httr2::req_perform,
   .parser = identity,
   is_async = FALSE,
-  timeout = 30,
-  max_tries = 5
+  timeout = 30
 )
 }
 \arguments{
@@ -40,13 +39,6 @@ Default \code{identity}.}
 \item{is_async}{Logical; whether \code{.perform} returns promises. Default \code{FALSE}.}
 
 \item{timeout}{Numeric; request timeout in seconds. Default \code{30}.}
-
-\item{max_tries}{Integer; total attempts on transient failures (HTTP 401,
-408, 429, 5xx) with exponential backoff. Default 5. Coinbase intermittently
-rejects valid tokens with a bare 401 (e.g. while a freshly-created API key
-propagates across its backends); a byte-identical token then succeeds on
-retry. A genuinely invalid credential fails every attempt and still
-surfaces after retries are exhausted.}
 }
 \value{
 Parsed and post-processed API response data, or a promise thereof.

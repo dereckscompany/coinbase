@@ -65,6 +65,5 @@ test_that("build_jwt produces a 3-part ES256 token with a query-less uri claim",
   # uri must carry method + host + path and NO query string
   expect_equal(payload$uri, "GET api.coinbase.com/api/v3/brokerage/accounts")
   expect_false(grepl("?", payload$uri, fixed = TRUE))
-  # exp is now + 120; nbf is backdated 5s for clock-skew tolerance.
-  expect_equal(payload$exp - payload$nbf, 125)
+  expect_equal(payload$exp - payload$nbf, 120)
 })
