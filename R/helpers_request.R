@@ -55,10 +55,12 @@ build_jwt <- function(keys, method, host, path) {
   alg <- if (inherits(key, "ed25519")) "EdDSA" else "ES256"
 
   now <- as.integer(unclass(Sys.time()))
+  # Backdate nbf by a few seconds as clock-skew tolerance: if the client clock
+  # runs ahead of Coinbase's, an nbf of exactly `now` is briefly "not yet valid".
   claim <- jose::jwt_claim(
     sub = keys$api_key_name,
     iss = "cdp",
-    nbf = now,
+    nbf = now - 5L,
     exp = now + 120L,
     uri = paste0(method, " ", host, path)
   )
@@ -97,7 +99,13 @@ build_jwt <- function(keys, method, host, path) {
 #' @param timeout Numeric; request timeout in seconds. Default `30`.
 #' @return Parsed and post-processed API response data, or a promise thereof.
 #'
-#' @importFrom httr2 request req_method req_url_path_append req_url_query req_body_raw req_timeout req_perform req_user_agent req_error req_headers url_parse
+#' @param max_tries Integer; total attempts on transient failures (HTTP 401,
+#'   408, 429, 5xx) with exponential backoff. Default 5. Coinbase intermittently
+#'   rejects valid tokens with a bare 401 (e.g. while a freshly-created API key
+#'   propagates across its backends); a byte-identical token then succeeds on
+#'   retry. A genuinely invalid credential fails every attempt and still
+#'   surfaces after retries are exhausted.
+#' @importFrom httr2 request req_method req_url_path_append req_url_query req_body_raw req_timeout req_perform req_user_agent req_error req_headers req_retry resp_status url_parse
 #' @importFrom jsonlite toJSON
 #' @export
 coinbase_build_request <- function(
@@ -110,7 +118,8 @@ coinbase_build_request <- function(
   .perform = httr2::req_perform,
   .parser = identity,
   is_async = FALSE,
-  timeout = 30
+  timeout = 30,
+  max_tries = 5
 ) {
   req <- httr2::request(base_url)
   req <- httr2::req_url_path_append(req, endpoint)
@@ -119,6 +128,22 @@ coinbase_build_request <- function(
   req <- httr2::req_user_agent(req, "dereckscompany/coinbase")
   # Surface the API's own error body rather than httr2's generic message.
   req <- httr2::req_error(req, is_error = function(resp) FALSE)
+  # Retry transient failures with exponential backoff. Coinbase intermittently
+  # rejects valid tokens with a bare 401 (notably while a newly-created API key
+  # is still propagating across its backends); the identical token succeeds on a
+  # subsequent attempt. Permanently invalid credentials fail every attempt and
+  # still surface once retries are exhausted.
+  req <- httr2::req_retry(
+    req,
+    max_tries = max_tries,
+    is_transient = function(resp) {
+      httr2::resp_status(resp) %in% c(401L, 408L, 429L, 500L, 502L, 503L, 504L)
+    },
+    # The transient 401 typically clears on the very next attempt, so use a
+    # short jittered backoff rather than slow exponential growth. A genuine
+    # Retry-After header (e.g. on 429) still takes precedence.
+    backoff = function(attempt) stats::runif(1, 0.2, 0.6)
+  )
 
   # JSON body
   if (!is.null(body)) {

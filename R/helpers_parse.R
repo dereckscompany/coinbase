@@ -1,6 +1,36 @@
 # File: R/helpers_parse.R
 # Response parsing and data.table construction helpers.
 
+#' Null-Coalesce Helper
+#'
+#' Returns `default` when `x` is NULL, otherwise `x`.
+#'
+#' @keywords internal
+#' @noRd
+`%or%` <- function(x, default) {
+  if (is.null(x)) {
+    return(default)
+  }
+  return(x)
+}
+
+#' Extract the Numeric `value` from a Coinbase `{value, currency}` Object
+#'
+#' Coinbase represents monetary amounts as nested `{value, currency}` objects.
+#' This flattens one to its numeric `value`, avoiding list columns downstream.
+#'
+#' @param x A list with a `value` field, or NULL.
+#' @return Numeric scalar, or `NA_real_` if `x` is NULL.
+#'
+#' @keywords internal
+#' @noRd
+amount_value <- function(x) {
+  if (is.null(x) || is.null(x$value)) {
+    return(NA_real_)
+  }
+  return(as.numeric(x$value))
+}
+
 #' Convert camelCase Names to snake_case
 #'
 #' Converts response field names to R's snake_case convention. Coinbase fields
@@ -120,6 +150,68 @@ parse_trades <- function(data) {
     time = iso_to_datetime(vapply(data, function(t) as.character(t$time), character(1)))
   )
   return(dt[])
+}
+
+#' Parse Coinbase Trading Accounts into a data.table
+#'
+#' Flattens the nested `available_balance`/`hold` `{value, currency}` objects to
+#' numeric columns and parses timestamps, yielding a list-column-free table.
+#'
+#' @param items A list of account objects, or NULL.
+#' @return A [data.table::data.table] with one row per account. Empty if `items`
+#'   is NULL or empty.
+#'
+#' @keywords internal
+#' @noRd
+parse_accounts <- function(items) {
+  if (is.null(items) || length(items) == 0) {
+    return(data.table::data.table()[])
+  }
+  rows <- lapply(items, function(a) {
+    data.table::data.table(
+      uuid = a$uuid %or% NA_character_,
+      name = a$name %or% NA_character_,
+      currency = a$currency %or% NA_character_,
+      available_balance = amount_value(a$available_balance),
+      hold = amount_value(a$hold),
+      active = a$active %or% NA,
+      default = a$default %or% NA,
+      ready = a$ready %or% NA,
+      type = a$type %or% NA_character_,
+      platform = a$platform %or% NA_character_,
+      retail_portfolio_id = a$retail_portfolio_id %or% NA_character_,
+      created_at = iso_to_datetime(a$created_at %or% NA_character_),
+      updated_at = iso_to_datetime(a$updated_at %or% NA_character_)
+    )
+  })
+  return(data.table::rbindlist(rows, fill = TRUE)[])
+}
+
+#' Parse a Coinbase Transaction Summary into a one-row data.table
+#'
+#' Flattens the nested `fee_tier` object into scalar columns alongside the
+#' top-level volume and fee fields.
+#'
+#' @param data A transaction summary object, or NULL.
+#' @return A single-row [data.table::data.table]. Empty if `data` is NULL.
+#'
+#' @keywords internal
+#' @noRd
+parse_fees <- function(data) {
+  if (is.null(data) || length(data) == 0) {
+    return(data.table::data.table()[])
+  }
+  ft <- data$fee_tier %or% list()
+  return(data.table::data.table(
+    pricing_tier = ft$pricing_tier %or% NA_character_,
+    maker_fee_rate = as.numeric(ft$maker_fee_rate %or% NA),
+    taker_fee_rate = as.numeric(ft$taker_fee_rate %or% NA),
+    usd_from = as.numeric(ft$usd_from %or% NA),
+    usd_to = as.numeric(ft$usd_to %or% NA),
+    total_volume = as.numeric(data$total_volume %or% NA),
+    total_fees = as.numeric(data$total_fees %or% NA),
+    total_balance = as.numeric(data$total_balance %or% NA)
+  )[])
 }
 
 #' Parse a Coinbase Exchange Order Book into a long data.table

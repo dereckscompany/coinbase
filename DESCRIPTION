@@ -24,7 +24,8 @@ Imports:
     jose,
     openssl,
     lubridate,
-    assert
+    assert,
+    stats
 Suggests:
     promises,
     coro,
