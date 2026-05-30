@@ -12,7 +12,7 @@ Inherits from \link{CoinbaseBase}. All methods support both synchronous and
 asynchronous execution depending on the \code{async} argument at construction.
 \subsection{Deep history}{
 
-The \verb{/candles} endpoint returns at most 300 bars per request, so it is a
+The \verb{/candles} endpoint returns roughly 300 bars per request, so it is a
 convenience for recent data only. Complete OHLCV at any timeframe is built
 from ticks: page \code{get_trades()} (or call the backfill) back through history,
 then aggregate with \code{\link[=trades_to_ohlcv]{trades_to_ohlcv()}}.
@@ -106,7 +106,7 @@ p <- market_async$get_trades("BTC-USD")
 \if{html}{\out{<a id="method-CoinbaseMarketData-get_ohlcv"></a>}}
 \if{latex}{\out{\hypertarget{method-CoinbaseMarketData-get_ohlcv}{}}}
 \subsection{\code{CoinbaseMarketData$get_ohlcv()}}{
-  Retrieve OHLCV candles for a product. Returns at most 300
+  Retrieve OHLCV candles for a product. Returns roughly 300
 bars per call; for deep history aggregate ticks with \code{\link[=trades_to_ohlcv]{trades_to_ohlcv()}}.
   \subsection{Usage}{
     \if{html}{\out{<div class="r">}}

@@ -12,3 +12,10 @@
 ^local$
 ^dev$
 ^scripts$
+^\.clang-format$
+^\.cruft\.json$
+^\.lintr$
+^air\.toml$
+^\.Renviron$
+^\.Renviron\.example$
+^README\.Rmd$

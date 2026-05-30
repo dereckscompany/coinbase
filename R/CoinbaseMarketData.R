@@ -24,7 +24,7 @@
 #' asynchronous execution depending on the `async` argument at construction.
 #'
 #' ### Deep history
-#' The `/candles` endpoint returns at most 300 bars per request, so it is a
+#' The `/candles` endpoint returns roughly 300 bars per request, so it is a
 #' convenience for recent data only. Complete OHLCV at any timeframe is built
 #' from ticks: page `get_trades()` (or call the backfill) back through history,
 #' then aggregate with [trades_to_ohlcv()].
@@ -81,7 +81,7 @@ CoinbaseMarketData <- R6::R6Class(
       ))
     },
 
-    #' @description Retrieve OHLCV candles for a product. Returns at most 300
+    #' @description Retrieve OHLCV candles for a product. Returns roughly 300
     #'   bars per call; for deep history aggregate ticks with [trades_to_ohlcv()].
     #' @param product_id Character; the pair symbol, e.g. `"BTC-USD"`.
     #' @param granularity Character; one of `"1min"`, `"5min"`, `"15min"`,

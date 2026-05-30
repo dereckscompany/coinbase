@@ -72,15 +72,22 @@ coinbase_backfill_trades <- function(
     async = FALSE
   )
 
-  # Resume support: continue each symbol from its last recorded trade.
+  # Resume support: continue each symbol from its last recorded trade. We resume
+  # from the last stored time *inclusively* (not offset forward) and drop
+  # already-stored trade_ids before writing. Offsetting the start time forward
+  # would skip any other trades sharing that same second, since ticks are
+  # sub-second; deduping on trade_id avoids both gaps and duplicate rows.
   last_times <- list()
+  existing_ids <- list()
   file_exists <- file.exists(file)
   if (file_exists) {
     existing <- data.table::fread(file)
-    if (nrow(existing) > 0L && all(c("symbol", "time") %in% names(existing))) {
+    if (nrow(existing) > 0L && all(c("symbol", "time", "trade_id") %in% names(existing))) {
       existing[, time := lubridate::as_datetime(time, tz = "UTC")]
       maxes <- existing[, list(max_time = max(time)), by = symbol]
       last_times <- stats::setNames(as.list(maxes$max_time), maxes$symbol)
+      ids <- existing[, list(ids = list(unique(trade_id))), by = symbol]
+      existing_ids <- stats::setNames(ids$ids, ids$symbol)
     }
   }
 
@@ -92,11 +99,11 @@ coinbase_backfill_trades <- function(
     sym <- symbols[[i]]
     sym_from <- from
     if (!is.null(last_times[[sym]])) {
-      # Offset by 1 second to avoid re-fetching the last stored trade.
-      sym_from <- last_times[[sym]] + 1
+      # Inclusive resume; boundary-second duplicates are filtered by trade_id below.
+      sym_from <- last_times[[sym]]
     }
 
-    if (sym_from >= to) {
+    if (sym_from > to) {
       if (verbose) {
         rlang::inform(sprintf("[%d/%d] %s: skipped (already up to date)", i, total, sym))
       }
@@ -114,6 +121,11 @@ coinbase_backfill_trades <- function(
         rlang::inform(sprintf("[%d/%d] %s: ERROR %s", i, total, sym, conditionMessage(result)))
       }
       next
+    }
+
+    # Drop trades already stored for this symbol (boundary-second overlap on resume).
+    if (!is.null(existing_ids[[sym]])) {
+      result <- result[!trade_id %in% existing_ids[[sym]]]
     }
 
     if (nrow(result) == 0L) {
