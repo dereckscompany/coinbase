@@ -14,6 +14,20 @@
   return(x)
 }
 
+#' Coerce a Possibly-NULL Scalar to Numeric
+#'
+#' @param x A scalar or NULL.
+#' @return `as.numeric(x)`, or `NA_real_` if `x` is NULL.
+#'
+#' @keywords internal
+#' @noRd
+num_or_na <- function(x) {
+  if (is.null(x)) {
+    return(NA_real_)
+  }
+  return(as.numeric(x))
+}
+
 #' Extract the Numeric `value` from a Coinbase `{value, currency}` Object
 #'
 #' Coinbase represents monetary amounts as nested `{value, currency}` objects.
@@ -211,6 +225,138 @@ parse_fees <- function(data) {
     total_volume = as.numeric(data$total_volume %or% NA),
     total_fees = as.numeric(data$total_fees %or% NA),
     total_balance = as.numeric(data$total_balance %or% NA)
+  )[])
+}
+
+#' Flatten a Coinbase `order_configuration` Object
+#'
+#' The order configuration is keyed by the detailed order type (e.g.
+#' `market_market_ioc`, `limit_limit_gtc`, `stop_limit_stop_limit_gtc`). This
+#' returns the inner type key plus the union of recognised sub-fields, so an
+#' order row carries scalar config columns rather than a nested list.
+#'
+#' @param cfg A one-key `order_configuration` list, or NULL.
+#' @return Named list: `config_type`, `base_size`, `quote_size`, `limit_price`,
+#'   `stop_price`, `stop_direction`, `end_time`, `post_only`.
+#'
+#' @keywords internal
+#' @noRd
+flatten_order_config <- function(cfg) {
+  inner <- list()
+  config_type <- NA_character_
+  if (!is.null(cfg) && length(cfg) > 0) {
+    config_type <- names(cfg)[1]
+    inner <- cfg[[1]]
+  }
+  return(list(
+    config_type = config_type,
+    base_size = num_or_na(inner$base_size),
+    quote_size = num_or_na(inner$quote_size),
+    limit_price = num_or_na(inner$limit_price),
+    stop_price = num_or_na(inner$stop_price),
+    stop_direction = inner$stop_direction %or% NA_character_,
+    end_time = iso_to_datetime(inner$end_time %or% NA_character_),
+    post_only = inner$post_only %or% NA
+  ))
+}
+
+#' Parse Coinbase Orders into a data.table
+#'
+#' Flattens each order's scalar fields and its nested `order_configuration` into
+#' columns, yielding a list-column-free table.
+#'
+#' @param items A list of order objects, or NULL.
+#' @return A [data.table::data.table], one row per order. Empty if NULL/empty.
+#'
+#' @keywords internal
+#' @noRd
+parse_orders <- function(items) {
+  if (is.null(items) || length(items) == 0) {
+    return(data.table::data.table()[])
+  }
+  rows <- lapply(items, function(o) {
+    cfg <- flatten_order_config(o$order_configuration)
+    data.table::data.table(
+      order_id = o$order_id %or% (o$id %or% NA_character_),
+      client_order_id = o$client_order_id %or% NA_character_,
+      product_id = o$product_id %or% NA_character_,
+      side = o$side %or% NA_character_,
+      status = o$status %or% NA_character_,
+      order_type = o$order_type %or% cfg$config_type,
+      config_type = cfg$config_type,
+      time_in_force = o$time_in_force %or% NA_character_,
+      created_time = iso_to_datetime(o$created_time %or% NA_character_),
+      completion_percentage = num_or_na(o$completion_percentage),
+      filled_size = num_or_na(o$filled_size),
+      average_filled_price = num_or_na(o$average_filled_price),
+      number_of_fills = num_or_na(o$number_of_fills),
+      filled_value = num_or_na(o$filled_value),
+      total_fees = num_or_na(o$total_fees),
+      base_size = cfg$base_size,
+      quote_size = cfg$quote_size,
+      limit_price = cfg$limit_price,
+      stop_price = cfg$stop_price,
+      stop_direction = cfg$stop_direction,
+      end_time = cfg$end_time,
+      post_only = cfg$post_only
+    )
+  })
+  return(data.table::rbindlist(rows, fill = TRUE)[])
+}
+
+#' Parse Coinbase Fills into a data.table
+#'
+#' @param items A list of fill objects, or NULL.
+#' @return A [data.table::data.table], one row per fill. Empty if NULL/empty.
+#'
+#' @keywords internal
+#' @noRd
+parse_fills <- function(items) {
+  if (is.null(items) || length(items) == 0) {
+    return(data.table::data.table()[])
+  }
+  rows <- lapply(items, function(f) {
+    data.table::data.table(
+      entry_id = f$entry_id %or% NA_character_,
+      trade_id = f$trade_id %or% NA_character_,
+      order_id = f$order_id %or% NA_character_,
+      product_id = f$product_id %or% NA_character_,
+      side = f$side %or% NA_character_,
+      trade_time = iso_to_datetime(f$trade_time %or% NA_character_),
+      trade_type = f$trade_type %or% NA_character_,
+      price = num_or_na(f$price),
+      size = num_or_na(f$size),
+      commission = num_or_na(f$commission),
+      size_in_quote = f$size_in_quote %or% NA,
+      liquidity_indicator = f$liquidity_indicator %or% NA_character_
+    )
+  })
+  return(data.table::rbindlist(rows, fill = TRUE)[])
+}
+
+#' Parse a Coinbase Order Preview into a one-row data.table
+#'
+#' @param data A preview response object, or NULL.
+#' @return A single-row [data.table::data.table]. Empty if NULL.
+#'
+#' @keywords internal
+#' @noRd
+parse_preview <- function(data) {
+  if (is.null(data) || length(data) == 0) {
+    return(data.table::data.table()[])
+  }
+  errs <- data$errs
+  err_str <- if (is.null(errs) || length(errs) == 0) NA_character_ else paste(unlist(errs), collapse = "; ")
+  return(data.table::data.table(
+    order_total = num_or_na(data$order_total),
+    commission_total = num_or_na(data$commission_total),
+    quote_size = num_or_na(data$quote_size),
+    base_size = num_or_na(data$base_size),
+    best_bid = num_or_na(data$best_bid),
+    best_ask = num_or_na(data$best_ask),
+    slippage = num_or_na(data$slippage),
+    errs = err_str,
+    preview_id = data$preview_id %or% NA_character_
   )[])
 }
 
