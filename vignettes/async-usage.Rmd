@@ -1,0 +1,360 @@
+---
+title: "Asynchronous Usage with coinbase"
+author: "Dereck Mezquita"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Asynchronous Usage with coinbase}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  results = "hold",
+  collapse = TRUE,
+  comment = "#>",
+  eval = FALSE
+)
+```
+
+Every R6 class in `coinbase` accepts an `async = TRUE` flag at construction.
+When enabled, all methods return `promises::promise` objects instead of
+direct values. This vignette shows how to consume those promises with
+`coro::async`/`await` and `later::run_now`.
+
+## Disclaimer
+
+This software is provided for educational and research purposes. Trading
+cryptocurrency carries substantial risk. You are solely responsible for any
+orders placed through this package. Use the order **preview** methods (which
+execute nothing) before placing live orders. The trading examples below run
+against the public market-data host where they need no auth; the order
+examples require credentials and are illustrative only.
+
+## Why Async?
+
+Synchronous HTTP blocks the R session while waiting for a reply.
+Asynchronous mode lets you fire off multiple requests and process results
+as they arrive — useful for bots that poll several products or place orders
+in parallel. The same `async` branch point covers every class:
+`CoinbaseMarketData`, `CoinbaseAccount`, `CoinbaseTrading`, and
+`CoinbaseFutures`.
+
+## Setup
+
+```{r load}
+box::use(
+  coinbase[CoinbaseMarketData, CoinbaseTrading, CoinbaseAccount, get_api_keys],
+  coro[async, await],
+  later[run_now, loop_empty],
+  promises[then, catch, promise_all]
+)
+```
+
+Public market data needs no credentials. For the authenticated classes,
+store your CDP API key in `.Renviron` (the PEM newlines escaped as `\n` on a
+single line) and let `get_api_keys()` read them — never hardcode secrets:
+
+```
+COINBASE_API_KEY_NAME="organizations/<org-uuid>/apiKeys/<key-uuid>"
+COINBASE_API_PRIVATE_KEY="-----BEGIN EC PRIVATE KEY-----\n...\n-----END EC PRIVATE KEY-----\n"
+```
+
+```{r keys}
+keys <- get_api_keys()
+```
+
+> **Event loop**: R does not have a built-in event loop like Node.js or
+> Python's `asyncio`. Promises only resolve when the event loop ticks via
+> `later::run_now()`. In scripts and vignettes, drain the loop with
+> `while (!loop_empty()) run_now()`. In **Shiny** apps the event loop runs
+> automatically.
+
+---
+
+## Basic Async: `coro::async` + `await`
+
+The most ergonomic way to work with promises in R is `coro::async`, which
+lets you write code that *looks* synchronous but runs asynchronously under
+the hood — just like TypeScript's `async`/`await`. Pass `async = TRUE` to
+any class constructor; its methods then return promises instead of
+data.tables:
+
+```{r async-basic}
+market <- CoinbaseMarketData$new(async = TRUE)
+
+get_ticker <- async(function() {
+  ticker <- await(market$get_ticker("BTC-USD"))
+  return(ticker)
+})
+
+get_ticker()
+while (!loop_empty()) {
+  run_now()
+}
+```
+
+> **Key pattern**: define an `async` function, `await` each API call,
+> return the result. Drain the event loop with `while (!loop_empty()) run_now()`.
+
+The resolved `get_ticker()` value is a single-row `data.table` with numeric
+`ask`, `bid`, `price`, `size`, `volume`, and a POSIXct `time`.
+
+---
+
+## Sequential Async: Multiple `await` Calls
+
+Chain several awaited calls in sequence — each one resolves before the next
+begins, just like `await` in TypeScript:
+
+```{r async-sequential}
+market <- CoinbaseMarketData$new(async = TRUE)
+results <- NULL
+
+fetch_data <- async(function() {
+  ticker <- await(market$get_ticker("BTC-USD"))
+  ohlcv <- await(market$get_ohlcv("BTC-USD", granularity = "1min"))
+  results <<- list(ticker = ticker, ohlcv = ohlcv)
+  return(invisible(NULL))
+})
+
+fetch_data()
+while (!loop_empty()) {
+  run_now()
+}
+results$ticker
+results$ohlcv
+```
+
+The `ohlcv` element is a `data.table` with columns `datetime`, `open`,
+`high`, `low`, `close`, `volume`.
+
+---
+
+## Concurrent Requests with `promise_all`
+
+When requests are independent, fire them simultaneously and collect all
+results at once — the async equivalent of `Promise.all()` in TypeScript:
+
+```{r async-parallel}
+market <- CoinbaseMarketData$new(async = TRUE)
+results <- NULL
+
+fetch_parallel <- async(function() {
+  # Launch both requests concurrently — no await yet, just collect promises
+  btc_promise <- market$get_ticker("BTC-USD")
+  eth_promise <- market$get_ticker("ETH-USD")
+  # Await them together — like Promise.all([btc, eth])
+  res <- await(promise_all(btc = btc_promise, eth = eth_promise))
+  results <<- res
+  return(invisible(NULL))
+})
+
+fetch_parallel()
+while (!loop_empty()) {
+  run_now()
+}
+results$btc
+results$eth
+```
+
+---
+
+## Practical Example: Polling a Watchlist Concurrently
+
+A common use case is polling tickers for a watchlist of products. With async
+mode, all requests fly in parallel rather than sequentially:
+
+```{r multi-symbol}
+market <- CoinbaseMarketData$new(async = TRUE)
+products <- c("BTC-USD", "ETH-USD", "SOL-USD", "DOGE-USD")
+all_tickers <- NULL
+
+fetch_watchlist <- async(function() {
+  # Fire all requests concurrently
+  ticker_promises <- lapply(products, function(p) {
+    return(market$get_ticker(p))
+  })
+  names(ticker_promises) <- products
+
+  # Await all at once
+  res <- await(do.call(promise_all, ticker_promises))
+  all_tickers <<- res
+  return(invisible(NULL))
+})
+
+fetch_watchlist()
+while (!loop_empty()) {
+  run_now()
+}
+
+# Each element is a single-row data.table with the ticker result
+all_tickers$`BTC-USD`
+all_tickers$`ETH-USD`
+```
+
+---
+
+## Promise Chaining with `then` / `catch`
+
+If you prefer the promise-pipeline style (common in JavaScript), resolve a
+promise with `then` and handle rejection with `catch`. This is the
+alternative to `coro::async`/`await`:
+
+```{r promise-chain}
+market <- CoinbaseMarketData$new(async = TRUE)
+chain_result <- NULL
+
+stats_promise <- market$get_ohlcv("BTC-USD", granularity = "1hour")
+handled <- then(stats_promise, function(ohlcv) {
+  chain_result <<- ohlcv
+  return(invisible(NULL))
+})
+catch(handled, function(err) {
+  message("Error: ", conditionMessage(err))
+  return(invisible(NULL))
+})
+
+while (!loop_empty()) {
+  run_now()
+}
+chain_result
+```
+
+---
+
+## Async Trading Example
+
+Trading methods return promises in async mode just like market data. Always
+**preview** an order (a dry run that places nothing) before submitting a live
+one. Sequential `await` keeps the flow readable:
+
+```{r async-trading}
+trading <- CoinbaseTrading$new(keys = keys, async = TRUE)
+results <- NULL
+
+preview_then_query <- async(function() {
+  # Dry run — executes nothing; validates the configuration
+  preview <- await(trading$preview_order(
+    "BTC-USD",
+    "BUY",
+    list(market_market_ioc = list(quote_size = "10"))
+  ))
+
+  # Query recent orders for this product
+  orders <- await(trading$get_orders(product_ids = "BTC-USD", limit = 10))
+
+  results <<- list(preview = preview, orders = orders)
+  return(invisible(NULL))
+})
+
+preview_then_query()
+while (!loop_empty()) {
+  run_now()
+}
+results$preview
+results$orders
+```
+
+To place a live order, call `add_order()` instead of `preview_order()`. It
+takes the same `product_id`, `side`, and `order_configuration`, plus optional
+`client_order_id`, `self_trade_prevention_id`, `leverage`, `margin_type`, and
+`retail_portfolio_id`; it resolves to a single-row `data.table` with
+`success`, the scalar `order_id`, `product_id`, `side`, `client_order_id`,
+and `failure_reason`.
+
+---
+
+## Error Handling with `tryCatch`
+
+Inside `async` functions, use `tryCatch` around `await` calls for structured
+error handling — `await()` re-throws the promise rejection as a normal R
+error, so the try/catch pattern works directly:
+
+```{r async-error-handling}
+market <- CoinbaseMarketData$new(async = TRUE)
+
+safe_fetch <- async(function() {
+  result <- tryCatch(
+    await(market$get_ticker("INVALID-PAIR")),
+    error = function(e) {
+      message("Caught error: ", conditionMessage(e))
+      return(NULL)
+    }
+  )
+  return(result)
+})
+
+safe_fetch()
+while (!loop_empty()) {
+  run_now()
+}
+```
+
+---
+
+## Running the Event Loop
+
+The critical piece of async R is the **event loop**. Promises do not resolve
+until the event loop ticks. In an interactive session or Shiny app, the event
+loop runs automatically. In scripts or vignettes, you must drive it manually.
+
+```r
+# Idiomatic event loop drain
+while (!later::loop_empty()) {
+  later::run_now()
+}
+```
+
+Or with a timeout guard:
+
+```r
+deadline <- Sys.time() + 30 # 30-second timeout
+while (!later::loop_empty() && Sys.time() < deadline) {
+  later::run_now(timeoutSecs = 0.1)
+}
+```
+
+In **Shiny** applications, the event loop is managed for you — simply return
+promises from reactive expressions and Shiny handles resolution.
+
+---
+
+## `coro::await` Cheat Sheet
+
+| Pattern | Works? | Notes |
+|---------|--------|-------|
+| `x <- await(promise)` | Yes | Standard pattern |
+| `x <- await(obj$method(arg))` | Yes | Await wrapping a call is fine |
+| `await(promise)` (bare, no assignment) | Yes | Side-effect only |
+| `await` inside loops/if/tryCatch | Yes | Full control flow support |
+| `x <<- await(promise)` | **No** | `<<-` not supported by coro |
+| `f(await(promise))` | **No** | Nested inside function args |
+
+> **Rule of thumb**: `await()` must appear as the RHS of a `<-` or as a bare
+> statement — never inside another expression. Return values from the async
+> function and extract them via `then()` or the `<<-` pattern outside the
+> async body.
+
+---
+
+## Choosing Sync vs Async
+
+| Scenario | Recommendation |
+|----------|---------------|
+| Interactive exploration | **Sync** — simpler, results print immediately |
+| Scripts fetching one endpoint | **Sync** — no event loop needed |
+| Bots polling multiple products | **Async** — concurrent requests reduce latency |
+| Shiny dashboards | **Async** — keeps the UI responsive |
+| Deep tick backfills | Use `get_trades_history()` / `coinbase_backfill_trades()` (handle batching internally) |
+
+---
+
+## Next Steps
+
+- See `vignette("getting-started")` for a tour of the package in synchronous mode.
+- Review the `CoinbaseMarketData`, `CoinbaseAccount`, `CoinbaseTrading`, and
+  `CoinbaseFutures` class documentation for full method coverage.
+- Explore the [Coinbase Advanced Trade API
+  documentation](https://docs.cdp.coinbase.com/advanced-trade/docs/welcome)
+  for endpoint details.

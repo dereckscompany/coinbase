@@ -17,4 +17,7 @@ articles:
   - title: Getting Started
     navbar: ~
     contents:
-      - demo
+      - getting-started
+      - async-usage
+      - data-shapes
+      - futures-shorting
