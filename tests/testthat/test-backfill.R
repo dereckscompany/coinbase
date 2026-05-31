@@ -15,8 +15,9 @@ test_that("coinbase_backfill_trades writes a header, resumes, and never duplicat
   expect_true(all(c("symbol", "trade_id", "side", "price", "size", "time") %in% names(d1)))
   expect_gt(nrow(d1), 0L)
 
-  # Resume: must not duplicate, must not error.
-  coinbase_backfill_trades("BTC-USD", from = start, file = f, sleep = 0, verbose = FALSE)
+  # Resume WITH a finite max_pages: exercises the gap-avoidance branch (max_pages
+  # is ignored on resume) and must not duplicate or error.
+  coinbase_backfill_trades("BTC-USD", from = start, file = f, max_pages = 1, sleep = 0, verbose = FALSE)
   d2 <- data.table::fread(f)
   expect_gte(nrow(d2), nrow(d1))
   expect_equal(sum(duplicated(d2$trade_id)), 0L)

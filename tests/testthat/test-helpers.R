@@ -1,11 +1,15 @@
 # Offline unit tests for pure helpers (no network).
 
-test_that("verify_symbol validates the BASE-QUOTE format", {
+test_that("verify_symbol accepts spot pairs and multi-segment futures IDs", {
   expect_true(verify_symbol("BTC-USD"))
   expect_true(verify_symbol("ETH-USD"))
+  # CFM expiring-futures IDs have more than two segments.
+  expect_true(verify_symbol("BIT-28FEB25-CDE"))
+  expect_true(verify_symbol("ETH-26SEP25-CDE"))
   expect_false(verify_symbol("BTCUSD"))
   expect_false(verify_symbol("BTC_USD"))
-  expect_false(verify_symbol("BTC-USD-EXTRA"))
+  expect_false(verify_symbol("BTC-"))
+  expect_false(verify_symbol(""))
 })
 
 test_that("to_snake_case converts camelCase and leaves snake_case intact", {

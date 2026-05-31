@@ -45,35 +45,46 @@ test_that("parse_create_order collapses failure/error objects to a string", {
   expect_true(no_list(dt))
 })
 
-test_that("parse_edit_order / parse_edit_preview have no list columns", {
+test_that("parse_edit_order / parse_edit_preview surface the REAL edit-error fields", {
+  # Real Coinbase shapes: edit errors carry edit_failure_reason /
+  # preview_failure_reason, NOT error_code.
   e <- parse_edit_order(list(
-    success = TRUE,
+    success = FALSE,
     success_response = list(order_id = "o1"),
-    errors = list(list(error_code = "X"))
+    errors = list(list(edit_failure_reason = "INVALID_PRICE_PRECISION"))
   ))
   expect_equal(e$order_id, "o1")
-  expect_equal(e$errors, "X")
+  expect_equal(e$errors, "INVALID_PRICE_PRECISION")
   expect_true(no_list(e))
 
   p <- parse_edit_preview(list(
-    errors = list(list(error_code = "Y")),
+    errors = list(list(preview_failure_reason = "PREVIEW_INVALID_LIMIT_PRICE_POST_ONLY")),
     order_total = "10",
     slippage = "0.001",
     base_size = "0.1"
   ))
-  expect_equal(p$errors, "Y")
+  expect_equal(p$errors, "PREVIEW_INVALID_LIMIT_PRICE_POST_ONLY")
   expect_equal(p$order_total, 10)
   expect_true(no_list(p))
+
+  # error_response (EditOrderError) uses error_details / edit_order_failure_reason
+  e2 <- parse_edit_order(list(
+    success = FALSE,
+    error_response = list(edit_order_failure_reason = "ORDER_NOT_EDITABLE")
+  ))
+  expect_equal(e2$errors, "ORDER_NOT_EDITABLE")
 })
 
 test_that("parse_cancel_results flattens per-order results with no list columns", {
+  # The real API types CancelOrderObject.failure_reason as a string enum.
   dt <- parse_cancel_results(list(
     list(order_id = "o1", success = TRUE, failure_reason = "UNKNOWN_CANCEL_FAILURE_REASON"),
-    list(order_id = "o2", success = FALSE, failure_reason = list(error = "NOT_FOUND"))
+    list(order_id = "o2", success = FALSE, failure_reason = "INVALID_CANCEL_REQUEST")
   ))
   expect_equal(nrow(dt), 2L)
   expect_equal(dt$order_id, c("o1", "o2"))
-  expect_equal(dt$failure_reason[2], "NOT_FOUND")
+  expect_true(dt$success[1])
+  expect_equal(dt$failure_reason[2], "INVALID_CANCEL_REQUEST")
   expect_true(no_list(dt))
 })
 

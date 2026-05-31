@@ -67,10 +67,14 @@ amount_value <- function(x) {
 
 #' Collapse a Coinbase Errors Array to a Single String
 #'
-#' Coinbase returns validation/preview errors as an array whose elements are
-#' usually objects (e.g. `{error, error_code, message}`) but are sometimes bare
-#' strings. This flattens the array to one human-readable string so it can live
-#' in a scalar column rather than a list column.
+#' Coinbase returns validation/preview/edit errors as an array whose elements are
+#' usually objects but are sometimes bare strings. The reason lives under
+#' different keys per endpoint — create orders use `error`/`error_details`/
+#' `new_order_failure_reason`/`preview_failure_reason`; edits use
+#' `edit_failure_reason`/`preview_failure_reason`/`edit_order_failure_reason`. We
+#' look each up by its exact name (treating empty strings as missing) and flatten
+#' the array to one human-readable string so it can live in a scalar column
+#' rather than a list column.
 #'
 #' @param errs A list of error objects/strings, or NULL.
 #' @return A single character string, or `NA_character_` if there are no errors.
@@ -81,18 +85,37 @@ collapse_errors <- function(errs) {
   if (is.null(errs) || length(errs) == 0) {
     return(NA_character_)
   }
+  # The reason may live under any of these keys depending on the endpoint;
+  # take the first non-empty one. Empty strings count as missing.
+  keys <- c(
+    "error_code",
+    "edit_failure_reason",
+    "preview_failure_reason",
+    "edit_order_failure_reason",
+    "new_order_failure_reason",
+    "failure_reason",
+    "error",
+    "message",
+    "reason",
+    "error_details"
+  )
   parts <- vapply(
     errs,
     function(e) {
-      if (is.list(e)) {
-        val <- e$error_code %or% (e$error %or% (e$message %or% (e$reason %or% NA_character_)))
-        return(as.character(val %or% NA_character_))
+      if (!is.list(e)) {
+        return(as.character(e))
       }
-      return(as.character(e))
+      for (key in keys) {
+        cand <- e[[key]]
+        if (!is.null(cand) && nzchar(as.character(cand)[1])) {
+          return(as.character(cand)[1])
+        }
+      }
+      return(NA_character_)
     },
     character(1)
   )
-  parts <- parts[!is.na(parts)]
+  parts <- parts[!is.na(parts) & nzchar(parts)]
   if (length(parts) == 0) {
     return(NA_character_)
   }

@@ -220,7 +220,8 @@ Default \code{Inf}.}
   }
   \subsection{Returns}{
     A long \link[data.table:data.table]{data.table::data.table} with columns \code{side}, \code{price},
-\code{size}, \code{num_orders}, or a promise thereof.
+\code{size}, and a third column that is \code{num_orders} (numeric) at levels 1-2
+or \code{order_id} (character) at level 3, or a promise thereof.
   }
 }
 

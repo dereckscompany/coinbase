@@ -3,18 +3,21 @@
 
 #' Verify a Coinbase Product Symbol
 #'
-#' Checks whether a symbol matches Coinbase's `"BASE-QUOTE"` format
-#' (e.g. `"BTC-USD"`): alphanumeric segments separated by a single dash.
+#' Checks whether a symbol is a dash-separated alphanumeric product ID. This
+#' covers spot pairs (`"BTC-USD"`) as well as the multi-segment expiring-futures
+#' IDs CFM uses (`"BIT-28FEB25-CDE"`) — anything with at least two segments
+#' joined by single dashes.
 #'
 #' @param product_id Character string; the symbol to verify.
 #' @return Logical; `TRUE` if valid, `FALSE` otherwise.
 #'
 #' @examples
 #' verify_symbol("BTC-USD") # TRUE
+#' verify_symbol("BIT-28FEB25-CDE") # TRUE
 #' verify_symbol("BTCUSD") # FALSE
 #' @export
 verify_symbol <- function(product_id) {
-  return(grepl("^[A-Za-z0-9]+-[A-Za-z0-9]+$", product_id))
+  return(grepl("^[A-Za-z0-9]+(-[A-Za-z0-9]+)+$", product_id))
 }
 
 #' Aggregate Tick Trades into OHLCV Bars

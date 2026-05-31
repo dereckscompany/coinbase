@@ -23,21 +23,6 @@ then_or_now <- function(x, fn, is_async = FALSE) {
   return(fn(x))
 }
 
-#' Build a Coinbase JWT for Request Authentication
-#'
-#' Constructs the short-lived JSON Web Token that authenticates Advanced Trade
-#' API requests. The token is signed with the credential's private key and
-#' carries the request method and path in its `uri` claim.
-#'
-#' ### Signing algorithm
-#' The algorithm is selected from the key type: EC (P-256) keys are signed with
-#' `ES256`; Ed25519 keys with `EdDSA`. Coinbase accepts either.
-#'
-#' ### The `uri` claim
-#' The `uri` claim must be `"<METHOD> <host><path>"` and **must exclude any query
-#' string** (e.g. `"GET api.coinbase.com/api/v3/brokerage/accounts"`, not
-#' `"...accounts?limit=3"`). A mismatched `uri` yields HTTP 401.
-#'
 #' Load a Coinbase Private Key (EC PEM or base64 Ed25519)
 #'
 #' Coinbase delivers two key formats: EC (P-256) keys as PEM
@@ -61,6 +46,13 @@ load_private_key <- function(private_key) {
   # (seed||public) bytes; the seed is the first 32. Wrap in the fixed PKCS#8
   # Ed25519 DER prefix and PEM-encode so openssl::read_key can parse it.
   raw <- openssl::base64_decode(gsub("\\s", "", private_key))
+  if (!length(raw) %in% c(32L, 64L)) {
+    rlang::abort(paste0(
+      "Invalid Ed25519 private key: expected 32 or 64 base64-decoded bytes, got ",
+      length(raw),
+      ". Check COINBASE_API_PRIVATE_KEY."
+    ))
+  }
   seed <- raw[seq_len(32L)]
   pkcs8_prefix <- as.raw(c(
     0x30,
@@ -89,6 +81,21 @@ load_private_key <- function(private_key) {
   return(openssl::read_key(pem))
 }
 
+#' Build a Coinbase JWT for Request Authentication
+#'
+#' Constructs the short-lived JSON Web Token that authenticates Advanced Trade
+#' API requests. The token is signed with the credential's private key and
+#' carries the request method and path in its `uri` claim.
+#'
+#' ### Signing algorithm
+#' The algorithm is selected from the key type: EC (P-256) keys are signed with
+#' `ES256`; Ed25519 keys with `EdDSA`. Coinbase accepts either.
+#'
+#' ### The `uri` claim
+#' The `uri` claim must be `"<METHOD> <host><path>"` and **must exclude any query
+#' string** (e.g. `"GET api.coinbase.com/api/v3/brokerage/accounts"`, not
+#' `"...accounts?limit=3"`). A mismatched `uri` yields HTTP 401.
+#'
 #' @param keys List of credentials from [get_api_keys()] (`api_key_name`,
 #'   `api_private_key`).
 #' @param method Character; HTTP method (e.g. `"GET"`, `"POST"`).

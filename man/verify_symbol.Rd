@@ -13,10 +13,13 @@ verify_symbol(product_id)
 Logical; \code{TRUE} if valid, \code{FALSE} otherwise.
 }
 \description{
-Checks whether a symbol matches Coinbase's \code{"BASE-QUOTE"} format
-(e.g. \code{"BTC-USD"}): alphanumeric segments separated by a single dash.
+Checks whether a symbol is a dash-separated alphanumeric product ID. This
+covers spot pairs (\code{"BTC-USD"}) as well as the multi-segment expiring-futures
+IDs CFM uses (\code{"BIT-28FEB25-CDE"}) — anything with at least two segments
+joined by single dashes.
 }
 \examples{
 verify_symbol("BTC-USD") # TRUE
+verify_symbol("BIT-28FEB25-CDE") # TRUE
 verify_symbol("BTCUSD") # FALSE
 }

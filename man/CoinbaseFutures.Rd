@@ -132,8 +132,8 @@ margin, unrealised PnL, liquidation thresholds).
 \if{html}{\out{<a id="method-CoinbaseFutures-schedule_sweep"></a>}}
 \if{latex}{\out{\hypertarget{method-CoinbaseFutures-schedule_sweep}{}}}
 \subsection{\code{CoinbaseFutures$schedule_sweep()}}{
-  Schedule a cash sweep from the spot (CBI) account into the
-futures (CFM) account to meet margin.
+  Schedule a cash sweep from the CFM futures account to the
+spot (CBI) USD wallet.
   \subsection{Usage}{
     \if{html}{\out{<div class="r">}}
     \preformatted{CoinbaseFutures$schedule_sweep(usd_amount)}

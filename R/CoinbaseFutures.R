@@ -85,19 +85,16 @@ CoinbaseFutures <- R6::R6Class(
       ))
     },
 
-    #' @description Schedule a cash sweep from the spot (CBI) account into the
-    #'   futures (CFM) account to meet margin.
+    #' @description Schedule a cash sweep from the CFM futures account to the
+    #'   spot (CBI) USD wallet.
     #' @param usd_amount Character/numeric; positive amount in USD to sweep.
     #' @return A single-row [data.table::data.table], or a promise thereof.
     schedule_sweep = function(usd_amount) {
-      amt <- suppressWarnings(as.numeric(usd_amount))
-      if (length(amt) != 1L || is.na(amt) || amt <= 0) {
-        rlang::abort("`usd_amount` must be a single positive number.")
-      }
+      amount <- coerce_positive_string(usd_amount, "usd_amount")
       return(private$.request(
         endpoint = "/api/v3/brokerage/cfm/sweeps/schedule",
         method = "POST",
-        body = list(usd_amount = as.character(usd_amount)),
+        body = list(usd_amount = amount),
         auth = TRUE,
         .parser = as_dt_row
       ))

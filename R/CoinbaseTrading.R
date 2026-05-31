@@ -173,12 +173,8 @@ CoinbaseTrading <- R6::R6Class(
       if (is.null(price) && is.null(size)) {
         rlang::abort("edit_order requires at least one of `price` or `size`.")
       }
-      if (!is.null(price)) {
-        assert::assert_scalar_positive(as.numeric(price))
-      }
-      if (!is.null(size)) {
-        assert::assert_scalar_positive(as.numeric(size))
-      }
+      price <- if (!is.null(price)) coerce_positive_string(price, "price") else NULL
+      size <- if (!is.null(size)) coerce_positive_string(size, "size") else NULL
       return(private$.request(
         endpoint = "/api/v3/brokerage/orders/edit",
         method = "POST",
@@ -198,12 +194,8 @@ CoinbaseTrading <- R6::R6Class(
       if (is.null(price) && is.null(size)) {
         rlang::abort("preview_edit_order requires at least one of `price` or `size`.")
       }
-      if (!is.null(price)) {
-        assert::assert_scalar_positive(as.numeric(price))
-      }
-      if (!is.null(size)) {
-        assert::assert_scalar_positive(as.numeric(size))
-      }
+      price <- if (!is.null(price)) coerce_positive_string(price, "price") else NULL
+      size <- if (!is.null(size)) coerce_positive_string(size, "size") else NULL
       return(private$.request(
         endpoint = "/api/v3/brokerage/orders/edit_preview",
         method = "POST",

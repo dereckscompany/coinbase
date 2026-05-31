@@ -7,18 +7,34 @@ test_that("load_private_key reads an EC PEM key", {
   expect_s3_class(k, "key")
 })
 
-test_that("load_private_key reconstructs a base64 Ed25519 key and it can sign", {
+test_that("load_private_key reconstructs the SAME Ed25519 key (pubkey matches, JWT verifies)", {
   ed <- openssl::ed25519_keygen()
   seed <- as.list(ed)$data
-  b64 <- openssl::base64_encode(seed)
-  k <- load_private_key(b64)
+  k <- load_private_key(openssl::base64_encode(seed))
   expect_s3_class(k, "key")
+  # Must be the original key, not merely a valid one: public keys must match.
+  expect_equal(as.list(k$pubkey)$data, as.list(ed$pubkey)$data)
+  # And a JWT signed with it must verify against that public key.
   tok <- jose::jwt_encode_sig(
     jose::jwt_claim(sub = "x", iss = "cdp"),
     key = k,
     header = list(kid = "x", nonce = "ab")
   )
-  expect_true(is.character(tok) && nchar(tok) > 0)
+  decoded <- jose::jwt_decode_sig(tok, pubkey = ed$pubkey)
+  expect_equal(decoded$sub, "x")
+})
+
+test_that("load_private_key handles 64-byte (seed||pub) Ed25519 input", {
+  ed <- openssl::ed25519_keygen()
+  seed <- as.list(ed)$data
+  pub <- as.list(ed$pubkey)$data
+  k <- load_private_key(openssl::base64_encode(c(seed, pub)))
+  expect_equal(as.list(k$pubkey)$data, pub)
+})
+
+test_that("load_private_key aborts on a wrong-length / junk base64 key", {
+  expect_error(load_private_key(openssl::base64_encode(as.raw(1:10))), "32 or 64")
+  expect_error(load_private_key("===="), "32 or 64")
 })
 
 test_that("build_jwt aborts clearly when credentials are empty", {

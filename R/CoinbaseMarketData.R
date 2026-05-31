@@ -172,7 +172,8 @@ CoinbaseMarketData <- R6::R6Class(
     #' @param level Integer; `1` (best bid/ask), `2` (top 50 aggregated), or
     #'   `3` (full, non-aggregated). Default 2.
     #' @return A long [data.table::data.table] with columns `side`, `price`,
-    #'   `size`, `num_orders`, or a promise thereof.
+    #'   `size`, and a third column that is `num_orders` (numeric) at levels 1-2
+    #'   or `order_id` (character) at level 3, or a promise thereof.
     get_orderbook = function(product_id, level = 2L) {
       validate_symbol(product_id)
       level <- as.integer(level)
