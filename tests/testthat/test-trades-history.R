@@ -20,7 +20,7 @@ make_mock_req_fn <- function(n) {
         size = "1",
         price = "100",
         time = format(
-          as.POSIXct(id, origin = "1970-01-01", tz = "UTC"),
+          lubridate::as_datetime(id, tz = "UTC"),
           "%Y-%m-%dT%H:%M:%SZ"
         )
       ))
@@ -58,7 +58,7 @@ test_that("max_pages caps the walk", {
 test_that("start bound stops the walk and filters older trades", {
   res <- coinbase_fetch_trades_history(
     product_id = "BTC-USD",
-    start = as.POSIXct(4000, origin = "1970-01-01", tz = "UTC"),
+    start = lubridate::as_datetime(4000, tz = "UTC"),
     page_limit = 1000L,
     .req_fn = make_mock_req_fn(5000L),
     is_async = FALSE
@@ -81,7 +81,7 @@ test_that("empty universe yields an empty data.table", {
 test_that("end bound drops trades newer than `end`", {
   res <- coinbase_fetch_trades_history(
     product_id = "BTC-USD",
-    end = as.POSIXct(3000, origin = "1970-01-01", tz = "UTC"),
+    end = lubridate::as_datetime(3000, tz = "UTC"),
     page_limit = 1000L,
     .req_fn = make_mock_req_fn(5000L),
     is_async = FALSE
@@ -101,7 +101,7 @@ test_that("a short final page (fewer than page_limit) ends the walk", {
         side = "buy",
         size = "1",
         price = "100",
-        time = format(as.POSIXct(id, origin = "1970-01-01", tz = "UTC"), "%Y-%m-%dT%H:%M:%SZ")
+        time = format(lubridate::as_datetime(id, tz = "UTC"), "%Y-%m-%dT%H:%M:%SZ")
       ))
     })
     return(.parser(raw))
@@ -127,7 +127,7 @@ test_that("duplicate trades across page overlap are deduped by trade_id", {
         side = "buy",
         size = "1",
         price = "100",
-        time = format(as.POSIXct(id, origin = "1970-01-01", tz = "UTC"), "%Y-%m-%dT%H:%M:%SZ")
+        time = format(lubridate::as_datetime(id, tz = "UTC"), "%Y-%m-%dT%H:%M:%SZ")
       ))
     })
     return(.parser(raw))

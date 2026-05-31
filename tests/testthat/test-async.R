@@ -79,7 +79,7 @@ test_that("coinbase_fetch_trades_history agrees sync vs async", {
         side = "buy",
         size = "1",
         price = "100",
-        time = format(as.POSIXct(id, origin = "1970-01-01", tz = "UTC"), "%Y-%m-%dT%H:%M:%SZ")
+        time = format(lubridate::as_datetime(id, tz = "UTC"), "%Y-%m-%dT%H:%M:%SZ")
       ))
     }))
   }

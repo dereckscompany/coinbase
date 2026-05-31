@@ -10,7 +10,7 @@ vignette: >
 
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(
-  collapse = TRUE,
+  results = "hold",
   comment = "#>",
   warning = FALSE,
   message = FALSE
@@ -360,8 +360,17 @@ trading$cancel_orders(order_ids = "1111aaaa-2222-bbbb-3333-cccccccccccc")
 
 ### Closing the Short
 
-To close a short you submit the opposite side — a `BUY` order on the same
-futures product, for the same number of contracts. Preview it first:
+The idiomatic way to flatten a position is `close_position()`, which submits the
+offsetting order for you. Pass the futures `product_id`, and optionally a `size`
+to close only part of the position (omit `size` to close all of it):
+
+```{r close-position}
+closed <- trading$close_position(product_id = "BIT-31OCT26-CDE", size = "1")
+closed[, .(success, order_id, product_id, side)]
+```
+
+You can also close manually by submitting the opposite side — a `BUY` order on
+the same futures product, for the same number of contracts. Preview it first:
 
 ```{r preview-close}
 preview <- trading$preview_order(

@@ -66,6 +66,7 @@ trading$get_orders(product_ids = "BTC-USD", limit = 10)
     \item \href{#method-CoinbaseTrading-edit_order}{\code{CoinbaseTrading$edit_order()}}
     \item \href{#method-CoinbaseTrading-preview_edit_order}{\code{CoinbaseTrading$preview_edit_order()}}
     \item \href{#method-CoinbaseTrading-cancel_orders}{\code{CoinbaseTrading$cancel_orders()}}
+    \item \href{#method-CoinbaseTrading-close_position}{\code{CoinbaseTrading$close_position()}}
     \item \href{#method-CoinbaseTrading-clone}{\code{CoinbaseTrading$clone()}}
   }
 }
@@ -341,6 +342,39 @@ RFC 3339 bounds on fill sequence time.}
   \subsection{Returns}{
     A \link[data.table:data.table]{data.table::data.table} of per-order cancel results, or a
 promise thereof.
+  }
+}
+
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-CoinbaseTrading-close_position"></a>}}
+\if{latex}{\out{\hypertarget{method-CoinbaseTrading-close_position}{}}}
+\subsection{\code{CoinbaseTrading$close_position()}}{
+  Place an order to close an open position for a product. This
+is the idiomatic way to flatten a position -- e.g. the short leg of a
+futures pair -- without hand-constructing an opposing order.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{CoinbaseTrading$close_position(
+  product_id,
+  size = NULL,
+  client_order_id = generate_client_order_id()
+)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{product_id}}{Character; the product whose position to close.}
+      \item{\code{size}}{Character/numeric or NULL; the amount (contracts / base size)
+to close. \code{NULL} closes the entire position.}
+      \item{\code{client_order_id}}{Character; idempotency key. Defaults to a fresh
+UUID via \code{\link[=generate_client_order_id]{generate_client_order_id()}}.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    A single-row \link[data.table:data.table]{data.table::data.table} with \code{success}, the scalar
+\code{order_id}, and flattened order details, or a promise thereof.
   }
 }
 

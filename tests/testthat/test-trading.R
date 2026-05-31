@@ -1,5 +1,27 @@
 # Offline tests for trading parsers and the client-order-id generator.
 
+test_that("close_position posts to the close-position endpoint and parses the response", {
+  # Ephemeral key so JWT signing succeeds; the inline mock answers the request.
+  sk <- openssl::ec_keygen("P-256")
+  keys <- list(api_key_name = "organizations/x/apiKeys/y", api_private_key = openssl::write_pem(sk))
+  seen <- list()
+  old <- options(httr2_mock = function(req) {
+    seen$url <<- req$url
+    seen$method <<- req$method
+    return(mock_cb_response(mock_cb_close_position_response()))
+  })
+  on.exit(options(old), add = TRUE)
+
+  tr <- CoinbaseTrading$new(keys = keys)
+  dt <- tr$close_position("BIT-28FEB25-CDE", size = "1")
+
+  expect_true(grepl("/orders/close_position", seen$url, fixed = TRUE))
+  expect_equal(seen$method, "POST")
+  expect_equal(nrow(dt), 1L)
+  expect_true("order_id" %in% names(dt))
+  expect_false(any(vapply(dt, is.list, logical(1))))
+})
+
 test_that("generate_client_order_id produces a v4 UUID", {
   id <- generate_client_order_id()
   expect_match(id, "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$")

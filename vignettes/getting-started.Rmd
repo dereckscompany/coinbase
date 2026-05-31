@@ -10,7 +10,7 @@ vignette: >
 
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(
-  collapse = TRUE,
+  results = "hold",
   comment = "#>",
   warning = FALSE,
   message = FALSE
@@ -184,8 +184,8 @@ sorted ascending by `time`:
 ```{r trades-history}
 ticks <- market$get_trades_history(
   product_id = "BTC-USD",
-  start = as.POSIXct("2026-05-31 00:00:00", tz = "UTC"),
-  end = as.POSIXct("2026-05-31 06:00:00", tz = "UTC")
+  start = lubridate::as_datetime("2026-05-31 00:00:00", tz = "UTC"),
+  end = lubridate::as_datetime("2026-05-31 06:00:00", tz = "UTC")
 )
 ticks[]
 ```
@@ -216,8 +216,8 @@ It writes a file to disk, so it is shown here but not executed:
 ```{r backfill, eval = FALSE}
 coinbase_backfill_trades(
   symbols = c("BTC-USD", "ETH-USD"),
-  from = as.POSIXct("2026-05-01", tz = "UTC"),
-  to = as.POSIXct("2026-05-30", tz = "UTC"),
+  from = lubridate::as_datetime("2026-05-01", tz = "UTC"),
+  to = lubridate::as_datetime("2026-05-30", tz = "UTC"),
   file = "trades.csv"
 )
 
@@ -416,6 +416,7 @@ main <- coro$async(function() {
 
   print(ticker)
   print(candles)
+  return(invisible(NULL))
 })
 
 main()
