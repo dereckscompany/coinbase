@@ -39,6 +39,9 @@
 #' | get_trades_history | GET /products/\{id\}/trades (paged) | No |
 #' | get_orderbook | GET /products/\{id\}/book | No |
 #' | get_ticker | GET /products/\{id\}/ticker | No |
+#' | get_stats | GET /products/stats | No |
+#' | get_product_stats | GET /products/\{id\}/stats | No |
+#' | get_best_bid_ask | GET /api/v3/brokerage/best_bid_ask | Yes |
 #' | get_server_time | GET /time | No |
 #'
 #' @examples
@@ -216,6 +219,56 @@ CoinbaseMarketData <- R6::R6Class(
           }
           return(dt[])
         }
+      ))
+    },
+
+    #' @description Retrieve 24-hour and 30-day stats for *every* product in a
+    #'   single call -- the basis for a market scanner / movers screener. Rank the
+    #'   returned table yourself by 24h change `(last - open) / open` for top
+    #'   gainers/losers, or by `volume` for the most active products. Uses the
+    #'   Exchange host's bulk stats endpoint.
+    #' @return A [data.table::data.table] with one row per product: `product_id`,
+    #'   `open`, `high`, `low`, `last`, `volume`, `volume_30day`, or a promise
+    #'   thereof.
+    get_stats = function() {
+      return(private$.request(
+        endpoint = "/products/stats",
+        auth = FALSE,
+        base_url = private$.exchange_base_url,
+        .parser = parse_stats
+      ))
+    },
+
+    #' @description Retrieve 24-hour and 30-day stats for a single product.
+    #' @param product_id Character; the pair symbol, e.g. `"BTC-USD"`.
+    #' @return A single-row [data.table::data.table] with `open`, `high`, `low`,
+    #'   `last`, `volume`, `volume_30day`, and the RFQ/conversion volumes, or a
+    #'   promise thereof.
+    get_product_stats = function(product_id) {
+      validate_symbol(product_id)
+      return(private$.request(
+        endpoint = paste0("/products/", product_id, "/stats"),
+        auth = FALSE,
+        base_url = private$.exchange_base_url,
+        .parser = parse_product_stats
+      ))
+    },
+
+    #' @description Retrieve the best bid/ask for many products in one call.
+    #'   Unlike the other `CoinbaseMarketData` methods, this hits the **Advanced
+    #'   Trade** host and therefore **requires credentials** (construct the client
+    #'   with `keys`).
+    #' @param product_ids Character vector or NULL; products to fetch. `NULL`
+    #'   returns the best bid/ask for all products.
+    #' @return A [data.table::data.table] with one row per product: `product_id`,
+    #'   `bid_price`, `bid_size`, `ask_price`, `ask_size`, `time`, or a promise
+    #'   thereof.
+    get_best_bid_ask = function(product_ids = NULL) {
+      return(private$.request(
+        endpoint = "/api/v3/brokerage/best_bid_ask",
+        query = list(product_ids = product_ids),
+        auth = TRUE,
+        .parser = parse_best_bid_ask
       ))
     },
 

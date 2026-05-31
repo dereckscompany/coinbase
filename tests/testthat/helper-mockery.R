@@ -250,6 +250,82 @@ mock_cb_time_response <- function() {
   ))
 }
 
+#' GET /products/stats -> parse_stats (bulk: object keyed by product id, each
+#' with stats_24hour + stats_30day sub-objects).
+mock_cb_stats_response <- function() {
+  return(list(
+    `BTC-USD` = list(
+      stats_24hour = list(
+        open = "73504.38",
+        high = "74156.59",
+        low = "73382",
+        last = "73958",
+        volume = "3477.63",
+        rfq_volume = "10.52"
+      ),
+      stats_30day = list(volume = "177000.51", rfq_volume = "1393.91")
+    ),
+    `ETH-USD` = list(
+      stats_24hour = list(
+        open = "2400.10",
+        high = "2455.00",
+        low = "2390.00",
+        last = "2440.55",
+        volume = "55000.00",
+        rfq_volume = "120.00"
+      ),
+      stats_30day = list(volume = "1500000.00", rfq_volume = "9000.00")
+    ),
+    `SOL-USD` = list(
+      stats_24hour = list(
+        open = "150.00",
+        high = "162.00",
+        low = "148.00",
+        last = "159.80",
+        volume = "900000.00",
+        rfq_volume = "500.00"
+      ),
+      stats_30day = list(volume = "28000000.00", rfq_volume = "40000.00")
+    )
+  ))
+}
+
+#' GET /products/{id}/stats -> parse_product_stats (single product 24h+30day).
+mock_cb_product_stats_response <- function() {
+  return(list(
+    open = "73504.38",
+    high = "74156.59",
+    low = "73382",
+    last = "73958",
+    volume = "3477.63040388",
+    volume_30day = "177000.51576397",
+    rfq_volume_24hour = "10.526361",
+    rfq_volume_30day = "1393.919788",
+    conversions_volume_24hour = "0.000000",
+    conversions_volume_30day = "0.000000"
+  ))
+}
+
+#' GET /api/v3/brokerage/best_bid_ask -> parse_best_bid_ask (pricebooks array).
+mock_cb_best_bid_ask_response <- function() {
+  return(list(
+    pricebooks = list(
+      list(
+        product_id = "BTC-USD",
+        bids = list(list(price = "74101.52", size = "0.43541938")),
+        asks = list(list(price = "74101.53", size = "0.08631688")),
+        time = "2026-05-31T04:58:29.012929Z"
+      ),
+      list(
+        product_id = "ETH-USD",
+        bids = list(list(price = "2440.50", size = "12.0")),
+        asks = list(list(price = "2440.60", size = "8.5")),
+        time = "2026-05-31T04:58:29.012929Z"
+      )
+    )
+  ))
+}
+
 # ---- Account Fixtures (Advanced Trade host) ----
 # Consumed by CoinbaseAccount.
 

@@ -22,6 +22,8 @@ box::use(./`helper-mockery`[
   mock_cb_candles_response, mock_cb_trades_response,
   mock_cb_book_response, mock_cb_book_l3_response,
   mock_cb_ticker_response, mock_cb_time_response,
+  mock_cb_stats_response, mock_cb_product_stats_response,
+  mock_cb_best_bid_ask_response,
   # Account (Advanced Trade host)
   mock_cb_accounts_response, mock_cb_account_response,
   mock_cb_fees_response, mock_cb_portfolios_response,
@@ -60,8 +62,14 @@ box::use(./`helper-mockery`[
   list(pattern = "/products/BTC-USD/book", fixture = function() return(mock_cb_book_response())),
   list(pattern = "/products/BTC-USD/ticker", fixture = function() return(mock_cb_ticker_response())),
 
+  # Per-product stats (before single product, before the bulk stats + list)
+  list(pattern = "/products/BTC-USD/stats", fixture = function() return(mock_cb_product_stats_response())),
+
   # Single product (before the product list)
   list(pattern = "/products/BTC-USD", fixture = function() return(mock_cb_product_response())),
+
+  # Bulk all-product stats (before the product list)
+  list(pattern = "/products/stats", fixture = function() return(mock_cb_stats_response())),
 
   # Product list
   list(pattern = "/products", fixture = function() return(mock_cb_products_response())),
@@ -78,6 +86,11 @@ box::use(./`helper-mockery`[
   list(pattern = "/api/v3/brokerage/transaction_summary", fixture = function() return(mock_cb_fees_response())),
   list(pattern = "/api/v3/brokerage/portfolios", fixture = function() return(mock_cb_portfolios_response())),
   list(pattern = "/api/v3/brokerage/key_permissions", fixture = function() return(mock_cb_key_permissions_response())),
+  list(
+    pattern = "/api/v3/brokerage/best_bid_ask",
+    fixture = function() return(mock_cb_best_bid_ask_response()),
+    method = "GET"
+  ),
 
   # ---- Trading (api.coinbase.com Advanced Trade) ----
 
