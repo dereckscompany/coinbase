@@ -17,10 +17,10 @@ The \code{async} parameter controls execution mode for all API methods:
 the same types.
 }
 
-Async mode requires the \code{promises} and \code{later} packages (both \code{Suggests}).
-Consume promises with \code{\link[coro:async]{coro::async()}} and \code{await()} or \code{\link[promises:then]{promises::then()}},
-and drive the event loop with \code{later::run_now()} (e.g.
-\code{while (!later::loop_empty()) later::run_now()}).
+Async mode requires the \code{promises} package (a \code{Suggests}). Consume promises
+with \code{\link[coro:async]{coro::async()}} and \code{await()} or \code{\link[promises:then]{promises::then()}}; to drive the event
+loop in a script use the (optional) \code{later} package, e.g.
+\code{while (!later::loop_empty()) later::run_now()}.
 }
 
 \subsection{Hosts}{

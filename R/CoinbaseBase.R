@@ -14,10 +14,10 @@
 #' - `async = TRUE`: methods return [promises::promise] objects that resolve to
 #'   the same types.
 #'
-#' Async mode requires the `promises` and `later` packages (both `Suggests`).
-#' Consume promises with [coro::async()] and `await()` or [promises::then()],
-#' and drive the event loop with `later::run_now()` (e.g.
-#' `while (!later::loop_empty()) later::run_now()`).
+#' Async mode requires the `promises` package (a `Suggests`). Consume promises
+#' with [coro::async()] and `await()` or [promises::then()]; to drive the event
+#' loop in a script use the (optional) `later` package, e.g.
+#' `while (!later::loop_empty()) later::run_now()`.
 #'
 #' ### Hosts
 #' Coinbase splits across two hosts. Authenticated trading and account endpoints
@@ -69,15 +69,8 @@ CoinbaseBase <- R6::R6Class(
       private$.is_async <- isTRUE(async)
 
       if (private$.is_async) {
-        missing <- Filter(function(p) !requireNamespace(p, quietly = TRUE), c("promises", "later"))
-        if (length(missing) > 0) {
-          rlang::abort(paste0(
-            "Async mode requires the package(s) ",
-            paste(sprintf("'%s'", missing), collapse = " and "),
-            ". Install with: install.packages(c(",
-            paste(sprintf("'%s'", missing), collapse = ", "),
-            "))"
-          ))
+        if (!requireNamespace("promises", quietly = TRUE)) {
+          rlang::abort("Async mode requires the 'promises' package. Install it with install.packages(\"promises\").")
         }
         private$.perform <- httr2::req_perform_promise
       } else {

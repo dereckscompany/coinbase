@@ -61,6 +61,25 @@ test_that("datetime_to_epoch does not overflow past 2038 (no NA)", {
   expect_equal(e, as.numeric(lubridate::as_datetime("2040-01-01T00:00:00Z")))
 })
 
+test_that("time_convert_from_coinbase handles ISO strings and epoch seconds", {
+  iso <- time_convert_from_coinbase("2026-05-31T18:40:29Z")
+  expect_true(inherits(iso, "POSIXct"))
+  expect_equal(format(iso, "%Y-%m-%d %H:%M:%S", tz = "UTC"), "2026-05-31 18:40:29")
+  secs <- time_convert_from_coinbase(1780000000, unit = "s")
+  expect_true(inherits(secs, "POSIXct"))
+  expect_equal(as.numeric(secs), 1780000000)
+})
+
+test_that("time_convert_to_coinbase emits ISO strings and epoch seconds, and round-trips", {
+  dt <- lubridate::as_datetime("2026-05-31T18:40:29Z")
+  expect_equal(time_convert_to_coinbase(dt), "2026-05-31T18:40:29Z")
+  expect_equal(time_convert_to_coinbase(dt, unit = "s"), as.numeric(dt))
+  # round-trip iso and seconds
+  expect_equal(time_convert_from_coinbase(time_convert_to_coinbase(dt)), dt)
+  expect_equal(time_convert_from_coinbase(time_convert_to_coinbase(dt, unit = "s"), unit = "s"), dt)
+  expect_error(time_convert_to_coinbase("not-a-posixct"), "POSIXct")
+})
+
 test_that("build_jwt produces a 3-part ES256 token with a query-less uri claim", {
   # Generate an ephemeral EC P-256 key so the test needs no real credentials.
   sk <- openssl::ec_keygen("P-256")

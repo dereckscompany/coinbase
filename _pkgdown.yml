@@ -1,17 +1,61 @@
 url: https://dereckscompany.github.io/coinbase/
 
+figures:
+  fig.path: "man/figures/"
+
+authors:
+  Dereck Mezquita:
+    href: https://derecksnotes.com
+
 template:
   bootstrap: 5
 
 navbar:
   structure:
-    left: [intro, reference, articles]
-    right: [search, github]
+    left: [home, reference, articles]
+    right: [github, search]
   components:
     github:
-      icon: fa-github
+      icon: fa-github fa-lg
       href: https://github.com/dereckscompany/coinbase
-      aria-label: GitHub repository
+      target: _blank
+
+reference:
+  - title: API Client Classes
+    desc: R6 classes for interacting with the Coinbase API
+    contents:
+      - CoinbaseBase
+      - CoinbaseMarketData
+      - CoinbaseAccount
+      - CoinbaseTrading
+      - CoinbaseFutures
+
+  - title: Configuration
+    desc: API credential and endpoint helpers
+    contents:
+      - get_api_keys
+      - get_base_url
+      - get_exchange_base_url
+      - generate_client_order_id
+
+  - title: Low-Level Request Helpers
+    desc: Functions for building Coinbase API requests
+    contents:
+      - coinbase_build_request
+      - verify_symbol
+
+  - title: Backfill and Data
+    desc: Bulk data download, tick aggregation, and included datasets
+    contents:
+      - coinbase_backfill_trades
+      - trades_to_ohlcv
+      - coinbase_ohlcv
+
+  - title: Utilities
+    desc: Time conversion helpers
+    contents:
+      - time_convert_from_coinbase
+      - time_convert_to_coinbase
 
 articles:
   - title: Getting Started
@@ -19,5 +63,4 @@ articles:
     contents:
       - getting-started
       - async-usage
-      - data-shapes
       - futures-shorting
