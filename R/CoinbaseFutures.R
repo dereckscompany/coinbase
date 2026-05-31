@@ -77,7 +77,7 @@ CoinbaseFutures <- R6::R6Class(
     #' @param product_id Character; the futures product ID.
     #' @return A single-row [data.table::data.table], or a promise thereof.
     get_position = function(product_id) {
-      assert::assert_scalar_character(product_id)
+      validate_symbol(product_id)
       return(private$.request(
         endpoint = paste0("/api/v3/brokerage/cfm/positions/", product_id),
         auth = TRUE,
@@ -87,9 +87,13 @@ CoinbaseFutures <- R6::R6Class(
 
     #' @description Schedule a cash sweep from the spot (CBI) account into the
     #'   futures (CFM) account to meet margin.
-    #' @param usd_amount Character/numeric; amount in USD to sweep.
+    #' @param usd_amount Character/numeric; positive amount in USD to sweep.
     #' @return A single-row [data.table::data.table], or a promise thereof.
     schedule_sweep = function(usd_amount) {
+      amt <- suppressWarnings(as.numeric(usd_amount))
+      if (length(amt) != 1L || is.na(amt) || amt <= 0) {
+        rlang::abort("`usd_amount` must be a single positive number.")
+      }
       return(private$.request(
         endpoint = "/api/v3/brokerage/cfm/sweeps/schedule",
         method = "POST",
@@ -146,15 +150,17 @@ CoinbaseFutures <- R6::R6Class(
     },
 
     #' @description Retrieve the current margin window.
-    #' @param margin_profile_type Character or NULL; optional margin profile
-    #'   filter.
-    #' @return A single-row [data.table::data.table], or a promise thereof.
-    get_current_margin_window = function(margin_profile_type = NULL) {
+    #' @param margin_profile_type Character; the margin profile type (required by
+    #'   the API), e.g. `"MARGIN_PROFILE_TYPE_RETAIL_INTRADAY_MARGIN_1"`.
+    #' @return A single-row [data.table::data.table] with `margin_window_type`,
+    #'   `end_time`, and the killswitch flags, or a promise thereof.
+    get_current_margin_window = function(margin_profile_type) {
+      assert::assert_scalar_character(margin_profile_type)
       return(private$.request(
         endpoint = "/api/v3/brokerage/cfm/intraday/current_margin_window",
         query = list(margin_profile_type = margin_profile_type),
         auth = TRUE,
-        .parser = as_dt_row
+        .parser = parse_margin_window
       ))
     }
   )

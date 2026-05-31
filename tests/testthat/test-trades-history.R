@@ -72,8 +72,67 @@ test_that("empty universe yields an empty data.table", {
   res <- coinbase_fetch_trades_history(
     product_id = "BTC-USD",
     page_limit = 1000L,
-    .req_fn = function(endpoint, query, .parser) .parser(list()),
+    .req_fn = function(endpoint, query, .parser) return(.parser(list())),
     is_async = FALSE
   )
   expect_equal(nrow(res), 0L)
+})
+
+test_that("end bound drops trades newer than `end`", {
+  res <- coinbase_fetch_trades_history(
+    product_id = "BTC-USD",
+    end = as.POSIXct(3000, origin = "1970-01-01", tz = "UTC"),
+    page_limit = 1000L,
+    .req_fn = make_mock_req_fn(5000L),
+    is_async = FALSE
+  )
+  expect_true(max(as.numeric(res$time)) <= 3000)
+})
+
+test_that("a short final page (fewer than page_limit) ends the walk", {
+  calls <- 0
+  req <- function(endpoint, query, .parser) {
+    calls <<- calls + 1L
+    # 10 trades total, page_limit 1000 -> one short page, then stop
+    ids <- if (is.null(query$after)) 10:1 else integer(0)
+    raw <- lapply(ids, function(id) {
+      return(list(
+        trade_id = id,
+        side = "buy",
+        size = "1",
+        price = "100",
+        time = format(as.POSIXct(id, origin = "1970-01-01", tz = "UTC"), "%Y-%m-%dT%H:%M:%SZ")
+      ))
+    })
+    return(.parser(raw))
+  }
+  res <- coinbase_fetch_trades_history("BTC-USD", page_limit = 1000L, .req_fn = req, is_async = FALSE)
+  expect_equal(nrow(res), 10L)
+  expect_equal(calls, 1L)
+})
+
+test_that("duplicate trades across page overlap are deduped by trade_id", {
+  # Mock returns the boundary trade inclusively (id <= after), creating overlap.
+  req <- function(endpoint, query, .parser) {
+    after <- query$after
+    ids <- seq_len(1500L)
+    if (!is.null(after)) {
+      ids <- ids[ids <= after]
+    }
+    ids <- sort(ids, decreasing = TRUE)
+    ids <- ids[seq_len(min(query$limit, length(ids)))]
+    raw <- lapply(ids, function(id) {
+      return(list(
+        trade_id = id,
+        side = "buy",
+        size = "1",
+        price = "100",
+        time = format(as.POSIXct(id, origin = "1970-01-01", tz = "UTC"), "%Y-%m-%dT%H:%M:%SZ")
+      ))
+    })
+    return(.parser(raw))
+  }
+  res <- coinbase_fetch_trades_history("BTC-USD", page_limit = 1000L, .req_fn = req, is_async = FALSE)
+  expect_equal(length(unique(res$trade_id)), nrow(res))
+  expect_equal(nrow(res), 1500L)
 })

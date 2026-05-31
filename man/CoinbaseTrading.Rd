@@ -102,8 +102,9 @@ UUID via \code{\link[=generate_client_order_id]{generate_client_order_id()}}.}
     \if{html}{\out{</div>}}
   }
   \subsection{Returns}{
-    A single-row \link[data.table:data.table]{data.table::data.table} describing the result, or a
-promise thereof.
+    A single-row \link[data.table:data.table]{data.table::data.table} with \code{success}, the scalar
+\code{order_id}, \code{product_id}, \code{side}, \code{client_order_id}, \code{failure_reason},
+and flattened order-configuration columns, or a promise thereof.
   }
 }
 

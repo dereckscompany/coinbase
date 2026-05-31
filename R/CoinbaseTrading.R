@@ -56,11 +56,14 @@ CoinbaseTrading <- R6::R6Class(
     #' @param order_configuration Named list; the one-key order configuration.
     #' @param client_order_id Character; idempotency key. Defaults to a fresh
     #'   UUID via [generate_client_order_id()].
-    #' @return A single-row [data.table::data.table] describing the result, or a
-    #'   promise thereof.
+    #' @return A single-row [data.table::data.table] with `success`, the scalar
+    #'   `order_id`, `product_id`, `side`, `client_order_id`, `failure_reason`,
+    #'   and flattened order-configuration columns, or a promise thereof.
     add_order = function(product_id, side, order_configuration, client_order_id = generate_client_order_id()) {
-      assert::assert_scalar_character(product_id)
-      assert::assert_scalar_character(side)
+      validate_symbol(product_id)
+      side <- validate_side(side)
+      validate_order_config(order_configuration)
+      assert::assert_scalar_character(client_order_id)
       body <- list(
         client_order_id = client_order_id,
         product_id = product_id,
@@ -72,7 +75,7 @@ CoinbaseTrading <- R6::R6Class(
         method = "POST",
         body = body,
         auth = TRUE,
-        .parser = function(b) as_dt_row(b)
+        .parser = parse_create_order
       ))
     },
 
@@ -84,8 +87,9 @@ CoinbaseTrading <- R6::R6Class(
     #' @param order_configuration Named list; the one-key order configuration.
     #' @return A single-row [data.table::data.table], or a promise thereof.
     preview_order = function(product_id, side, order_configuration) {
-      assert::assert_scalar_character(product_id)
-      assert::assert_scalar_character(side)
+      validate_symbol(product_id)
+      side <- validate_side(side)
+      validate_order_config(order_configuration)
       body <- list(
         product_id = product_id,
         side = side,
@@ -166,12 +170,21 @@ CoinbaseTrading <- R6::R6Class(
     #' @return A single-row [data.table::data.table], or a promise thereof.
     edit_order = function(order_id, price = NULL, size = NULL) {
       assert::assert_scalar_character(order_id)
+      if (is.null(price) && is.null(size)) {
+        rlang::abort("edit_order requires at least one of `price` or `size`.")
+      }
+      if (!is.null(price)) {
+        assert::assert_scalar_positive(as.numeric(price))
+      }
+      if (!is.null(size)) {
+        assert::assert_scalar_positive(as.numeric(size))
+      }
       return(private$.request(
         endpoint = "/api/v3/brokerage/orders/edit",
         method = "POST",
         body = list(order_id = order_id, price = price, size = size),
         auth = TRUE,
-        .parser = as_dt_row
+        .parser = parse_edit_order
       ))
     },
 
@@ -182,12 +195,21 @@ CoinbaseTrading <- R6::R6Class(
     #' @return A single-row [data.table::data.table], or a promise thereof.
     preview_edit_order = function(order_id, price = NULL, size = NULL) {
       assert::assert_scalar_character(order_id)
+      if (is.null(price) && is.null(size)) {
+        rlang::abort("preview_edit_order requires at least one of `price` or `size`.")
+      }
+      if (!is.null(price)) {
+        assert::assert_scalar_positive(as.numeric(price))
+      }
+      if (!is.null(size)) {
+        assert::assert_scalar_positive(as.numeric(size))
+      }
       return(private$.request(
         endpoint = "/api/v3/brokerage/orders/edit_preview",
         method = "POST",
         body = list(order_id = order_id, price = price, size = size),
         auth = TRUE,
-        .parser = as_dt_row
+        .parser = parse_edit_preview
       ))
     },
 
@@ -196,12 +218,16 @@ CoinbaseTrading <- R6::R6Class(
     #' @return A [data.table::data.table] of per-order cancel results, or a
     #'   promise thereof.
     cancel_orders = function(order_ids) {
+      assert::assert_character(order_ids)
+      if (length(order_ids) == 0L) {
+        rlang::abort("`order_ids` must contain at least one order id.")
+      }
       return(private$.request(
         endpoint = "/api/v3/brokerage/orders/batch_cancel",
         method = "POST",
         body = list(order_ids = as.list(order_ids)),
         auth = TRUE,
-        .parser = function(b) as_dt_list(b$results)
+        .parser = function(b) parse_cancel_results(b$results)
       ))
     }
   ),

@@ -67,10 +67,15 @@ CoinbaseBase <- R6::R6Class(
       private$.is_async <- isTRUE(async)
 
       if (private$.is_async) {
-        if (!requireNamespace("promises", quietly = TRUE)) {
-          rlang::abort(
-            "Package 'promises' is required for async mode. Install with: install.packages('promises')"
-          )
+        missing <- Filter(function(p) !requireNamespace(p, quietly = TRUE), c("promises", "later"))
+        if (length(missing) > 0) {
+          rlang::abort(paste0(
+            "Async mode requires the package(s) ",
+            paste(sprintf("'%s'", missing), collapse = " and "),
+            ". Install with: install.packages(c(",
+            paste(sprintf("'%s'", missing), collapse = ", "),
+            "))"
+          ))
         }
         private$.perform <- httr2::req_perform_promise
       } else {

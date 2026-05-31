@@ -142,7 +142,7 @@ futures (CFM) account to meet margin.
   \subsection{Arguments}{
     \if{html}{\out{<div class="arguments">}}
     \describe{
-      \item{\code{usd_amount}}{Character/numeric; amount in USD to sweep.}
+      \item{\code{usd_amount}}{Character/numeric; positive amount in USD to sweep.}
     }
     \if{html}{\out{</div>}}
   }
@@ -226,19 +226,20 @@ futures (CFM) account to meet margin.
   Retrieve the current margin window.
   \subsection{Usage}{
     \if{html}{\out{<div class="r">}}
-    \preformatted{CoinbaseFutures$get_current_margin_window(margin_profile_type = NULL)}
+    \preformatted{CoinbaseFutures$get_current_margin_window(margin_profile_type)}
     \if{html}{\out{</div>}}
   }
   \subsection{Arguments}{
     \if{html}{\out{<div class="arguments">}}
     \describe{
-      \item{\code{margin_profile_type}}{Character or NULL; optional margin profile
-filter.}
+      \item{\code{margin_profile_type}}{Character; the margin profile type (required by
+the API), e.g. \code{"MARGIN_PROFILE_TYPE_RETAIL_INTRADAY_MARGIN_1"}.}
     }
     \if{html}{\out{</div>}}
   }
   \subsection{Returns}{
-    A single-row \link[data.table:data.table]{data.table::data.table}, or a promise thereof.
+    A single-row \link[data.table:data.table]{data.table::data.table} with \code{margin_window_type},
+\code{end_time}, and the killswitch flags, or a promise thereof.
   }
 }
 

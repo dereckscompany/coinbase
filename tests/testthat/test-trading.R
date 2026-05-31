@@ -91,7 +91,8 @@ test_that("parse_preview flattens result and joins error list to a string", {
     best_bid = "73900",
     best_ask = "73901",
     slippage = "0.0001",
-    errs = list("PREVIEW_INSUFFICIENT_FUND"),
+    # Real Coinbase shape: errs is a list of OBJECTS, not bare strings.
+    errs = list(list(error_code = "PREVIEW_INSUFFICIENT_FUND", message = "Insufficient funds")),
     preview_id = "p1"
   )
   dt <- parse_preview(data)

@@ -17,5 +17,8 @@ utils::globalVariables(c(
   "time",
   # Backfill columns
   "symbol",
-  "max_time"
+  "max_time",
+  # Order book columns (assigned via := in parse_orderbook)
+  "num_orders",
+  "order_id"
 ))

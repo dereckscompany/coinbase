@@ -36,6 +36,7 @@
 #' | get_product | GET /products/\{id\} | No |
 #' | get_ohlcv | GET /products/\{id\}/candles | No |
 #' | get_trades | GET /products/\{id\}/trades | No |
+#' | get_trades_history | GET /products/\{id\}/trades (paged) | No |
 #' | get_orderbook | GET /products/\{id\}/book | No |
 #' | get_ticker | GET /products/\{id\}/ticker | No |
 #' | get_server_time | GET /time | No |
@@ -72,7 +73,7 @@ CoinbaseMarketData <- R6::R6Class(
     #' @param product_id Character; the pair symbol, e.g. `"BTC-USD"`.
     #' @return A single-row [data.table::data.table], or a promise thereof.
     get_product = function(product_id) {
-      assert::assert_scalar_character(product_id)
+      validate_symbol(product_id)
       return(private$.request(
         endpoint = paste0("/products/", product_id),
         auth = FALSE,
@@ -91,7 +92,7 @@ CoinbaseMarketData <- R6::R6Class(
     #' @return A [data.table::data.table] with columns `datetime`, `open`,
     #'   `high`, `low`, `close`, `volume`, or a promise thereof.
     get_ohlcv = function(product_id, granularity = "1min", start = NULL, end = NULL) {
-      assert::assert_scalar_character(product_id)
+      validate_symbol(product_id)
       if (!granularity %in% names(.COINBASE_GRANULARITY_MAP)) {
         rlang::abort(paste0(
           "Invalid granularity '",
@@ -122,7 +123,8 @@ CoinbaseMarketData <- R6::R6Class(
     #' @return A [data.table::data.table] with columns `trade_id`, `side`,
     #'   `price`, `size`, `time`, or a promise thereof.
     get_trades = function(product_id, limit = 1000L, after = NULL) {
-      assert::assert_scalar_character(product_id)
+      validate_symbol(product_id)
+      assert::assert_scalar_positive_integer(as.integer(limit))
       return(private$.request(
         endpoint = paste0("/products/", product_id, "/trades"),
         query = list(limit = as.integer(limit), after = after),
@@ -146,7 +148,7 @@ CoinbaseMarketData <- R6::R6Class(
     #' @return A [data.table::data.table] with columns `trade_id`, `side`,
     #'   `price`, `size`, `time` sorted ascending by `time`, or a promise thereof.
     get_trades_history = function(product_id, start = NULL, end = NULL, max_pages = Inf) {
-      assert::assert_scalar_character(product_id)
+      validate_symbol(product_id)
       return(coinbase_fetch_trades_history(
         product_id = product_id,
         start = start,
@@ -172,13 +174,17 @@ CoinbaseMarketData <- R6::R6Class(
     #' @return A long [data.table::data.table] with columns `side`, `price`,
     #'   `size`, `num_orders`, or a promise thereof.
     get_orderbook = function(product_id, level = 2L) {
-      assert::assert_scalar_character(product_id)
+      validate_symbol(product_id)
+      level <- as.integer(level)
+      if (!level %in% c(1L, 2L, 3L)) {
+        rlang::abort("`level` must be 1, 2, or 3.")
+      }
       return(private$.request(
         endpoint = paste0("/products/", product_id, "/book"),
-        query = list(level = as.integer(level)),
+        query = list(level = level),
         auth = FALSE,
         base_url = private$.exchange_base_url,
-        .parser = parse_orderbook
+        .parser = function(data) parse_orderbook(data, level = level)
       ))
     },
 
@@ -187,7 +193,7 @@ CoinbaseMarketData <- R6::R6Class(
     #' @param product_id Character; the pair symbol, e.g. `"BTC-USD"`.
     #' @return A single-row [data.table::data.table], or a promise thereof.
     get_ticker = function(product_id) {
-      assert::assert_scalar_character(product_id)
+      validate_symbol(product_id)
       return(private$.request(
         endpoint = paste0("/products/", product_id, "/ticker"),
         auth = FALSE,

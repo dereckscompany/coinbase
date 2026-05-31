@@ -36,6 +36,25 @@ test_that("iso_to_datetime parses Z timestamps to UTC POSIXct", {
   expect_equal(format(x, "%Y-%m-%d %H:%M:%S", tz = "UTC"), "2026-05-30 18:40:29")
 })
 
+test_that("iso_to_datetime handles fractional seconds, NA, and vectors", {
+  # fractional/nanosecond precision (as the ticker returns)
+  frac <- iso_to_datetime("2026-05-30T18:40:29.521516921Z")
+  expect_true(inherits(frac, "POSIXct"))
+  expect_equal(format(frac, "%Y-%m-%d %H:%M:%S", tz = "UTC"), "2026-05-30 18:40:29")
+  # NA passthrough
+  expect_true(is.na(iso_to_datetime(NA_character_)))
+  # vectorised (suppress the expected parse warning on the NA element)
+  v <- suppressWarnings(iso_to_datetime(c("2026-01-01T00:00:00Z", NA_character_, "2026-01-02T00:00:00Z")))
+  expect_length(v, 3L)
+  expect_true(is.na(v[2]))
+  expect_false(is.unsorted(c(as.numeric(v[1]), as.numeric(v[3]))))
+})
+
+test_that("datetime_to_epoch round-trips and s_to_datetime is UTC", {
+  expect_equal(datetime_to_epoch(s_to_datetime(1780000000)), 1780000000L)
+  expect_true(inherits(s_to_datetime(0), "POSIXct"))
+})
+
 test_that("build_jwt produces a 3-part ES256 token with a query-less uri claim", {
   # Generate an ephemeral EC P-256 key so the test needs no real credentials.
   sk <- openssl::ec_keygen("P-256")

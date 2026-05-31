@@ -57,6 +57,9 @@ coinbase_backfill_trades <- function(
   if (is.null(symbols) || length(symbols) == 0L) {
     rlang::abort("`symbols` must be a non-empty character vector.")
   }
+  for (s in symbols) {
+    validate_symbol(s)
+  }
   if (missing(file) || !is.character(file) || length(file) != 1L) {
     rlang::abort("`file` must be a single path string.")
   }
@@ -80,6 +83,7 @@ coinbase_backfill_trades <- function(
   last_times <- list()
   existing_ids <- list()
   file_exists <- file.exists(file)
+  resumable <- FALSE
   if (file_exists) {
     existing <- data.table::fread(file)
     if (nrow(existing) > 0L && all(c("symbol", "time", "trade_id") %in% names(existing))) {
@@ -88,19 +92,40 @@ coinbase_backfill_trades <- function(
       last_times <- stats::setNames(as.list(maxes$max_time), maxes$symbol)
       ids <- existing[, list(ids = list(unique(trade_id))), by = symbol]
       existing_ids <- stats::setNames(ids$ids, ids$symbol)
+      resumable <- TRUE
+    } else if (nrow(existing) > 0L) {
+      # File exists, has rows, but wrong columns: refuse to append headerless,
+      # mismatched data onto it.
+      rlang::abort(paste0(
+        "Output file '",
+        file,
+        "' exists but lacks the expected columns ",
+        "(symbol, trade_id, side, price, size, time). Refusing to append; ",
+        "remove or fix the file."
+      ))
     }
   }
 
   failures <- list()
-  wrote_any <- file_exists
+  # Only append (skip header) when there is a valid, non-empty file to extend.
+  wrote_any <- resumable
   total <- length(symbols)
 
   for (i in seq_len(total)) {
     sym <- symbols[[i]]
     sym_from <- from
+    # On resume, walk the full window back to the last stored trade: combining a
+    # finite max_pages with a resume could truncate the newest pages and strand a
+    # permanent gap (the next resume jumps past it from max(time)).
+    sym_max_pages <- max_pages
     if (!is.null(last_times[[sym]])) {
-      # Inclusive resume; boundary-second duplicates are filtered by trade_id below.
       sym_from <- last_times[[sym]]
+      if (is.finite(max_pages)) {
+        sym_max_pages <- Inf
+        if (verbose) {
+          rlang::inform(sprintf("[%d/%d] %s: resuming; ignoring max_pages to avoid a gap", i, total, sym))
+        }
+      }
     }
 
     if (sym_from > to) {
@@ -111,7 +136,7 @@ coinbase_backfill_trades <- function(
     }
 
     result <- tryCatch(
-      client$get_trades_history(sym, start = sym_from, end = to, max_pages = max_pages),
+      client$get_trades_history(sym, start = sym_from, end = to, max_pages = sym_max_pages),
       error = function(e) e
     )
 

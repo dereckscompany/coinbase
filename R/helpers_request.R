@@ -6,8 +6,9 @@
 #' Apply Continuation to a Value or Promise
 #'
 #' Routes a value through `fn` either synchronously or asynchronously depending
-#' on whether the caller is in async mode. This is the single sync/async
-#' branching point in the package -- called only from `.request()`.
+#' on whether the caller is in async mode. This is the package's single
+#' sync/async branching idiom; it is called from `coinbase_build_request()`,
+#' `coinbase_paginate_cursor()`, and `coinbase_fetch_trades_history()`.
 #'
 #' @param x A value or a [promises::promise].
 #' @param fn A function to apply to the resolved value of `x`.
@@ -37,6 +38,57 @@ then_or_now <- function(x, fn, is_async = FALSE) {
 #' string** (e.g. `"GET api.coinbase.com/api/v3/brokerage/accounts"`, not
 #' `"...accounts?limit=3"`). A mismatched `uri` yields HTTP 401.
 #'
+#' Load a Coinbase Private Key (EC PEM or base64 Ed25519)
+#'
+#' Coinbase delivers two key formats: EC (P-256) keys as PEM
+#' (`-----BEGIN EC PRIVATE KEY-----`, signed with ES256), and the newer
+#' recommended Ed25519 keys as a bare base64 string of the raw key bytes (signed
+#' with EdDSA). [openssl::read_key()] reads PEM directly but treats a bare base64
+#' string as a file path; for Ed25519 we wrap the raw 32-byte seed in a PKCS#8
+#' DER envelope and PEM-encode it so `read_key()` can load it.
+#'
+#' @param private_key Character; the credential private key (PEM or base64).
+#' @return An openssl key object suitable for [jose::jwt_encode_sig()].
+#'
+#' @importFrom openssl read_key base64_decode base64_encode
+#' @keywords internal
+#' @noRd
+load_private_key <- function(private_key) {
+  if (grepl("^\\s*-----BEGIN", private_key)) {
+    return(openssl::read_key(private_key))
+  }
+  # Bare base64 => raw Ed25519 key bytes. Coinbase ships 32 (seed) or 64
+  # (seed||public) bytes; the seed is the first 32. Wrap in the fixed PKCS#8
+  # Ed25519 DER prefix and PEM-encode so openssl::read_key can parse it.
+  raw <- openssl::base64_decode(gsub("\\s", "", private_key))
+  seed <- raw[seq_len(32L)]
+  pkcs8_prefix <- as.raw(c(
+    0x30,
+    0x2e,
+    0x02,
+    0x01,
+    0x00,
+    0x30,
+    0x05,
+    0x06,
+    0x03,
+    0x2b,
+    0x65,
+    0x70,
+    0x04,
+    0x22,
+    0x04,
+    0x20
+  ))
+  der <- c(pkcs8_prefix, seed)
+  pem <- paste0(
+    "-----BEGIN PRIVATE KEY-----\n",
+    openssl::base64_encode(der, linebreaks = TRUE),
+    "-----END PRIVATE KEY-----\n"
+  )
+  return(openssl::read_key(pem))
+}
+
 #' @param keys List of credentials from [get_api_keys()] (`api_key_name`,
 #'   `api_private_key`).
 #' @param method Character; HTTP method (e.g. `"GET"`, `"POST"`).
@@ -46,13 +98,20 @@ then_or_now <- function(x, fn, is_async = FALSE) {
 #' @return Character; the encoded JWT.
 #'
 #' @importFrom jose jwt_claim jwt_encode_sig
-#' @importFrom openssl read_key
+#' @importFrom openssl rand_bytes
+#' @importFrom rlang abort
 #' @keywords internal
 #' @noRd
 build_jwt <- function(keys, method, host, path) {
+  if (is.null(keys$api_private_key) || !nzchar(keys$api_private_key) || !nzchar(keys$api_key_name %or% "")) {
+    rlang::abort(paste0(
+      "Coinbase API credentials are not set. Provide them via get_api_keys() ",
+      "or the COINBASE_API_KEY_NAME / COINBASE_API_PRIVATE_KEY environment variables."
+    ))
+  }
   # jose selects the algorithm from the key type: ES256 for EC (P-256) keys,
   # EdDSA for Ed25519 keys -- both of which Coinbase accepts.
-  key <- openssl::read_key(keys$api_private_key)
+  key <- load_private_key(keys$api_private_key)
 
   now <- as.integer(unclass(Sys.time()))
   claim <- jose::jwt_claim(
@@ -65,8 +124,9 @@ build_jwt <- function(keys, method, host, path) {
 
   header <- list(
     kid = keys$api_key_name,
-    # 64 hex chars of single-use entropy, per Coinbase's reference implementation.
-    nonce = paste(format(as.hexmode(sample(0:255, 32L, replace = TRUE)), width = 2L), collapse = "")
+    # 64 hex chars of single-use entropy from a CSPRNG (NOT base R sample(),
+    # which is seedable and would make the anti-replay nonce predictable).
+    nonce = paste(format(as.hexmode(as.integer(openssl::rand_bytes(32L))), width = 2L), collapse = "")
   )
 
   return(jose::jwt_encode_sig(claim, key = key, header = header))

@@ -24,6 +24,7 @@ then aggregate with \code{\link[=trades_to_ohlcv]{trades_to_ohlcv()}}.
    get_product \tab GET /products/\{id\} \tab No \cr
    get_ohlcv \tab GET /products/\{id\}/candles \tab No \cr
    get_trades \tab GET /products/\{id\}/trades \tab No \cr
+   get_trades_history \tab GET /products/\{id\}/trades (paged) \tab No \cr
    get_orderbook \tab GET /products/\{id\}/book \tab No \cr
    get_ticker \tab GET /products/\{id\}/ticker \tab No \cr
    get_server_time \tab GET /time \tab No \cr

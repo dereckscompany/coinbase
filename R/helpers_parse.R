@@ -65,6 +65,40 @@ amount_value <- function(x) {
   return(as.numeric(x$value))
 }
 
+#' Collapse a Coinbase Errors Array to a Single String
+#'
+#' Coinbase returns validation/preview errors as an array whose elements are
+#' usually objects (e.g. `{error, error_code, message}`) but are sometimes bare
+#' strings. This flattens the array to one human-readable string so it can live
+#' in a scalar column rather than a list column.
+#'
+#' @param errs A list of error objects/strings, or NULL.
+#' @return A single character string, or `NA_character_` if there are no errors.
+#'
+#' @keywords internal
+#' @noRd
+collapse_errors <- function(errs) {
+  if (is.null(errs) || length(errs) == 0) {
+    return(NA_character_)
+  }
+  parts <- vapply(
+    errs,
+    function(e) {
+      if (is.list(e)) {
+        val <- e$error_code %or% (e$error %or% (e$message %or% (e$reason %or% NA_character_)))
+        return(as.character(val %or% NA_character_))
+      }
+      return(as.character(e))
+    },
+    character(1)
+  )
+  parts <- parts[!is.na(parts)]
+  if (length(parts) == 0) {
+    return(NA_character_)
+  }
+  return(paste(parts, collapse = "; "))
+}
+
 #' Convert camelCase Names to snake_case
 #'
 #' Converts response field names to R's snake_case convention. Coinbase fields
@@ -198,7 +232,8 @@ parse_trades <- function(data) {
 #' @keywords internal
 #' @noRd
 parse_accounts <- function(items) {
-  if (is.null(items) || length(items) == 0) {
+  items <- Filter(Negate(is.null), items %or% list())
+  if (length(items) == 0L) {
     return(data.table::data.table()[])
   }
   rows <- lapply(items, function(a) {
@@ -257,7 +292,8 @@ parse_fees <- function(data) {
 #'
 #' @param cfg A one-key `order_configuration` list, or NULL.
 #' @return Named list: `config_type`, `base_size`, `quote_size`, `limit_price`,
-#'   `stop_price`, `stop_direction`, `end_time`, `post_only`.
+#'   `stop_price`, `stop_trigger_price`, `stop_direction`, `end_time`,
+#'   `post_only`.
 #'
 #' @keywords internal
 #' @noRd
@@ -274,6 +310,8 @@ flatten_order_config <- function(cfg) {
     quote_size = num_or_na(inner$quote_size),
     limit_price = num_or_na(inner$limit_price),
     stop_price = num_or_na(inner$stop_price),
+    # Bracket orders (trigger_bracket_*) carry the trigger here, not in stop_price.
+    stop_trigger_price = num_or_na(inner$stop_trigger_price),
     stop_direction = inner$stop_direction %or% NA_character_,
     end_time = iso_to_datetime(inner$end_time %or% NA_character_),
     post_only = inner$post_only %or% NA
@@ -291,7 +329,8 @@ flatten_order_config <- function(cfg) {
 #' @keywords internal
 #' @noRd
 parse_orders <- function(items) {
-  if (is.null(items) || length(items) == 0) {
+  items <- Filter(Negate(is.null), items %or% list())
+  if (length(items) == 0L) {
     return(data.table::data.table()[])
   }
   rows <- lapply(items, function(o) {
@@ -302,7 +341,8 @@ parse_orders <- function(items) {
       product_id = o$product_id %or% NA_character_,
       side = o$side %or% NA_character_,
       status = o$status %or% NA_character_,
-      order_type = o$order_type %or% cfg$config_type,
+      # The coarse API enum (e.g. "LIMIT"); the detailed key is `config_type`.
+      order_type = o$order_type %or% NA_character_,
       config_type = cfg$config_type,
       time_in_force = o$time_in_force %or% NA_character_,
       created_time = iso_to_datetime(o$created_time %or% NA_character_),
@@ -316,6 +356,7 @@ parse_orders <- function(items) {
       quote_size = cfg$quote_size,
       limit_price = cfg$limit_price,
       stop_price = cfg$stop_price,
+      stop_trigger_price = cfg$stop_trigger_price,
       stop_direction = cfg$stop_direction,
       end_time = cfg$end_time,
       post_only = cfg$post_only
@@ -332,7 +373,8 @@ parse_orders <- function(items) {
 #' @keywords internal
 #' @noRd
 parse_fills <- function(items) {
-  if (is.null(items) || length(items) == 0) {
+  items <- Filter(Negate(is.null), items %or% list())
+  if (length(items) == 0L) {
     return(data.table::data.table()[])
   }
   rows <- lapply(items, function(f) {
@@ -365,8 +407,6 @@ parse_preview <- function(data) {
   if (is.null(data) || length(data) == 0) {
     return(data.table::data.table()[])
   }
-  errs <- data$errs
-  err_str <- if (is.null(errs) || length(errs) == 0) NA_character_ else paste(unlist(errs), collapse = "; ")
   return(data.table::data.table(
     order_total = num_or_na(data$order_total),
     commission_total = num_or_na(data$commission_total),
@@ -375,8 +415,131 @@ parse_preview <- function(data) {
     best_bid = num_or_na(data$best_bid),
     best_ask = num_or_na(data$best_ask),
     slippage = num_or_na(data$slippage),
-    errs = err_str,
+    errs = collapse_errors(data$errs),
     preview_id = data$preview_id %or% NA_character_
+  )[])
+}
+
+#' Parse a Coinbase Create-Order Response into a one-row data.table
+#'
+#' Surfaces the scalar `order_id` (from `success_response`), collapses the
+#' failure/error objects to a string, and flattens `order_configuration` — so
+#' the result has no list columns and a usable order id.
+#'
+#' @param data A `CreateOrderResponse` object, or NULL.
+#' @return A single-row [data.table::data.table]. Empty if NULL.
+#'
+#' @keywords internal
+#' @noRd
+parse_create_order <- function(data) {
+  if (is.null(data) || length(data) == 0) {
+    return(data.table::data.table()[])
+  }
+  sr <- data$success_response %or% list()
+  cfg <- flatten_order_config(data$order_configuration)
+  errs <- collapse_errors(Filter(Negate(is.null), list(data$failure_reason, data$error_response)))
+  return(data.table::data.table(
+    success = data$success %or% NA,
+    order_id = sr$order_id %or% (data$order_id %or% NA_character_),
+    product_id = sr$product_id %or% NA_character_,
+    side = sr$side %or% NA_character_,
+    client_order_id = sr$client_order_id %or% NA_character_,
+    failure_reason = errs,
+    config_type = cfg$config_type,
+    base_size = cfg$base_size,
+    quote_size = cfg$quote_size,
+    limit_price = cfg$limit_price,
+    stop_price = cfg$stop_price,
+    stop_trigger_price = cfg$stop_trigger_price
+  )[])
+}
+
+#' Parse a Coinbase Edit-Order Response into a one-row data.table
+#'
+#' @param data An `EditOrderResponse` object, or NULL.
+#' @return A single-row [data.table::data.table]. Empty if NULL.
+#'
+#' @keywords internal
+#' @noRd
+parse_edit_order <- function(data) {
+  if (is.null(data) || length(data) == 0) {
+    return(data.table::data.table()[])
+  }
+  sr <- data$success_response %or% list()
+  err_items <- c(data$errors %or% list(), Filter(Negate(is.null), list(data$error_response)))
+  return(data.table::data.table(
+    success = data$success %or% NA,
+    order_id = sr$order_id %or% NA_character_,
+    errors = collapse_errors(err_items)
+  )[])
+}
+
+#' Parse a Coinbase Edit-Order Preview into a one-row data.table
+#'
+#' @param data An `EditOrderPreviewResponse` object, or NULL.
+#' @return A single-row [data.table::data.table]. Empty if NULL.
+#'
+#' @keywords internal
+#' @noRd
+parse_edit_preview <- function(data) {
+  if (is.null(data) || length(data) == 0) {
+    return(data.table::data.table()[])
+  }
+  return(data.table::data.table(
+    errors = collapse_errors(data$errors),
+    slippage = num_or_na(data$slippage),
+    order_total = num_or_na(data$order_total),
+    commission_total = num_or_na(data$commission_total),
+    quote_size = num_or_na(data$quote_size),
+    base_size = num_or_na(data$base_size),
+    best_bid = num_or_na(data$best_bid),
+    average_filled_price = num_or_na(data$average_filled_price)
+  )[])
+}
+
+#' Parse Coinbase Batch-Cancel Results into a data.table
+#'
+#' @param items A list of per-order cancel results, or NULL.
+#' @return A [data.table::data.table], one row per order. Empty if NULL/empty.
+#'
+#' @keywords internal
+#' @noRd
+parse_cancel_results <- function(items) {
+  items <- Filter(Negate(is.null), items %or% list())
+  if (length(items) == 0L) {
+    return(data.table::data.table()[])
+  }
+  rows <- lapply(items, function(r) {
+    fr <- r$failure_reason
+    fr_str <- if (is.list(fr)) collapse_errors(list(fr)) else (fr %or% NA_character_)
+    return(data.table::data.table(
+      order_id = r$order_id %or% NA_character_,
+      success = r$success %or% NA,
+      failure_reason = fr_str
+    ))
+  })
+  return(data.table::rbindlist(rows, fill = TRUE)[])
+}
+
+#' Parse a Coinbase Current-Margin-Window Response into a one-row data.table
+#'
+#' Flattens the nested `margin_window` object into scalar columns.
+#'
+#' @param data A `GetCurrentMarginWindowResponse` object, or NULL.
+#' @return A single-row [data.table::data.table]. Empty if NULL.
+#'
+#' @keywords internal
+#' @noRd
+parse_margin_window <- function(data) {
+  if (is.null(data) || length(data) == 0) {
+    return(data.table::data.table()[])
+  }
+  mw <- data$margin_window %or% list()
+  return(data.table::data.table(
+    margin_window_type = mw$margin_window_type %or% NA_character_,
+    end_time = iso_to_datetime(mw$end_time %or% NA_character_),
+    is_intraday_margin_killswitch_enabled = data$is_intraday_margin_killswitch_enabled %or% NA,
+    is_intraday_margin_enrollment_killswitch_enabled = data$is_intraday_margin_enrollment_killswitch_enabled %or% NA
   )[])
 }
 
@@ -417,7 +580,8 @@ parse_futures_balance <- function(data) {
 #' @keywords internal
 #' @noRd
 parse_futures_positions <- function(items) {
-  if (is.null(items) || length(items) == 0) {
+  items <- Filter(Negate(is.null), items %or% list())
+  if (length(items) == 0L) {
     return(data.table::data.table()[])
   }
   rows <- lapply(items, function(p) {
@@ -460,29 +624,39 @@ parse_futures_sweeps <- function(items) {
 
 #' Parse a Coinbase Exchange Order Book into a long data.table
 #'
-#' Flattens the `bids`/`asks` arrays (each entry `[price, size, num_orders]`)
-#' into a single long table with a `side` column, avoiding any list columns.
+#' Flattens the `bids`/`asks` arrays into a single long table with a `side`
+#' column. At levels 1 and 2 each entry is `[price, size, num_orders]`; at level
+#' 3 the third element is an `order_id` string (the book is non-aggregated), so
+#' the third column is emitted as `order_id` rather than coerced to numeric.
 #'
 #' @param data A list with `bids` and `asks`, or NULL.
-#' @return A [data.table::data.table] with columns `side`, `price`, `size`,
-#'   `num_orders`. Empty if `data` is NULL or empty.
+#' @param level Integer; the requested book level (1, 2, or 3). Default 2.
+#' @return A [data.table::data.table] with columns `side`, `price`, `size`, and
+#'   either `num_orders` (levels 1-2) or `order_id` (level 3). Empty if `data`
+#'   is NULL or empty.
 #'
 #' @keywords internal
 #' @noRd
-parse_orderbook <- function(data) {
+parse_orderbook <- function(data, level = 2L) {
   if (is.null(data) || length(data) == 0) {
     return(data.table::data.table()[])
   }
+  is_l3 <- isTRUE(as.integer(level) == 3L)
   one_side <- function(levels, side) {
     if (is.null(levels) || length(levels) == 0) {
       return(data.table::data.table()[])
     }
-    return(data.table::data.table(
+    dt <- data.table::data.table(
       side = side,
       price = vapply(levels, function(l) as.numeric(l[[1L]]), numeric(1)),
-      size = vapply(levels, function(l) as.numeric(l[[2L]]), numeric(1)),
-      num_orders = vapply(levels, function(l) as.numeric(l[[3L]]), numeric(1))
-    ))
+      size = vapply(levels, function(l) as.numeric(l[[2L]]), numeric(1))
+    )
+    if (is_l3) {
+      dt[, order_id := vapply(levels, function(l) as.character(l[[3L]]), character(1))]
+    } else {
+      dt[, num_orders := vapply(levels, function(l) as.numeric(l[[3L]]), numeric(1))]
+    }
+    return(dt[])
   }
   dt <- data.table::rbindlist(
     list(one_side(data$bids, "bid"), one_side(data$asks, "ask")),
