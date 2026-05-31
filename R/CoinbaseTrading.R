@@ -56,10 +56,26 @@ CoinbaseTrading <- R6::R6Class(
     #' @param order_configuration Named list; the one-key order configuration.
     #' @param client_order_id Character; idempotency key. Defaults to a fresh
     #'   UUID via [generate_client_order_id()].
+    #' @param self_trade_prevention_id Character or NULL; self-trade-prevention
+    #'   group id. Optional.
+    #' @param leverage Character or NULL; leverage for the order (e.g. `"2"`).
+    #'   Optional.
+    #' @param margin_type Character or NULL; `"CROSS"` or `"ISOLATED"`. Optional.
+    #' @param retail_portfolio_id Character or NULL; portfolio to route the order
+    #'   to. Optional.
     #' @return A single-row [data.table::data.table] with `success`, the scalar
     #'   `order_id`, `product_id`, `side`, `client_order_id`, `failure_reason`,
     #'   and flattened order-configuration columns, or a promise thereof.
-    add_order = function(product_id, side, order_configuration, client_order_id = generate_client_order_id()) {
+    add_order = function(
+      product_id,
+      side,
+      order_configuration,
+      client_order_id = generate_client_order_id(),
+      self_trade_prevention_id = NULL,
+      leverage = NULL,
+      margin_type = NULL,
+      retail_portfolio_id = NULL
+    ) {
       validate_symbol(product_id)
       side <- validate_side(side)
       validate_order_config(order_configuration)
@@ -69,7 +85,11 @@ CoinbaseTrading <- R6::R6Class(
         client_order_id = client_order_id,
         product_id = product_id,
         side = side,
-        order_configuration = order_configuration
+        order_configuration = order_configuration,
+        self_trade_prevention_id = self_trade_prevention_id,
+        leverage = leverage,
+        margin_type = margin_type,
+        retail_portfolio_id = retail_portfolio_id
       )
       return(private$.request(
         endpoint = "/api/v3/brokerage/orders",
@@ -86,8 +106,19 @@ CoinbaseTrading <- R6::R6Class(
     #' @param product_id Character; e.g. `"BTC-USD"`.
     #' @param side Character; `"BUY"` or `"SELL"`.
     #' @param order_configuration Named list; the one-key order configuration.
+    #' @param leverage Character or NULL; leverage for the order. Optional.
+    #' @param margin_type Character or NULL; `"CROSS"` or `"ISOLATED"`. Optional.
+    #' @param retail_portfolio_id Character or NULL; portfolio to scope the
+    #'   preview to. Optional.
     #' @return A single-row [data.table::data.table], or a promise thereof.
-    preview_order = function(product_id, side, order_configuration) {
+    preview_order = function(
+      product_id,
+      side,
+      order_configuration,
+      leverage = NULL,
+      margin_type = NULL,
+      retail_portfolio_id = NULL
+    ) {
       validate_symbol(product_id)
       side <- validate_side(side)
       validate_order_config(order_configuration)
@@ -95,7 +126,10 @@ CoinbaseTrading <- R6::R6Class(
       body <- list(
         product_id = product_id,
         side = side,
-        order_configuration = order_configuration
+        order_configuration = order_configuration,
+        leverage = leverage,
+        margin_type = margin_type,
+        retail_portfolio_id = retail_portfolio_id
       )
       return(private$.request(
         endpoint = "/api/v3/brokerage/orders/preview",
@@ -124,16 +158,55 @@ CoinbaseTrading <- R6::R6Class(
     #'   `"CANCELLED"`.
     #' @param order_side Character or NULL; `"BUY"` or `"SELL"`.
     #' @param limit Integer or NULL; page size.
+    #' @param order_ids Character vector or NULL; filter by specific order id(s).
+    #' @param start_date,end_date Character or NULL; RFC 3339 bounds on order
+    #'   creation time.
+    #' @param order_types Character vector or NULL; e.g. `"LIMIT"`, `"MARKET"`.
+    #' @param product_type Character or NULL; `"SPOT"` or `"FUTURE"`.
+    #' @param order_placement_source Character or NULL; e.g. `"RETAIL_ADVANCED"`.
+    #' @param contract_expiry_type Character or NULL; e.g. `"EXPIRING"`.
+    #' @param asset_filters Character vector or NULL; filter by asset.
+    #' @param retail_portfolio_id Character or NULL; scope to a portfolio.
+    #' @param time_in_forces Character vector or NULL; e.g. `"GOOD_UNTIL_CANCELLED"`.
+    #' @param sort_by Character or NULL; sort field, e.g. `"LAST_FILL_TIME"`.
     #' @param max_pages Numeric; cap on pages fetched. Default `Inf`.
     #' @return A [data.table::data.table] of orders, or a promise thereof.
-    get_orders = function(product_ids = NULL, order_status = NULL, order_side = NULL, limit = NULL, max_pages = Inf) {
+    get_orders = function(
+      product_ids = NULL,
+      order_status = NULL,
+      order_side = NULL,
+      limit = NULL,
+      order_ids = NULL,
+      start_date = NULL,
+      end_date = NULL,
+      order_types = NULL,
+      product_type = NULL,
+      order_placement_source = NULL,
+      contract_expiry_type = NULL,
+      asset_filters = NULL,
+      retail_portfolio_id = NULL,
+      time_in_forces = NULL,
+      sort_by = NULL,
+      max_pages = Inf
+    ) {
       return(coinbase_paginate_cursor(
         endpoint = "/api/v3/brokerage/orders/historical/batch",
         query = list(
           product_ids = product_ids,
           order_status = order_status,
           order_side = order_side,
-          limit = limit
+          limit = limit,
+          order_ids = order_ids,
+          start_date = start_date,
+          end_date = end_date,
+          order_types = order_types,
+          product_type = product_type,
+          order_placement_source = order_placement_source,
+          contract_expiry_type = contract_expiry_type,
+          asset_filters = asset_filters,
+          retail_portfolio_id = retail_portfolio_id,
+          time_in_forces = time_in_forces,
+          sort_by = sort_by
         ),
         items_field = "orders",
         .req_fn = private$.list_req_fn(),
@@ -144,18 +217,38 @@ CoinbaseTrading <- R6::R6Class(
     },
 
     #' @description Retrieve historical fills, paginating over the cursor.
-    #' @param order_id Character or NULL; filter by order.
+    #' @param order_ids Character vector or NULL; filter by order id(s).
+    #' @param trade_ids Character vector or NULL; filter by trade id(s).
     #' @param product_ids Character vector or NULL; filter by product(s).
+    #' @param start_sequence_timestamp,end_sequence_timestamp Character or NULL;
+    #'   RFC 3339 bounds on fill sequence time.
+    #' @param retail_portfolio_id Character or NULL; scope to a portfolio.
     #' @param limit Integer or NULL; page size.
+    #' @param sort_by Character or NULL; sort field, e.g. `"TRADE_TIME"`.
     #' @param max_pages Numeric; cap on pages fetched. Default `Inf`.
     #' @return A [data.table::data.table] of fills, or a promise thereof.
-    get_fills = function(order_id = NULL, product_ids = NULL, limit = NULL, max_pages = Inf) {
+    get_fills = function(
+      order_ids = NULL,
+      trade_ids = NULL,
+      product_ids = NULL,
+      start_sequence_timestamp = NULL,
+      end_sequence_timestamp = NULL,
+      retail_portfolio_id = NULL,
+      limit = NULL,
+      sort_by = NULL,
+      max_pages = Inf
+    ) {
       return(coinbase_paginate_cursor(
         endpoint = "/api/v3/brokerage/orders/historical/fills",
         query = list(
-          order_ids = order_id,
+          order_ids = order_ids,
+          trade_ids = trade_ids,
           product_ids = product_ids,
-          limit = limit
+          start_sequence_timestamp = start_sequence_timestamp,
+          end_sequence_timestamp = end_sequence_timestamp,
+          retail_portfolio_id = retail_portfolio_id,
+          limit = limit,
+          sort_by = sort_by
         ),
         items_field = "fills",
         .req_fn = private$.list_req_fn(),

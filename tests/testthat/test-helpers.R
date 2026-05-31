@@ -12,6 +12,22 @@ test_that("verify_symbol accepts spot pairs and multi-segment futures IDs", {
   expect_false(verify_symbol(""))
 })
 
+test_that("as_dt_row never emits a list column (nested/multi-element collapse to JSON)", {
+  # A flat object with a nested array AND a nested object must yield a single
+  # row with zero list columns; the nested fields become scalar JSON strings.
+  dt <- as_dt_row(list(
+    id = "BTC-USD",
+    status = "online",
+    alias_to = list("BTC-USD-OLD", "BTC-USD-LEGACY"),
+    details = list(session = "open", venue = "CDE")
+  ))
+  expect_equal(nrow(dt), 1L)
+  expect_false(any(vapply(dt, is.list, logical(1))))
+  expect_type(dt$alias_to, "character")
+  expect_true(grepl("BTC-USD-OLD", dt$alias_to))
+  expect_true(grepl("session", dt$details))
+})
+
 test_that("to_snake_case converts camelCase and leaves snake_case intact", {
   expect_equal(to_snake_case("productId"), "product_id")
   expect_equal(to_snake_case("bestBidAsk"), "best_bid_ask")

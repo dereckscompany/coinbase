@@ -66,6 +66,17 @@ test_that("stringify_order_config rejects malformed money leaves (Inf/NaN/negati
   expect_error(stringify_order_config(list(limit_limit_gtc = list(base_size = "Inf"))), "finite")
 })
 
+test_that("stringify_order_config drops NULL leaves instead of emitting them", {
+  # A NULL leaf must be omitted entirely (not serialised as JSON null).
+  cfg <- stringify_order_config(list(
+    market_market_ioc = list(quote_size = "10", base_size = NULL)
+  ))
+  inner <- cfg$market_market_ioc
+  expect_false("base_size" %in% names(inner))
+  expect_equal(inner$quote_size, "10")
+  expect_false(any(vapply(inner, is.null, logical(1))))
+})
+
 test_that("money formatting is locale-independent (OutDec comma)", {
   old <- options(OutDec = ",")
   on.exit(options(old), add = TRUE)

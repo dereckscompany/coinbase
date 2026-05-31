@@ -143,10 +143,10 @@ to_snake_case <- function(names) {
 #' Convert a Named List to a Single-Row data.table
 #'
 #' Converts a flat named list (from a Coinbase JSON object) into a single-row
-#' [data.table::data.table]. NULL values become NA. Nested lists of length >= 1
-#' are wrapped so data.table stores them as a single list-column entry rather
-#' than recycling rows; callers that must avoid list columns flatten such fields
-#' explicitly before calling this.
+#' [data.table::data.table]. NULL or empty values become NA. Any nested
+#' object/array or multi-element value is collapsed to a single JSON string, so
+#' the result is guaranteed to contain no list columns (and never row-recycles)
+#' even if the API returns an unexpectedly nested field.
 #'
 #' @param x A named list.
 #' @return A single-row [data.table::data.table] with snake_case column names.
@@ -164,8 +164,10 @@ as_dt_row <- function(x) {
     if (is.list(val) && length(val) == 0) {
       return(NA)
     }
-    if (is.list(val) && length(val) >= 1) {
-      return(list(val))
+    # Enforce the no-list-column contract: collapse any nested object/array or
+    # multi-element value to a single JSON string rather than a list column.
+    if (is.list(val) || length(val) != 1L) {
+      return(as.character(jsonlite::toJSON(val, auto_unbox = TRUE, null = "null")))
     }
     return(val)
   })

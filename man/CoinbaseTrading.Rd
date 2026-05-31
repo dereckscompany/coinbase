@@ -86,7 +86,11 @@ trading$get_orders(product_ids = "BTC-USD", limit = 10)
   product_id,
   side,
   order_configuration,
-  client_order_id = generate_client_order_id()
+  client_order_id = generate_client_order_id(),
+  self_trade_prevention_id = NULL,
+  leverage = NULL,
+  margin_type = NULL,
+  retail_portfolio_id = NULL
 )}
     \if{html}{\out{</div>}}
   }
@@ -98,6 +102,13 @@ trading$get_orders(product_ids = "BTC-USD", limit = 10)
       \item{\code{order_configuration}}{Named list; the one-key order configuration.}
       \item{\code{client_order_id}}{Character; idempotency key. Defaults to a fresh
 UUID via \code{\link[=generate_client_order_id]{generate_client_order_id()}}.}
+      \item{\code{self_trade_prevention_id}}{Character or NULL; self-trade-prevention
+group id. Optional.}
+      \item{\code{leverage}}{Character or NULL; leverage for the order (e.g. \code{"2"}).
+Optional.}
+      \item{\code{margin_type}}{Character or NULL; \code{"CROSS"} or \code{"ISOLATED"}. Optional.}
+      \item{\code{retail_portfolio_id}}{Character or NULL; portfolio to route the order
+to. Optional.}
     }
     \if{html}{\out{</div>}}
   }
@@ -117,7 +128,14 @@ nothing). Returns the estimated total, commission, sizes, and any
 validation errors.
   \subsection{Usage}{
     \if{html}{\out{<div class="r">}}
-    \preformatted{CoinbaseTrading$preview_order(product_id, side, order_configuration)}
+    \preformatted{CoinbaseTrading$preview_order(
+  product_id,
+  side,
+  order_configuration,
+  leverage = NULL,
+  margin_type = NULL,
+  retail_portfolio_id = NULL
+)}
     \if{html}{\out{</div>}}
   }
   \subsection{Arguments}{
@@ -126,6 +144,10 @@ validation errors.
       \item{\code{product_id}}{Character; e.g. \code{"BTC-USD"}.}
       \item{\code{side}}{Character; \code{"BUY"} or \code{"SELL"}.}
       \item{\code{order_configuration}}{Named list; the one-key order configuration.}
+      \item{\code{leverage}}{Character or NULL; leverage for the order. Optional.}
+      \item{\code{margin_type}}{Character or NULL; \code{"CROSS"} or \code{"ISOLATED"}. Optional.}
+      \item{\code{retail_portfolio_id}}{Character or NULL; portfolio to scope the
+preview to. Optional.}
     }
     \if{html}{\out{</div>}}
   }
@@ -168,6 +190,17 @@ validation errors.
   order_status = NULL,
   order_side = NULL,
   limit = NULL,
+  order_ids = NULL,
+  start_date = NULL,
+  end_date = NULL,
+  order_types = NULL,
+  product_type = NULL,
+  order_placement_source = NULL,
+  contract_expiry_type = NULL,
+  asset_filters = NULL,
+  retail_portfolio_id = NULL,
+  time_in_forces = NULL,
+  sort_by = NULL,
   max_pages = Inf
 )}
     \if{html}{\out{</div>}}
@@ -180,6 +213,17 @@ validation errors.
 \code{"CANCELLED"}.}
       \item{\code{order_side}}{Character or NULL; \code{"BUY"} or \code{"SELL"}.}
       \item{\code{limit}}{Integer or NULL; page size.}
+      \item{\code{order_ids}}{Character vector or NULL; filter by specific order id(s).}
+      \item{\code{start_date, end_date}}{Character or NULL; RFC 3339 bounds on order
+creation time.}
+      \item{\code{order_types}}{Character vector or NULL; e.g. \code{"LIMIT"}, \code{"MARKET"}.}
+      \item{\code{product_type}}{Character or NULL; \code{"SPOT"} or \code{"FUTURE"}.}
+      \item{\code{order_placement_source}}{Character or NULL; e.g. \code{"RETAIL_ADVANCED"}.}
+      \item{\code{contract_expiry_type}}{Character or NULL; e.g. \code{"EXPIRING"}.}
+      \item{\code{asset_filters}}{Character vector or NULL; filter by asset.}
+      \item{\code{retail_portfolio_id}}{Character or NULL; scope to a portfolio.}
+      \item{\code{time_in_forces}}{Character vector or NULL; e.g. \code{"GOOD_UNTIL_CANCELLED"}.}
+      \item{\code{sort_by}}{Character or NULL; sort field, e.g. \code{"LAST_FILL_TIME"}.}
       \item{\code{max_pages}}{Numeric; cap on pages fetched. Default \code{Inf}.}
     }
     \if{html}{\out{</div>}}
@@ -197,9 +241,14 @@ validation errors.
   \subsection{Usage}{
     \if{html}{\out{<div class="r">}}
     \preformatted{CoinbaseTrading$get_fills(
-  order_id = NULL,
+  order_ids = NULL,
+  trade_ids = NULL,
   product_ids = NULL,
+  start_sequence_timestamp = NULL,
+  end_sequence_timestamp = NULL,
+  retail_portfolio_id = NULL,
   limit = NULL,
+  sort_by = NULL,
   max_pages = Inf
 )}
     \if{html}{\out{</div>}}
@@ -207,9 +256,14 @@ validation errors.
   \subsection{Arguments}{
     \if{html}{\out{<div class="arguments">}}
     \describe{
-      \item{\code{order_id}}{Character or NULL; filter by order.}
+      \item{\code{order_ids}}{Character vector or NULL; filter by order id(s).}
+      \item{\code{trade_ids}}{Character vector or NULL; filter by trade id(s).}
       \item{\code{product_ids}}{Character vector or NULL; filter by product(s).}
+      \item{\code{start_sequence_timestamp, end_sequence_timestamp}}{Character or NULL;
+RFC 3339 bounds on fill sequence time.}
+      \item{\code{retail_portfolio_id}}{Character or NULL; scope to a portfolio.}
       \item{\code{limit}}{Integer or NULL; page size.}
+      \item{\code{sort_by}}{Character or NULL; sort field, e.g. \code{"TRADE_TIME"}.}
       \item{\code{max_pages}}{Numeric; cap on pages fetched. Default \code{Inf}.}
     }
     \if{html}{\out{</div>}}

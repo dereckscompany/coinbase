@@ -252,6 +252,13 @@ parse_coinbase_response <- function(resp) {
     rlang::abort(paste0("Coinbase HTTP error ", status, "\n", body_text))
   }
 
+  # Some success responses carry an empty body (e.g. the intraday-margin setter
+  # returns HTTP 200 with no content). fromJSON("") would abort with a
+  # "premature EOF" parse error, so treat a blank body as an empty object.
+  if (!nzchar(trimws(body_text))) {
+    return(list())
+  }
+
   # NOTE: simplifyVector = FALSE preserves nested JSON structure faithfully so
   # downstream parsers can flatten it deterministically into data.tables.
   return(jsonlite::fromJSON(body_text, simplifyVector = FALSE))

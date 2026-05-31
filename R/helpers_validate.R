@@ -131,11 +131,14 @@ stringify_order_config <- function(order_configuration) {
   money_keys <- c("base_size", "quote_size", "limit_price", "stop_price", "stop_trigger_price")
   key <- names(order_configuration)[1]
   inner <- order_configuration[[key]]
+  # Drop NULL leaves so they are omitted rather than serialised as JSON null;
+  # the reference SDK likewise filters nested NULLs before sending.
+  inner <- inner[!vapply(inner, is.null, logical(1))]
   inner_names <- names(inner)
   inner <- lapply(seq_along(inner), function(i) {
     nm <- inner_names[i]
     val <- inner[[i]]
-    if (!is.null(nm) && nm %in% money_keys && !is.null(val)) {
+    if (!is.null(nm) && nm %in% money_keys) {
       return(coerce_positive_string(val, nm))
     }
     return(val)

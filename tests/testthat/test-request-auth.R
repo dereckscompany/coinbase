@@ -119,3 +119,20 @@ test_that("parse_coinbase_response returns parsed body on success", {
   out <- parse_coinbase_response(resp)
   expect_true(out$can_trade)
 })
+
+test_that("parse_coinbase_response treats an empty 200 body as {} (no premature-EOF crash)", {
+  # Some endpoints (e.g. the intraday-margin setter) return 200 with no content.
+  empty <- httr2::response(
+    status_code = 200L,
+    headers = list(`Content-Type` = "application/json"),
+    body = raw(0)
+  )
+  expect_equal(parse_coinbase_response(empty), list())
+
+  blank <- httr2::response(
+    status_code = 200L,
+    headers = list(`Content-Type` = "application/json"),
+    body = charToRaw("   ")
+  )
+  expect_equal(parse_coinbase_response(blank), list())
+})
