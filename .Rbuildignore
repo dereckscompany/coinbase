@@ -21,3 +21,11 @@
 ^README\.Rmd$
 ^tests/testthat/_problems$
 ^tests/testthat/testthat-problems\.rds$
+^\.claude$
+^\.playwright-mcp$
+^cran-comments\.md$
+^README\.html$
+^doc$
+^Meta$
+^.*\.tar\.gz$
+^coinbase\.Rcheck$
