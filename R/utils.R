@@ -71,10 +71,14 @@ generate_client_order_id <- function() {
   b[9] <- bitwOr(bitwAnd(b[9], 0x3f), 0x80)
   hex <- sprintf("%02x", b)
   return(paste0(
-    paste(hex[1:4], collapse = ""), "-",
-    paste(hex[5:6], collapse = ""), "-",
-    paste(hex[7:8], collapse = ""), "-",
-    paste(hex[9:10], collapse = ""), "-",
+    paste(hex[1:4], collapse = ""),
+    "-",
+    paste(hex[5:6], collapse = ""),
+    "-",
+    paste(hex[7:8], collapse = ""),
+    "-",
+    paste(hex[9:10], collapse = ""),
+    "-",
     paste(hex[11:16], collapse = "")
   ))
 }
@@ -114,9 +118,10 @@ get_api_keys <- function(
   api_private_key = Sys.getenv("COINBASE_API_PRIVATE_KEY")
 ) {
   if (!nzchar(api_key_name) || !nzchar(api_private_key)) {
-    rlang::warn(
-      "Coinbase API credentials are empty. Set COINBASE_API_KEY_NAME and COINBASE_API_PRIVATE_KEY environment variables or pass them explicitly."
-    )
+    rlang::warn(paste0(
+      "Coinbase API credentials are empty. Set COINBASE_API_KEY_NAME and ",
+      "COINBASE_API_PRIVATE_KEY environment variables or pass them explicitly."
+    ))
   }
   # `.Renviron` stores the PEM on one line with literal "\n"; restore newlines.
   api_private_key <- gsub("\\\\n", "\n", api_private_key)

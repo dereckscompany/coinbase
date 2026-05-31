@@ -103,14 +103,14 @@ CoinbaseAccount <- R6::R6Class(
     # Returns a request function for the cursor paginator: performs one
     # authenticated GET and returns the raw parsed body (cursor + items).
     .list_req_fn = function() {
-      function(endpoint, query) {
-        private$.request(
+      return(function(endpoint, query) {
+        return(private$.request(
           endpoint = endpoint,
           query = query,
           auth = TRUE,
           .parser = identity
-        )
-      }
+        ))
+      })
     }
   )
 )

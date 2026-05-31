@@ -94,7 +94,9 @@ CoinbaseMarketData <- R6::R6Class(
       assert::assert_scalar_character(product_id)
       if (!granularity %in% names(.COINBASE_GRANULARITY_MAP)) {
         rlang::abort(paste0(
-          "Invalid granularity '", granularity, "'. Valid: ",
+          "Invalid granularity '",
+          granularity,
+          "'. Valid: ",
           paste(names(.COINBASE_GRANULARITY_MAP), collapse = ", ")
         ))
       }
@@ -151,13 +153,13 @@ CoinbaseMarketData <- R6::R6Class(
         end = end,
         max_pages = max_pages,
         .req_fn = function(endpoint, query, .parser) {
-          private$.request(
+          return(private$.request(
             endpoint = endpoint,
             query = query,
             auth = FALSE,
             base_url = private$.exchange_base_url,
             .parser = .parser
-          )
+          ))
         },
         is_async = private$.is_async
       ))

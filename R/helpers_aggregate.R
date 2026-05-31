@@ -68,13 +68,16 @@ trades_to_ohlcv <- function(trades, interval = 60) {
   epoch <- as.numeric(dt$time)
   dt[, datetime := s_to_datetime(floor(epoch / interval) * interval)]
 
-  bars <- dt[, list(
-    open = price[1L],
-    high = max(price),
-    low = min(price),
-    close = price[.N],
-    volume = sum(size)
-  ), by = datetime]
+  bars <- dt[,
+    list(
+      open = price[1L],
+      high = max(price),
+      low = min(price),
+      close = price[.N],
+      volume = sum(size)
+    ),
+    by = datetime
+  ]
 
   data.table::setorder(bars, datetime)
   return(bars[])

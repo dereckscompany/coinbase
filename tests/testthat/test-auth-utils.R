@@ -51,8 +51,10 @@ test_that("build_jwt produces a 3-part ES256 token with a query-less uri claim",
     s <- gsub("-", "+", s, fixed = TRUE)
     s <- gsub("_", "/", s, fixed = TRUE)
     pad <- nchar(s) %% 4
-    if (pad > 0) s <- paste0(s, strrep("=", 4 - pad))
-    rawToChar(jsonlite::base64_dec(s))
+    if (pad > 0) {
+      s <- paste0(s, strrep("=", 4 - pad))
+    }
+    return(rawToChar(jsonlite::base64_dec(s)))
   }
   header <- jsonlite::fromJSON(b64url(parts[1]))
   payload <- jsonlite::fromJSON(b64url(parts[2]))

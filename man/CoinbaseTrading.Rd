@@ -16,7 +16,8 @@ order type, e.g.
 \itemize{
 \item \code{list(market_market_ioc = list(quote_size = "10"))} (market buy of $10)
 \item \code{list(limit_limit_gtc = list(base_size = "0.001", limit_price = "50000"))}
-\item \code{list(stop_limit_stop_limit_gtc = list(base_size = ..., limit_price = ..., stop_price = ..., stop_direction = "STOP_DIRECTION_STOP_DOWN"))}
+\item \verb{list(stop_limit_stop_limit_gtc = list(base_size = ..., limit_price = ...,}
+\verb{stop_price = ..., stop_direction = "STOP_DIRECTION_STOP_DOWN"))}
 }
 
 Use \link[=CoinbaseTrading]{preview_order()} (a dry run that places nothing) to

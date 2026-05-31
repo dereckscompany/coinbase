@@ -80,8 +80,10 @@ test_that("trades_to_ohlcv aggregates ticks into bars", {
 
 test_that("trades_to_ohlcv returns an empty data.table for empty input", {
   empty <- data.table::data.table(
-    trade_id = numeric(0), side = character(0),
-    price = numeric(0), size = numeric(0),
+    trade_id = numeric(0),
+    side = character(0),
+    price = numeric(0),
+    size = numeric(0),
     time = lubridate::as_datetime(numeric(0))
   )
   expect_equal(nrow(trades_to_ohlcv(empty)), 0L)

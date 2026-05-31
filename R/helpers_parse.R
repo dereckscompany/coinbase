@@ -182,7 +182,7 @@ parse_accounts <- function(items) {
     return(data.table::data.table()[])
   }
   rows <- lapply(items, function(a) {
-    data.table::data.table(
+    return(data.table::data.table(
       uuid = a$uuid %or% NA_character_,
       name = a$name %or% NA_character_,
       currency = a$currency %or% NA_character_,
@@ -196,7 +196,7 @@ parse_accounts <- function(items) {
       retail_portfolio_id = a$retail_portfolio_id %or% NA_character_,
       created_at = iso_to_datetime(a$created_at %or% NA_character_),
       updated_at = iso_to_datetime(a$updated_at %or% NA_character_)
-    )
+    ))
   })
   return(data.table::rbindlist(rows, fill = TRUE)[])
 }
@@ -276,7 +276,7 @@ parse_orders <- function(items) {
   }
   rows <- lapply(items, function(o) {
     cfg <- flatten_order_config(o$order_configuration)
-    data.table::data.table(
+    return(data.table::data.table(
       order_id = o$order_id %or% (o$id %or% NA_character_),
       client_order_id = o$client_order_id %or% NA_character_,
       product_id = o$product_id %or% NA_character_,
@@ -299,7 +299,7 @@ parse_orders <- function(items) {
       stop_direction = cfg$stop_direction,
       end_time = cfg$end_time,
       post_only = cfg$post_only
-    )
+    ))
   })
   return(data.table::rbindlist(rows, fill = TRUE)[])
 }
@@ -316,7 +316,7 @@ parse_fills <- function(items) {
     return(data.table::data.table()[])
   }
   rows <- lapply(items, function(f) {
-    data.table::data.table(
+    return(data.table::data.table(
       entry_id = f$entry_id %or% NA_character_,
       trade_id = f$trade_id %or% NA_character_,
       order_id = f$order_id %or% NA_character_,
@@ -329,7 +329,7 @@ parse_fills <- function(items) {
       commission = num_or_na(f$commission),
       size_in_quote = f$size_in_quote %or% NA,
       liquidity_indicator = f$liquidity_indicator %or% NA_character_
-    )
+    ))
   })
   return(data.table::rbindlist(rows, fill = TRUE)[])
 }

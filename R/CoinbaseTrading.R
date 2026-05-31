@@ -14,7 +14,8 @@
 #' order type, e.g.
 #' - `list(market_market_ioc = list(quote_size = "10"))` (market buy of $10)
 #' - `list(limit_limit_gtc = list(base_size = "0.001", limit_price = "50000"))`
-#' - `list(stop_limit_stop_limit_gtc = list(base_size = ..., limit_price = ..., stop_price = ..., stop_direction = "STOP_DIRECTION_STOP_DOWN"))`
+#' - `list(stop_limit_stop_limit_gtc = list(base_size = ..., limit_price = ...,`
+#'   `stop_price = ..., stop_direction = "STOP_DIRECTION_STOP_DOWN"))`
 #'
 #' Use [preview_order()][CoinbaseTrading] (a dry run that places nothing) to
 #' validate a configuration before submitting.
@@ -208,9 +209,9 @@ CoinbaseTrading <- R6::R6Class(
     # Request function for the cursor paginator: one authenticated GET returning
     # the raw parsed body (cursor + items).
     .list_req_fn = function() {
-      function(endpoint, query) {
-        private$.request(endpoint = endpoint, query = query, auth = TRUE, .parser = identity)
-      }
+      return(function(endpoint, query) {
+        return(private$.request(endpoint = endpoint, query = query, auth = TRUE, .parser = identity))
+      })
     }
   )
 )

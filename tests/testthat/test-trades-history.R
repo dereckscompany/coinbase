@@ -4,7 +4,7 @@
 
 # Build a .req_fn over ids 1..n, where each trade's time == its id (epoch secs).
 make_mock_req_fn <- function(n) {
-  function(endpoint, query, .parser) {
+  return(function(endpoint, query, .parser) {
     after <- query$after
     limit <- query$limit
     ids <- seq_len(n)
@@ -14,7 +14,7 @@ make_mock_req_fn <- function(n) {
     ids <- sort(ids, decreasing = TRUE)
     ids <- ids[seq_len(min(limit, length(ids)))]
     raw <- lapply(ids, function(id) {
-      list(
+      return(list(
         trade_id = id,
         side = "buy",
         size = "1",
@@ -23,10 +23,10 @@ make_mock_req_fn <- function(n) {
           as.POSIXct(id, origin = "1970-01-01", tz = "UTC"),
           "%Y-%m-%dT%H:%M:%SZ"
         )
-      )
+      ))
     })
     return(.parser(raw))
-  }
+  })
 }
 
 test_that("cursor-walk pages back to the first trade and returns a sorted, deduped set", {

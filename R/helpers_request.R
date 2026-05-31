@@ -50,9 +50,9 @@ then_or_now <- function(x, fn, is_async = FALSE) {
 #' @keywords internal
 #' @noRd
 build_jwt <- function(keys, method, host, path) {
+  # jose selects the algorithm from the key type: ES256 for EC (P-256) keys,
+  # EdDSA for Ed25519 keys -- both of which Coinbase accepts.
   key <- openssl::read_key(keys$api_private_key)
-
-  alg <- if (inherits(key, "ed25519")) "EdDSA" else "ES256"
 
   now <- as.integer(unclass(Sys.time()))
   claim <- jose::jwt_claim(
@@ -97,7 +97,8 @@ build_jwt <- function(keys, method, host, path) {
 #' @param timeout Numeric; request timeout in seconds. Default `30`.
 #' @return Parsed and post-processed API response data, or a promise thereof.
 #'
-#' @importFrom httr2 request req_method req_url_path_append req_url_query req_body_raw req_timeout req_perform req_user_agent req_error req_headers url_parse
+#' @importFrom httr2 request req_method req_url_path_append req_url_query req_body_raw req_timeout
+#' @importFrom httr2 req_perform req_user_agent req_error req_headers url_parse
 #' @importFrom jsonlite toJSON
 #' @export
 coinbase_build_request <- function(
