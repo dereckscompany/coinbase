@@ -46,7 +46,10 @@ coinbase_paginate_cursor <- function(
         # Some endpoints omit has_next entirely (e.g. the fills endpoint returns
         # only `fills` + `cursor`). When it is absent, treat it as TRUE and let
         # the non-empty-cursor guard terminate the walk; otherwise honour it.
-        has_next <- if ("has_next" %in% names(body)) isTRUE(body$has_next) else TRUE
+        has_next <- TRUE
+        if ("has_next" %in% names(body)) {
+          has_next <- isTRUE(body$has_next)
+        }
         next_cursor <- body$cursor
         more <- has_next &&
           page_no < max_pages &&

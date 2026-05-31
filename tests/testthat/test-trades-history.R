@@ -94,7 +94,10 @@ test_that("a short final page (fewer than page_limit) ends the walk", {
   req <- function(endpoint, query, .parser) {
     calls <<- calls + 1L
     # 10 trades total, page_limit 1000 -> one short page, then stop
-    ids <- if (is.null(query$after)) 10:1 else integer(0)
+    ids <- 10:1
+    if (!is.null(query$after)) {
+      ids <- integer(0)
+    }
     raw <- lapply(ids, function(id) {
       return(list(
         trade_id = id,

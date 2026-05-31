@@ -32,8 +32,14 @@ coinbase_fetch_trades_history <- function(
   .req_fn,
   is_async = FALSE
 ) {
-  start_s <- if (!is.null(start)) as.numeric(lubridate::as_datetime(start, tz = "UTC")) else NULL
-  end_s <- if (!is.null(end)) as.numeric(lubridate::as_datetime(end, tz = "UTC")) else NULL
+  start_s <- NULL
+  if (!is.null(start)) {
+    start_s <- as.numeric(lubridate::as_datetime(start, tz = "UTC"))
+  }
+  end_s <- NULL
+  if (!is.null(end)) {
+    end_s <- as.numeric(lubridate::as_datetime(end, tz = "UTC"))
+  }
 
   accumulator <- list()
 
@@ -72,7 +78,10 @@ coinbase_fetch_trades_history <- function(
         # Stop when: the page came back empty, the API returned fewer than a
         # full page (start of history), we've paged past the requested start
         # time, we've hit the page cap, or we've reached the first-ever trade.
-        min_id <- if (nrow(dt) > 0L) min(dt$trade_id) else 0
+        min_id <- 0
+        if (nrow(dt) > 0L) {
+          min_id <- min(dt$trade_id)
+        }
         reached_start <- !is.null(start_s) && nrow(dt) > 0L && min(as.numeric(dt$time)) <= start_s
         exhausted <- nrow(dt) < page_limit
         reached_cap <- page_no >= max_pages

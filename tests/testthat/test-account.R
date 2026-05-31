@@ -83,7 +83,10 @@ test_that("coinbase_paginate_cursor walks pages until has_next is false", {
   calls <- 0
   req_fn <- function(endpoint, query) {
     # page selected by incoming cursor
-    idx <- if (is.null(query$cursor)) 1L else as.integer(sub("c", "", query$cursor)) + 1L
+    idx <- 1L
+    if (!is.null(query$cursor)) {
+      idx <- as.integer(sub("c", "", query$cursor)) + 1L
+    }
     calls <<- calls + 1L
     return(pages[[idx]])
   }
@@ -105,7 +108,10 @@ test_that("coinbase_paginate_cursor keeps paging when has_next is ABSENT (fills 
     list(fills = list(list(id = "3")), cursor = "")
   )
   req_fn <- function(endpoint, query) {
-    idx <- if (is.null(query$cursor)) 1L else as.integer(sub("P", "", query$cursor))
+    idx <- 1L
+    if (!is.null(query$cursor)) {
+      idx <- as.integer(sub("P", "", query$cursor))
+    }
     return(pages[[idx]])
   }
   res <- coinbase_paginate_cursor(
