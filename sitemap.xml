@@ -1,0 +1,27 @@
+<urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
+<url><loc>https://dereckscompany.github.io/coinbase/404.html</loc></url>
+<url><loc>https://dereckscompany.github.io/coinbase/LICENSE-text.html</loc></url>
+<url><loc>https://dereckscompany.github.io/coinbase/articles/async-usage.html</loc></url>
+<url><loc>https://dereckscompany.github.io/coinbase/articles/data-shapes.html</loc></url>
+<url><loc>https://dereckscompany.github.io/coinbase/articles/futures-shorting.html</loc></url>
+<url><loc>https://dereckscompany.github.io/coinbase/articles/getting-started.html</loc></url>
+<url><loc>https://dereckscompany.github.io/coinbase/articles/index.html</loc></url>
+<url><loc>https://dereckscompany.github.io/coinbase/authors.html</loc></url>
+<url><loc>https://dereckscompany.github.io/coinbase/index.html</loc></url>
+<url><loc>https://dereckscompany.github.io/coinbase/news/index.html</loc></url>
+<url><loc>https://dereckscompany.github.io/coinbase/reference/CoinbaseAccount.html</loc></url>
+<url><loc>https://dereckscompany.github.io/coinbase/reference/CoinbaseBase.html</loc></url>
+<url><loc>https://dereckscompany.github.io/coinbase/reference/CoinbaseFutures.html</loc></url>
+<url><loc>https://dereckscompany.github.io/coinbase/reference/CoinbaseMarketData.html</loc></url>
+<url><loc>https://dereckscompany.github.io/coinbase/reference/CoinbaseTrading.html</loc></url>
+<url><loc>https://dereckscompany.github.io/coinbase/reference/coinbase_backfill_trades.html</loc></url>
+<url><loc>https://dereckscompany.github.io/coinbase/reference/coinbase_build_request.html</loc></url>
+<url><loc>https://dereckscompany.github.io/coinbase/reference/generate_client_order_id.html</loc></url>
+<url><loc>https://dereckscompany.github.io/coinbase/reference/get_api_keys.html</loc></url>
+<url><loc>https://dereckscompany.github.io/coinbase/reference/get_base_url.html</loc></url>
+<url><loc>https://dereckscompany.github.io/coinbase/reference/get_exchange_base_url.html</loc></url>
+<url><loc>https://dereckscompany.github.io/coinbase/reference/index.html</loc></url>
+<url><loc>https://dereckscompany.github.io/coinbase/reference/trades_to_ohlcv.html</loc></url>
+<url><loc>https://dereckscompany.github.io/coinbase/reference/verify_symbol.html</loc></url>
+</urlset>
+
