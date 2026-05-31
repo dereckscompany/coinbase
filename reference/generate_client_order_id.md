@@ -17,5 +17,5 @@ Character; a UUID, e.g. `"11299b2b-61e3-43e7-b9f7-dee77210bb29"`.
 
 ``` r
 generate_client_order_id()
-#> [1] "bc19bfe8-cb3e-4f2b-b27c-e1ec734f76c2"
+#> [1] "b37108fc-73b9-4685-87ea-ca0642b9de64"
 ```
