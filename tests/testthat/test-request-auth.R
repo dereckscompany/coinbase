@@ -79,7 +79,10 @@ test_that("coinbase_build_request omits NULL body fields (single-field edit) but
   captured <- NULL
   fake_perform <- function(req) {
     b <- req$body$data
-    captured <<- if (is.raw(b)) rawToChar(b) else as.character(b)
+    captured <<- as.character(b)
+    if (is.raw(b)) {
+      captured <<- rawToChar(b)
+    }
     return(httr2::response(
       status_code = 200L,
       headers = list(`Content-Type` = "application/json"),

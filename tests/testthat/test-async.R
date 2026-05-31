@@ -39,7 +39,10 @@ test_that("coinbase_paginate_cursor agrees sync vs async over multiple pages", {
     list(accounts = list(list(uuid = "3")), has_next = FALSE, cursor = "")
   )
   pick <- function(query) {
-    idx <- if (is.null(query$cursor)) 1L else as.integer(sub("c", "", query$cursor)) + 1L
+    idx <- 1L
+    if (!is.null(query$cursor)) {
+      idx <- as.integer(sub("c", "", query$cursor)) + 1L
+    }
     return(pages[[idx]])
   }
   sync <- coinbase_paginate_cursor(

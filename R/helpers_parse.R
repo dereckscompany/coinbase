@@ -1,17 +1,25 @@
 # File: R/helpers_parse.R
 # Response parsing and data.table construction helpers.
 
-#' Null-Coalesce Helper
+#' Return `x`, or `default` When `x` Is NULL
 #'
-#' Returns `default` when `x` is NULL, otherwise `x`.
+#' A plainly-named, readable null-coalescing helper: it initialises with the
+#' default and updates only when `x` is present. Used for the many inline field
+#' defaults where an init-then-update statement cannot be written (i.e. inside a
+#' `data.table()` call).
+#'
+#' @param x A value or NULL.
+#' @param default The value to use when `x` is NULL.
+#' @return `x` when it is non-NULL, otherwise `default`.
 #'
 #' @keywords internal
 #' @noRd
-`%or%` <- function(x, default) {
-  if (is.null(x)) {
-    return(default)
+coalesce_null <- function(x, default) {
+  result <- default
+  if (!is.null(x)) {
+    result <- x
   }
-  return(x)
+  return(result)
 }
 
 #' Coerce a Possibly-NULL Scalar to Numeric
@@ -22,10 +30,11 @@
 #' @keywords internal
 #' @noRd
 num_or_na <- function(x) {
-  if (is.null(x)) {
-    return(NA_real_)
+  result <- NA_real_
+  if (!is.null(x)) {
+    result <- as.numeric(x)
   }
-  return(as.numeric(x))
+  return(result)
 }
 
 #' Coerce a Scalar or `{value, currency}` Object to Numeric
@@ -39,13 +48,13 @@ num_or_na <- function(x) {
 #' @keywords internal
 #' @noRd
 flex_num <- function(x) {
-  if (is.null(x)) {
-    return(NA_real_)
-  }
+  result <- NA_real_
   if (is.list(x)) {
-    return(amount_value(x))
+    result <- amount_value(x)
+  } else if (!is.null(x)) {
+    result <- as.numeric(x)
   }
-  return(as.numeric(x))
+  return(result)
 }
 
 #' Extract the Numeric `value` from a Coinbase `{value, currency}` Object
@@ -59,10 +68,11 @@ flex_num <- function(x) {
 #' @keywords internal
 #' @noRd
 amount_value <- function(x) {
-  if (is.null(x) || is.null(x$value)) {
-    return(NA_real_)
+  result <- NA_real_
+  if (!is.null(x) && !is.null(x$value)) {
+    result <- as.numeric(x$value)
   }
-  return(as.numeric(x$value))
+  return(result)
 }
 
 #' Collapse a Coinbase Errors Array to a Single String
@@ -257,25 +267,25 @@ parse_trades <- function(data) {
 #' @keywords internal
 #' @noRd
 parse_accounts <- function(items) {
-  items <- Filter(Negate(is.null), items %or% list())
+  items <- Filter(Negate(is.null), coalesce_null(items, list()))
   if (length(items) == 0L) {
     return(data.table::data.table()[])
   }
   rows <- lapply(items, function(a) {
     return(data.table::data.table(
-      uuid = a$uuid %or% NA_character_,
-      name = a$name %or% NA_character_,
-      currency = a$currency %or% NA_character_,
+      uuid = coalesce_null(a$uuid, NA_character_),
+      name = coalesce_null(a$name, NA_character_),
+      currency = coalesce_null(a$currency, NA_character_),
       available_balance = amount_value(a$available_balance),
       hold = amount_value(a$hold),
-      active = a$active %or% NA,
-      default = a$default %or% NA,
-      ready = a$ready %or% NA,
-      type = a$type %or% NA_character_,
-      platform = a$platform %or% NA_character_,
-      retail_portfolio_id = a$retail_portfolio_id %or% NA_character_,
-      created_at = iso_to_datetime(a$created_at %or% NA_character_),
-      updated_at = iso_to_datetime(a$updated_at %or% NA_character_)
+      active = coalesce_null(a$active, NA),
+      default = coalesce_null(a$default, NA),
+      ready = coalesce_null(a$ready, NA),
+      type = coalesce_null(a$type, NA_character_),
+      platform = coalesce_null(a$platform, NA_character_),
+      retail_portfolio_id = coalesce_null(a$retail_portfolio_id, NA_character_),
+      created_at = iso_to_datetime(coalesce_null(a$created_at, NA_character_)),
+      updated_at = iso_to_datetime(coalesce_null(a$updated_at, NA_character_))
     ))
   })
   return(data.table::rbindlist(rows, fill = TRUE)[])
@@ -295,16 +305,16 @@ parse_fees <- function(data) {
   if (is.null(data) || length(data) == 0) {
     return(data.table::data.table()[])
   }
-  ft <- data$fee_tier %or% list()
+  ft <- coalesce_null(data$fee_tier, list())
   return(data.table::data.table(
-    pricing_tier = ft$pricing_tier %or% NA_character_,
-    maker_fee_rate = as.numeric(ft$maker_fee_rate %or% NA),
-    taker_fee_rate = as.numeric(ft$taker_fee_rate %or% NA),
-    usd_from = as.numeric(ft$usd_from %or% NA),
-    usd_to = as.numeric(ft$usd_to %or% NA),
-    total_volume = as.numeric(data$total_volume %or% NA),
-    total_fees = as.numeric(data$total_fees %or% NA),
-    total_balance = as.numeric(data$total_balance %or% NA)
+    pricing_tier = coalesce_null(ft$pricing_tier, NA_character_),
+    maker_fee_rate = as.numeric(coalesce_null(ft$maker_fee_rate, NA)),
+    taker_fee_rate = as.numeric(coalesce_null(ft$taker_fee_rate, NA)),
+    usd_from = as.numeric(coalesce_null(ft$usd_from, NA)),
+    usd_to = as.numeric(coalesce_null(ft$usd_to, NA)),
+    total_volume = as.numeric(coalesce_null(data$total_volume, NA)),
+    total_fees = as.numeric(coalesce_null(data$total_fees, NA)),
+    total_balance = as.numeric(coalesce_null(data$total_balance, NA))
   )[])
 }
 
@@ -337,9 +347,9 @@ flatten_order_config <- function(cfg) {
     stop_price = num_or_na(inner$stop_price),
     # Bracket orders (trigger_bracket_*) carry the trigger here, not in stop_price.
     stop_trigger_price = num_or_na(inner$stop_trigger_price),
-    stop_direction = inner$stop_direction %or% NA_character_,
-    end_time = iso_to_datetime(inner$end_time %or% NA_character_),
-    post_only = inner$post_only %or% NA
+    stop_direction = coalesce_null(inner$stop_direction, NA_character_),
+    end_time = iso_to_datetime(coalesce_null(inner$end_time, NA_character_)),
+    post_only = coalesce_null(inner$post_only, NA)
   ))
 }
 
@@ -354,23 +364,23 @@ flatten_order_config <- function(cfg) {
 #' @keywords internal
 #' @noRd
 parse_orders <- function(items) {
-  items <- Filter(Negate(is.null), items %or% list())
+  items <- Filter(Negate(is.null), coalesce_null(items, list()))
   if (length(items) == 0L) {
     return(data.table::data.table()[])
   }
   rows <- lapply(items, function(o) {
     cfg <- flatten_order_config(o$order_configuration)
     return(data.table::data.table(
-      order_id = o$order_id %or% (o$id %or% NA_character_),
-      client_order_id = o$client_order_id %or% NA_character_,
-      product_id = o$product_id %or% NA_character_,
-      side = o$side %or% NA_character_,
-      status = o$status %or% NA_character_,
+      order_id = coalesce_null(o$order_id, coalesce_null(o$id, NA_character_)),
+      client_order_id = coalesce_null(o$client_order_id, NA_character_),
+      product_id = coalesce_null(o$product_id, NA_character_),
+      side = coalesce_null(o$side, NA_character_),
+      status = coalesce_null(o$status, NA_character_),
       # The coarse API enum (e.g. "LIMIT"); the detailed key is `config_type`.
-      order_type = o$order_type %or% NA_character_,
+      order_type = coalesce_null(o$order_type, NA_character_),
       config_type = cfg$config_type,
-      time_in_force = o$time_in_force %or% NA_character_,
-      created_time = iso_to_datetime(o$created_time %or% NA_character_),
+      time_in_force = coalesce_null(o$time_in_force, NA_character_),
+      created_time = iso_to_datetime(coalesce_null(o$created_time, NA_character_)),
       completion_percentage = num_or_na(o$completion_percentage),
       filled_size = num_or_na(o$filled_size),
       average_filled_price = num_or_na(o$average_filled_price),
@@ -398,24 +408,24 @@ parse_orders <- function(items) {
 #' @keywords internal
 #' @noRd
 parse_fills <- function(items) {
-  items <- Filter(Negate(is.null), items %or% list())
+  items <- Filter(Negate(is.null), coalesce_null(items, list()))
   if (length(items) == 0L) {
     return(data.table::data.table()[])
   }
   rows <- lapply(items, function(f) {
     return(data.table::data.table(
-      entry_id = f$entry_id %or% NA_character_,
-      trade_id = f$trade_id %or% NA_character_,
-      order_id = f$order_id %or% NA_character_,
-      product_id = f$product_id %or% NA_character_,
-      side = f$side %or% NA_character_,
-      trade_time = iso_to_datetime(f$trade_time %or% NA_character_),
-      trade_type = f$trade_type %or% NA_character_,
+      entry_id = coalesce_null(f$entry_id, NA_character_),
+      trade_id = coalesce_null(f$trade_id, NA_character_),
+      order_id = coalesce_null(f$order_id, NA_character_),
+      product_id = coalesce_null(f$product_id, NA_character_),
+      side = coalesce_null(f$side, NA_character_),
+      trade_time = iso_to_datetime(coalesce_null(f$trade_time, NA_character_)),
+      trade_type = coalesce_null(f$trade_type, NA_character_),
       price = num_or_na(f$price),
       size = num_or_na(f$size),
       commission = num_or_na(f$commission),
-      size_in_quote = f$size_in_quote %or% NA,
-      liquidity_indicator = f$liquidity_indicator %or% NA_character_
+      size_in_quote = coalesce_null(f$size_in_quote, NA),
+      liquidity_indicator = coalesce_null(f$liquidity_indicator, NA_character_)
     ))
   })
   return(data.table::rbindlist(rows, fill = TRUE)[])
@@ -441,7 +451,7 @@ parse_preview <- function(data) {
     best_ask = num_or_na(data$best_ask),
     slippage = num_or_na(data$slippage),
     errs = collapse_errors(data$errs),
-    preview_id = data$preview_id %or% NA_character_
+    preview_id = coalesce_null(data$preview_id, NA_character_)
   )[])
 }
 
@@ -460,15 +470,15 @@ parse_create_order <- function(data) {
   if (is.null(data) || length(data) == 0) {
     return(data.table::data.table()[])
   }
-  sr <- data$success_response %or% list()
+  sr <- coalesce_null(data$success_response, list())
   cfg <- flatten_order_config(data$order_configuration)
   errs <- collapse_errors(Filter(Negate(is.null), list(data$failure_reason, data$error_response)))
   return(data.table::data.table(
-    success = data$success %or% NA,
-    order_id = sr$order_id %or% (data$order_id %or% NA_character_),
-    product_id = sr$product_id %or% NA_character_,
-    side = sr$side %or% NA_character_,
-    client_order_id = sr$client_order_id %or% NA_character_,
+    success = coalesce_null(data$success, NA),
+    order_id = coalesce_null(sr$order_id, coalesce_null(data$order_id, NA_character_)),
+    product_id = coalesce_null(sr$product_id, NA_character_),
+    side = coalesce_null(sr$side, NA_character_),
+    client_order_id = coalesce_null(sr$client_order_id, NA_character_),
     failure_reason = errs,
     config_type = cfg$config_type,
     base_size = cfg$base_size,
@@ -490,11 +500,11 @@ parse_edit_order <- function(data) {
   if (is.null(data) || length(data) == 0) {
     return(data.table::data.table()[])
   }
-  sr <- data$success_response %or% list()
-  err_items <- c(data$errors %or% list(), Filter(Negate(is.null), list(data$error_response)))
+  sr <- coalesce_null(data$success_response, list())
+  err_items <- c(coalesce_null(data$errors, list()), Filter(Negate(is.null), list(data$error_response)))
   return(data.table::data.table(
-    success = data$success %or% NA,
-    order_id = sr$order_id %or% NA_character_,
+    success = coalesce_null(data$success, NA),
+    order_id = coalesce_null(sr$order_id, NA_character_),
     errors = collapse_errors(err_items)
   )[])
 }
@@ -530,16 +540,19 @@ parse_edit_preview <- function(data) {
 #' @keywords internal
 #' @noRd
 parse_cancel_results <- function(items) {
-  items <- Filter(Negate(is.null), items %or% list())
+  items <- Filter(Negate(is.null), coalesce_null(items, list()))
   if (length(items) == 0L) {
     return(data.table::data.table()[])
   }
   rows <- lapply(items, function(r) {
     fr <- r$failure_reason
-    fr_str <- if (is.list(fr)) collapse_errors(list(fr)) else (fr %or% NA_character_)
+    fr_str <- coalesce_null(fr, NA_character_)
+    if (is.list(fr)) {
+      fr_str <- collapse_errors(list(fr))
+    }
     return(data.table::data.table(
-      order_id = r$order_id %or% NA_character_,
-      success = r$success %or% NA,
+      order_id = coalesce_null(r$order_id, NA_character_),
+      success = coalesce_null(r$success, NA),
       failure_reason = fr_str
     ))
   })
@@ -559,12 +572,15 @@ parse_margin_window <- function(data) {
   if (is.null(data) || length(data) == 0) {
     return(data.table::data.table()[])
   }
-  mw <- data$margin_window %or% list()
+  mw <- coalesce_null(data$margin_window, list())
   return(data.table::data.table(
-    margin_window_type = mw$margin_window_type %or% NA_character_,
-    end_time = iso_to_datetime(mw$end_time %or% NA_character_),
-    is_intraday_margin_killswitch_enabled = data$is_intraday_margin_killswitch_enabled %or% NA,
-    is_intraday_margin_enrollment_killswitch_enabled = data$is_intraday_margin_enrollment_killswitch_enabled %or% NA
+    margin_window_type = coalesce_null(mw$margin_window_type, NA_character_),
+    end_time = iso_to_datetime(coalesce_null(mw$end_time, NA_character_)),
+    is_intraday_margin_killswitch_enabled = coalesce_null(data$is_intraday_margin_killswitch_enabled, NA),
+    is_intraday_margin_enrollment_killswitch_enabled = coalesce_null(
+      data$is_intraday_margin_enrollment_killswitch_enabled,
+      NA
+    )
   )[])
 }
 
@@ -605,20 +621,20 @@ parse_futures_balance <- function(data) {
 #' @keywords internal
 #' @noRd
 parse_futures_positions <- function(items) {
-  items <- Filter(Negate(is.null), items %or% list())
+  items <- Filter(Negate(is.null), coalesce_null(items, list()))
   if (length(items) == 0L) {
     return(data.table::data.table()[])
   }
   rows <- lapply(items, function(p) {
     return(data.table::data.table(
-      product_id = p$product_id %or% NA_character_,
-      side = p$side %or% NA_character_,
+      product_id = coalesce_null(p$product_id, NA_character_),
+      side = coalesce_null(p$side, NA_character_),
       number_of_contracts = flex_num(p$number_of_contracts),
       current_price = flex_num(p$current_price),
       avg_entry_price = flex_num(p$avg_entry_price),
       unrealized_pnl = flex_num(p$unrealized_pnl),
       daily_realized_pnl = flex_num(p$daily_realized_pnl),
-      expiration_time = iso_to_datetime(p$expiration_time %or% NA_character_)
+      expiration_time = iso_to_datetime(coalesce_null(p$expiration_time, NA_character_))
     ))
   })
   return(data.table::rbindlist(rows, fill = TRUE)[])
@@ -637,11 +653,11 @@ parse_futures_sweeps <- function(items) {
   }
   rows <- lapply(items, function(s) {
     return(data.table::data.table(
-      id = s$id %or% NA_character_,
+      id = coalesce_null(s$id, NA_character_),
       requested_amount = flex_num(s$requested_amount),
-      should_sweep_all = s$should_sweep_all %or% NA,
-      status = s$status %or% NA_character_,
-      schedule_time = iso_to_datetime(s$schedule_time %or% NA_character_)
+      should_sweep_all = coalesce_null(s$should_sweep_all, NA),
+      status = coalesce_null(s$status, NA_character_),
+      schedule_time = iso_to_datetime(coalesce_null(s$schedule_time, NA_character_))
     ))
   })
   return(data.table::rbindlist(rows, fill = TRUE)[])
@@ -709,8 +725,8 @@ parse_stats <- function(data) {
   ids <- names(data)
   rows <- lapply(ids, function(pid) {
     s <- data[[pid]]
-    d24 <- s$stats_24hour %or% list()
-    d30 <- s$stats_30day %or% list()
+    d24 <- coalesce_null(s$stats_24hour, list())
+    d30 <- coalesce_null(s$stats_30day, list())
     return(data.table::data.table(
       product_id = pid,
       open = num_or_na(d24$open),
@@ -760,20 +776,26 @@ parse_product_stats <- function(data) {
 #' @keywords internal
 #' @noRd
 parse_best_bid_ask <- function(data) {
-  items <- Filter(Negate(is.null), (data$pricebooks) %or% list())
+  items <- Filter(Negate(is.null), coalesce_null(data$pricebooks, list()))
   if (length(items) == 0L) {
     return(data.table::data.table()[])
   }
   rows <- lapply(items, function(pb) {
-    bid <- if (length(pb$bids) > 0L) pb$bids[[1L]] else list()
-    ask <- if (length(pb$asks) > 0L) pb$asks[[1L]] else list()
+    bid <- list()
+    if (length(pb$bids) > 0L) {
+      bid <- pb$bids[[1L]]
+    }
+    ask <- list()
+    if (length(pb$asks) > 0L) {
+      ask <- pb$asks[[1L]]
+    }
     return(data.table::data.table(
-      product_id = pb$product_id %or% NA_character_,
+      product_id = coalesce_null(pb$product_id, NA_character_),
       bid_price = num_or_na(bid$price),
       bid_size = num_or_na(bid$size),
       ask_price = num_or_na(ask$price),
       ask_size = num_or_na(ask$size),
-      time = iso_to_datetime(pb$time %or% NA_character_)
+      time = iso_to_datetime(coalesce_null(pb$time, NA_character_))
     ))
   })
   return(data.table::rbindlist(rows, fill = TRUE)[])
@@ -797,25 +819,25 @@ parse_best_bid_ask <- function(data) {
 #' @keywords internal
 #' @noRd
 parse_portfolio_breakdown <- function(data) {
-  bd <- (data$breakdown) %or% list()
+  bd <- coalesce_null(data$breakdown, list())
 
   one_type <- function(items, type) {
-    items <- Filter(Negate(is.null), items %or% list())
+    items <- Filter(Negate(is.null), coalesce_null(items, list()))
     if (length(items) == 0L) {
       return(NULL)
     }
     rows <- lapply(items, function(p) {
       return(data.table::data.table(
         position_type = type,
-        asset = p$asset %or% NA_character_,
-        account_uuid = p$account_uuid %or% NA_character_,
+        asset = coalesce_null(p$asset, NA_character_),
+        account_uuid = coalesce_null(p$account_uuid, NA_character_),
         total_balance_fiat = num_or_na(p$total_balance_fiat),
         total_balance_crypto = num_or_na(p$total_balance_crypto),
         available_to_trade_fiat = num_or_na(p$available_to_trade_fiat),
         allocation = num_or_na(p$allocation),
         one_day_change = num_or_na(p$one_day_change),
         cost_basis = flex_num(p$cost_basis),
-        expires_at = iso_to_datetime(p$expires_at %or% NA_character_),
+        expires_at = iso_to_datetime(coalesce_null(p$expires_at, NA_character_)),
         leverage = num_or_na(p$leverage),
         rate = num_or_na(p$rate)
       ))
@@ -831,19 +853,18 @@ parse_portfolio_breakdown <- function(data) {
       one_type(bd$perp_positions, "perp")
     )
   )
-  positions <- if (length(parts) == 0L) {
-    data.table::data.table()
-  } else {
-    data.table::rbindlist(parts, fill = TRUE)
+  positions <- data.table::data.table()
+  if (length(parts) > 0L) {
+    positions <- data.table::rbindlist(parts, fill = TRUE)
   }
   positions <- positions[]
 
-  p <- bd$portfolio %or% list()
-  b <- bd$portfolio_balances %or% list()
+  p <- coalesce_null(bd$portfolio, list())
+  b <- coalesce_null(bd$portfolio_balances, list())
   summary <- data.table::data.table(
-    uuid = p$uuid %or% NA_character_,
-    name = p$name %or% NA_character_,
-    type = p$type %or% NA_character_,
+    uuid = coalesce_null(p$uuid, NA_character_),
+    name = coalesce_null(p$name, NA_character_),
+    type = coalesce_null(p$type, NA_character_),
     total_balance = flex_num(b$total_balance),
     total_futures_balance = flex_num(b$total_futures_balance),
     total_cash_equivalent_balance = flex_num(b$total_cash_equivalent_balance),

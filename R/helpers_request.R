@@ -110,7 +110,7 @@ load_private_key <- function(private_key) {
 #' @keywords internal
 #' @noRd
 build_jwt <- function(keys, method, host, path) {
-  if (is.null(keys$api_private_key) || !nzchar(keys$api_private_key) || !nzchar(keys$api_key_name %or% "")) {
+  if (is.null(keys$api_private_key) || !nzchar(keys$api_private_key) || !nzchar(coalesce_null(keys$api_key_name, ""))) {
     rlang::abort(paste0(
       "Coinbase API credentials are not set. Provide them via get_api_keys() ",
       "or the COINBASE_API_KEY_NAME / COINBASE_API_PRIVATE_KEY environment variables."
