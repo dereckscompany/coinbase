@@ -54,15 +54,16 @@ validate_side <- function(side) {
 #' @noRd
 coerce_positive_string <- function(x, name) {
   v <- suppressWarnings(as.numeric(x))
-  if (length(v) != 1L || is.na(v) || v <= 0) {
-    rlang::abort(sprintf("`%s` must be a single positive number.", name))
+  # is.finite rejects NA, NaN, Inf, -Inf, and overflow (e.g. "1e999" -> Inf).
+  if (length(v) != 1L || !is.finite(v) || v <= 0) {
+    rlang::abort(sprintf("`%s` must be a single positive finite number.", name))
   }
-  # Preserve the caller's exact precision. A decimal character input is
-  # validated but returned VERBATIM (trimmed) so the value the user typed is
-  # sent unchanged. A numeric (or scientific-notation) input is formatted at
-  # full double precision without scientific notation. format()'s default
-  # 7-significant-digit rounding must never touch money values.
-  if (is.character(x) && !grepl("[eE]", x)) {
+  # Only a canonical plain-decimal character input is returned VERBATIM (so the
+  # exact value the user typed is sent unchanged, preserving full precision).
+  # Anything else as.numeric() tolerates -- hex ("0x10"), a leading sign ("+5"),
+  # a leading/trailing dot (".5", "1."), or scientific notation -- is routed
+  # through format() so the validated NUMBER (not the raw token) is transmitted.
+  if (is.character(x) && grepl("^[0-9]+(\\.[0-9]+)?$", trimws(x))) {
     return(trimws(x))
   }
   return(format(v, scientific = FALSE, trim = TRUE, digits = 15))
@@ -93,4 +94,32 @@ validate_order_config <- function(order_configuration) {
     ))
   }
   return(invisible(TRUE))
+}
+
+#' Stringify Numeric Fields in an Order Configuration
+#'
+#' Coinbase expects order sizes/prices as strings. If a caller passes numerics
+#' inside `order_configuration` (e.g. `base_size = 0.00000001`), `jsonlite`
+#' would serialise them with only 4 decimals / scientific notation, silently
+#' corrupting the value. This converts every numeric leaf of the inner config to
+#' a full-precision, non-scientific decimal string; logicals (e.g. `post_only`)
+#' and existing strings are left untouched.
+#'
+#' @param order_configuration A validated single-key order configuration.
+#' @return The same structure with numeric leaves converted to strings.
+#'
+#' @keywords internal
+#' @noRd
+stringify_order_config <- function(order_configuration) {
+  key <- names(order_configuration)[1]
+  inner <- order_configuration[[key]]
+  inner <- lapply(inner, function(val) {
+    if (is.numeric(val)) {
+      return(format(val, scientific = FALSE, trim = TRUE, digits = 15))
+    }
+    return(val)
+  })
+  out <- list()
+  out[[key]] <- inner
+  return(out)
 }

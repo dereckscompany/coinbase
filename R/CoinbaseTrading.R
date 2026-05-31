@@ -63,6 +63,7 @@ CoinbaseTrading <- R6::R6Class(
       validate_symbol(product_id)
       side <- validate_side(side)
       validate_order_config(order_configuration)
+      order_configuration <- stringify_order_config(order_configuration)
       assert::assert_scalar_character(client_order_id)
       body <- list(
         client_order_id = client_order_id,
@@ -90,6 +91,7 @@ CoinbaseTrading <- R6::R6Class(
       validate_symbol(product_id)
       side <- validate_side(side)
       validate_order_config(order_configuration)
+      order_configuration <- stringify_order_config(order_configuration)
       body <- list(
         product_id = product_id,
         side = side,

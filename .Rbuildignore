@@ -19,3 +19,5 @@
 ^\.Renviron$
 ^\.Renviron\.example$
 ^README\.Rmd$
+^tests/testthat/_problems$
+^tests/testthat/testthat-problems\.rds$

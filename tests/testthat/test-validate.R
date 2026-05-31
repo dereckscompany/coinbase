@@ -19,11 +19,41 @@ test_that("coerce_positive_string preserves full precision (never 7-sig-fig roun
   expect_equal(coerce_positive_string(73937.123456, "price"), "73937.123456")
 })
 
-test_that("coerce_positive_string rejects non-positive / non-numeric input", {
-  expect_error(coerce_positive_string("abc", "price"), "positive number")
-  expect_error(coerce_positive_string("0", "size"), "positive number")
-  expect_error(coerce_positive_string(-5, "price"), "positive number")
-  expect_error(coerce_positive_string(c(1, 2), "size"), "positive number")
+test_that("coerce_positive_string rejects non-positive / non-numeric / non-finite input", {
+  expect_error(coerce_positive_string("abc", "price"), "positive")
+  expect_error(coerce_positive_string("0", "size"), "positive")
+  expect_error(coerce_positive_string(-5, "price"), "positive")
+  expect_error(coerce_positive_string(c(1, 2), "size"), "positive")
+  expect_error(coerce_positive_string("Inf", "price"), "positive")
+  expect_error(coerce_positive_string("Infinity", "price"), "positive")
+  expect_error(coerce_positive_string("1e999", "size"), "positive") # overflow -> Inf
+  expect_error(coerce_positive_string("NaN", "price"), "positive")
+})
+
+test_that("coerce_positive_string normalises non-canonical tokens to the validated number", {
+  # The token sent must equal the validated number, never the raw spelling.
+  expect_equal(coerce_positive_string("0x10", "price"), "16")
+  expect_equal(coerce_positive_string("+5", "size"), "5")
+  expect_equal(coerce_positive_string(".5", "price"), "0.5")
+  expect_equal(coerce_positive_string("1.", "size"), "1")
+  expect_equal(coerce_positive_string("5e2", "price"), "500")
+})
+
+test_that("stringify_order_config converts numeric leaves to full-precision strings", {
+  cfg <- stringify_order_config(list(
+    limit_limit_gtc = list(
+      base_size = 0.00000001,
+      limit_price = 50000.123456789,
+      post_only = TRUE
+    )
+  ))
+  inner <- cfg$limit_limit_gtc
+  expect_equal(inner$base_size, "0.00000001")
+  expect_equal(inner$limit_price, "50000.123456789")
+  expect_identical(inner$post_only, TRUE) # logical untouched
+  # existing strings are left as-is
+  cfg2 <- stringify_order_config(list(market_market_ioc = list(quote_size = "10")))
+  expect_equal(cfg2$market_market_ioc$quote_size, "10")
 })
 
 test_that("validate_order_config rejects degenerate inputs", {

@@ -97,6 +97,26 @@ test_that("coinbase_paginate_cursor walks pages until has_next is false", {
   expect_equal(calls, 3L)
 })
 
+test_that("coinbase_paginate_cursor keeps paging when has_next is ABSENT (fills shape)", {
+  # The fills endpoint returns only {fills, cursor} -- no has_next. The walk must
+  # continue while the cursor is non-empty, not stop after page 1.
+  pages <- list(
+    list(fills = list(list(id = "1"), list(id = "2")), cursor = "P2"),
+    list(fills = list(list(id = "3")), cursor = "")
+  )
+  req_fn <- function(endpoint, query) {
+    idx <- if (is.null(query$cursor)) 1L else as.integer(sub("P", "", query$cursor))
+    return(pages[[idx]])
+  }
+  res <- coinbase_paginate_cursor(
+    endpoint = "/x",
+    items_field = "fills",
+    .req_fn = req_fn,
+    .parser = function(items) length(items)
+  )
+  expect_equal(res, 3L) # all pages, not just the first 2 items
+})
+
 test_that("coinbase_paginate_cursor respects max_pages", {
   page <- list(accounts = list(list(uuid = "1")), has_next = TRUE, cursor = "c1")
   req_fn <- function(endpoint, query) return(page)
