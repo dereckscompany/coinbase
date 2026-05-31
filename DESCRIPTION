@@ -1,6 +1,6 @@
 Package: coinbase
 Title: API Wrapper to Coinbase Advanced Trade
-Version: 0.0.0.9000
+Version: 0.0.1
 URL: https://dereckscompany.github.io/coinbase,
     https://github.com/dereckscompany/coinbase
 BugReports: https://github.com/dereckscompany/coinbase/issues

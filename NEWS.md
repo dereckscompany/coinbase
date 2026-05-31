@@ -1,7 +1,7 @@
-# coinbase 0.0.0.9000
+# coinbase 0.0.1
 
-Initial development version: an R wrapper for the Coinbase Advanced Trade API,
-supporting both synchronous and asynchronous (promise-based) operations.
+Initial release: an R wrapper for the Coinbase Advanced Trade API, supporting
+both synchronous and asynchronous (promise-based) operations.
 
 ## Features
 
