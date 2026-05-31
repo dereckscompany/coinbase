@@ -75,6 +75,41 @@ test_that("parse_coinbase_response aborts on HTTP >= 400 with status and body", 
   expect_error(parse_coinbase_response(resp), "NOT_FOUND")
 })
 
+test_that("coinbase_build_request omits NULL body fields (single-field edit) but keeps nested config", {
+  captured <- NULL
+  fake_perform <- function(req) {
+    b <- req$body$data
+    captured <<- if (is.raw(b)) rawToChar(b) else as.character(b)
+    return(httr2::response(
+      status_code = 200L,
+      headers = list(`Content-Type` = "application/json"),
+      body = charToRaw("{}")
+    ))
+  }
+  # single-field edit: price is NULL and must be omitted, size kept
+  coinbase_build_request(
+    base_url = "https://api.coinbase.com",
+    endpoint = "/e",
+    method = "POST",
+    body = list(order_id = "abc", price = NULL, size = "1"),
+    .perform = fake_perform
+  )
+  expect_false(grepl("price", captured))
+  expect_true(grepl("\"size\":\"1\"", captured))
+  expect_true(grepl("\"order_id\":\"abc\"", captured))
+
+  # nested order_configuration must survive intact
+  coinbase_build_request(
+    base_url = "https://api.coinbase.com",
+    endpoint = "/o",
+    method = "POST",
+    body = list(product_id = "BTC-USD", order_configuration = list(market_market_ioc = list(quote_size = "10"))),
+    .perform = fake_perform
+  )
+  expect_true(grepl("market_market_ioc", captured))
+  expect_true(grepl("\"quote_size\":\"10\"", captured))
+})
+
 test_that("parse_coinbase_response returns parsed body on success", {
   resp <- httr2::response(
     status_code = 200L,

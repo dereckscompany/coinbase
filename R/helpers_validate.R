@@ -57,7 +57,15 @@ coerce_positive_string <- function(x, name) {
   if (length(v) != 1L || is.na(v) || v <= 0) {
     rlang::abort(sprintf("`%s` must be a single positive number.", name))
   }
-  return(format(v, scientific = FALSE, trim = TRUE))
+  # Preserve the caller's exact precision. A decimal character input is
+  # validated but returned VERBATIM (trimmed) so the value the user typed is
+  # sent unchanged. A numeric (or scientific-notation) input is formatted at
+  # full double precision without scientific notation. format()'s default
+  # 7-significant-digit rounding must never touch money values.
+  if (is.character(x) && !grepl("[eE]", x)) {
+    return(trimws(x))
+  }
+  return(format(v, scientific = FALSE, trim = TRUE, digits = 15))
 }
 
 #' Validate an Order Configuration

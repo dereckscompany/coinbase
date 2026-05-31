@@ -31,6 +31,6 @@ test_that("coinbase_backfill_trades validates symbols and refuses a malformed ex
   writeLines(c("a,b", "1,2"), bad)
   expect_error(
     coinbase_backfill_trades("BTC-USD", file = bad),
-    "expected columns"
+    "required columns"
   )
 })

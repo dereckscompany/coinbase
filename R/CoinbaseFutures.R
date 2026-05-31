@@ -134,7 +134,9 @@ CoinbaseFutures <- R6::R6Class(
     #' @description Set the intraday margin setting.
     #' @param setting Character; e.g. `"INTRADAY_MARGIN_SETTING_STANDARD"` or
     #'   `"INTRADAY_MARGIN_SETTING_INTRADAY"`.
-    #' @return A single-row [data.table::data.table], or a promise thereof.
+    #' @return A single-row [data.table::data.table] echoing the applied
+    #'   `setting` (the API returns an empty body on success; a non-200 aborts),
+    #'   or a promise thereof.
     set_intraday_margin_setting = function(setting) {
       assert::assert_scalar_character(setting)
       return(private$.request(
@@ -142,7 +144,8 @@ CoinbaseFutures <- R6::R6Class(
         method = "POST",
         body = list(setting = setting),
         auth = TRUE,
-        .parser = as_dt_row
+        # The success body is empty ({}); echo the applied setting as confirmation.
+        .parser = function(b) data.table::data.table(setting = setting)
       ))
     },
 

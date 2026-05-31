@@ -215,7 +215,9 @@ spot (CBI) USD wallet.
     \if{html}{\out{</div>}}
   }
   \subsection{Returns}{
-    A single-row \link[data.table:data.table]{data.table::data.table}, or a promise thereof.
+    A single-row \link[data.table:data.table]{data.table::data.table} echoing the applied
+\code{setting} (the API returns an empty body on success; a non-200 aborts),
+or a promise thereof.
   }
 }
 

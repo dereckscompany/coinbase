@@ -188,8 +188,11 @@ coinbase_build_request <- function(
   # Surface the API's own error body rather than httr2's generic message.
   req <- httr2::req_error(req, is_error = function(resp) FALSE)
 
-  # JSON body
+  # JSON body. Strip top-level NULL fields (e.g. an unspecified price or size on
+  # a single-field edit) so they are omitted rather than sent as JSON null, matching
+  # the reference SDK. Nested objects (order_configuration) are left untouched.
   if (!is.null(body)) {
+    body <- body[!vapply(body, is.null, logical(1))]
     body_json <- jsonlite::toJSON(body, auto_unbox = TRUE, null = "null")
     req <- httr2::req_body_raw(req, body_json, type = "application/json")
   }

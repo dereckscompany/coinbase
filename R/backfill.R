@@ -99,9 +99,8 @@ coinbase_backfill_trades <- function(
       rlang::abort(paste0(
         "Output file '",
         file,
-        "' exists but lacks the expected columns ",
-        "(symbol, trade_id, side, price, size, time). Refusing to append; ",
-        "remove or fix the file."
+        "' exists but lacks the required columns ",
+        "(symbol, trade_id, time). Refusing to append; remove or fix the file."
       ))
     }
   }
