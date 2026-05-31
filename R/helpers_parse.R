@@ -689,3 +689,92 @@ parse_orderbook <- function(data, level = 2L) {
   )
   return(dt[])
 }
+
+#' Parse the Coinbase Exchange Bulk Product Stats into a data.table
+#'
+#' The bulk `/products/stats` endpoint returns an object keyed by product id,
+#' each value carrying `stats_24hour` and `stats_30day` sub-objects. This
+#' flattens it to one row per product with numeric 24h OHLCV plus 30-day volume
+#' -- the basis for a movers/most-active scanner.
+#'
+#' @param data A named list keyed by product id, or NULL.
+#' @return A [data.table::data.table], one row per product. Empty if NULL/empty.
+#'
+#' @keywords internal
+#' @noRd
+parse_stats <- function(data) {
+  if (is.null(data) || length(data) == 0) {
+    return(data.table::data.table()[])
+  }
+  ids <- names(data)
+  rows <- lapply(ids, function(pid) {
+    s <- data[[pid]]
+    d24 <- s$stats_24hour %or% list()
+    d30 <- s$stats_30day %or% list()
+    return(data.table::data.table(
+      product_id = pid,
+      open = num_or_na(d24$open),
+      high = num_or_na(d24$high),
+      low = num_or_na(d24$low),
+      last = num_or_na(d24$last),
+      volume = num_or_na(d24$volume),
+      volume_30day = num_or_na(d30$volume)
+    ))
+  })
+  return(data.table::rbindlist(rows, fill = TRUE)[])
+}
+
+#' Parse a Coinbase Exchange Single-Product Stats Object into a one-row data.table
+#'
+#' @param data A `/products/{id}/stats` object, or NULL.
+#' @return A single-row [data.table::data.table]. Empty if NULL.
+#'
+#' @keywords internal
+#' @noRd
+parse_product_stats <- function(data) {
+  if (is.null(data) || length(data) == 0) {
+    return(data.table::data.table()[])
+  }
+  return(data.table::data.table(
+    open = num_or_na(data$open),
+    high = num_or_na(data$high),
+    low = num_or_na(data$low),
+    last = num_or_na(data$last),
+    volume = num_or_na(data$volume),
+    volume_30day = num_or_na(data$volume_30day),
+    rfq_volume_24hour = num_or_na(data$rfq_volume_24hour),
+    rfq_volume_30day = num_or_na(data$rfq_volume_30day),
+    conversions_volume_24hour = num_or_na(data$conversions_volume_24hour),
+    conversions_volume_30day = num_or_na(data$conversions_volume_30day)
+  )[])
+}
+
+#' Parse a Coinbase Advanced Trade Best-Bid/Ask Response into a data.table
+#'
+#' Flattens the `pricebooks` array to one row per product carrying the best
+#' (first) bid and ask price/size, avoiding list columns.
+#'
+#' @param data A `GetBestBidAskResponse` object with a `pricebooks` array, or NULL.
+#' @return A [data.table::data.table], one row per product. Empty if NULL/empty.
+#'
+#' @keywords internal
+#' @noRd
+parse_best_bid_ask <- function(data) {
+  items <- Filter(Negate(is.null), (data$pricebooks) %or% list())
+  if (length(items) == 0L) {
+    return(data.table::data.table()[])
+  }
+  rows <- lapply(items, function(pb) {
+    bid <- if (length(pb$bids) > 0L) pb$bids[[1L]] else list()
+    ask <- if (length(pb$asks) > 0L) pb$asks[[1L]] else list()
+    return(data.table::data.table(
+      product_id = pb$product_id %or% NA_character_,
+      bid_price = num_or_na(bid$price),
+      bid_size = num_or_na(bid$size),
+      ask_price = num_or_na(ask$price),
+      ask_size = num_or_na(ask$size),
+      time = iso_to_datetime(pb$time %or% NA_character_)
+    ))
+  })
+  return(data.table::rbindlist(rows, fill = TRUE)[])
+}

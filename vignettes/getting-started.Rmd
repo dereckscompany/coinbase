@@ -172,6 +172,49 @@ st <- market$get_server_time()
 st[]
 ```
 
+### Market Stats (Scanner Source)
+
+`get_stats()` returns 24-hour and 30-day stats for **every** product in a single
+call -- the basis for a market scanner. Rank the returned table yourself, e.g. by
+`volume` for the most active products or by 24h change `(last - open) / open` for
+the top movers:
+
+```{r stats}
+stats <- market$get_stats()
+
+# Most active products by 24h volume
+head(stats[order(-volume)], 5)
+
+# Biggest 24h gainers
+stats[, change := (last - open) / open]
+head(stats[order(-change)], 5)
+```
+
+For a single product, `get_product_stats()` also carries the RFQ/conversion
+volumes:
+
+```{r product-stats}
+market$get_product_stats("BTC-USD")[]
+```
+
+### Best Bid/Ask Across Products
+
+`get_best_bid_ask()` returns the top of book for many products in one call.
+Unlike the other `CoinbaseMarketData` methods it uses the Advanced Trade host, so
+it **requires credentials**:
+
+```{r best-bid-ask}
+market_auth <- CoinbaseMarketData$new()
+```
+
+```{r best-bid-ask-hidden, echo = FALSE}
+market_auth <- CoinbaseMarketData$new(keys = KEYS)
+```
+
+```{r best-bid-ask-call}
+market_auth$get_best_bid_ask(c("BTC-USD", "ETH-USD"))[]
+```
+
 ---
 
 ## Deep Tick History and OHLCV

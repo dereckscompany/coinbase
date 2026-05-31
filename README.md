@@ -111,6 +111,19 @@ market$get_orderbook("BTC-USD", level = 2)
     #> 5:    ask 74103.63 0.26058806          2
     #> 6:    ask 74103.66 0.00140588          2
 
+``` r
+# 24h stats for every product in one call -- rank it yourself for a
+# movers / most-active scanner
+stats <- market$get_stats()
+head(stats[order(-volume)], 5)
+```
+
+    #>    product_id     open     high   low     last    volume volume_30day
+    #>        <char>    <num>    <num> <num>    <num>     <num>        <num>
+    #> 1:    SOL-USD   150.00   162.00   148   159.80 900000.00   28000000.0
+    #> 2:    ETH-USD  2400.10  2455.00  2390  2440.55  55000.00    1500000.0
+    #> 3:    BTC-USD 73504.38 74156.59 73382 73958.00   3477.63     177000.5
+
 Deep tick history pages the trades endpoint backwards in time; aggregate
 the result to OHLCV at any timeframe with `trades_to_ohlcv()`:
 

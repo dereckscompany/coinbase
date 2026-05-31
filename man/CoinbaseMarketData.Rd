@@ -27,6 +27,9 @@ then aggregate with \code{\link[=trades_to_ohlcv]{trades_to_ohlcv()}}.
    get_trades_history \tab GET /products/\{id\}/trades (paged) \tab No \cr
    get_orderbook \tab GET /products/\{id\}/book \tab No \cr
    get_ticker \tab GET /products/\{id\}/ticker \tab No \cr
+   get_stats \tab GET /products/stats \tab No \cr
+   get_product_stats \tab GET /products/\{id\}/stats \tab No \cr
+   get_best_bid_ask \tab GET /api/v3/brokerage/best_bid_ask \tab Yes \cr
    get_server_time \tab GET /time \tab No \cr
 }
 
@@ -62,6 +65,9 @@ while (!later::loop_empty()) later::run_now()
     \item \href{#method-CoinbaseMarketData-get_trades_history}{\code{CoinbaseMarketData$get_trades_history()}}
     \item \href{#method-CoinbaseMarketData-get_orderbook}{\code{CoinbaseMarketData$get_orderbook()}}
     \item \href{#method-CoinbaseMarketData-get_ticker}{\code{CoinbaseMarketData$get_ticker()}}
+    \item \href{#method-CoinbaseMarketData-get_stats}{\code{CoinbaseMarketData$get_stats()}}
+    \item \href{#method-CoinbaseMarketData-get_product_stats}{\code{CoinbaseMarketData$get_product_stats()}}
+    \item \href{#method-CoinbaseMarketData-get_best_bid_ask}{\code{CoinbaseMarketData$get_best_bid_ask()}}
     \item \href{#method-CoinbaseMarketData-get_server_time}{\code{CoinbaseMarketData$get_server_time()}}
     \item \href{#method-CoinbaseMarketData-clone}{\code{CoinbaseMarketData$clone()}}
   }
@@ -250,6 +256,79 @@ product.
   }
   \subsection{Returns}{
     A single-row \link[data.table:data.table]{data.table::data.table}, or a promise thereof.
+  }
+}
+
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-CoinbaseMarketData-get_stats"></a>}}
+\if{latex}{\out{\hypertarget{method-CoinbaseMarketData-get_stats}{}}}
+\subsection{\code{CoinbaseMarketData$get_stats()}}{
+  Retrieve 24-hour and 30-day stats for \emph{every} product in a
+single call -- the basis for a market scanner / movers screener. Rank the
+returned table yourself by 24h change \code{(last - open) / open} for top
+gainers/losers, or by \code{volume} for the most active products. Uses the
+Exchange host's bulk stats endpoint.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{CoinbaseMarketData$get_stats()}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    A \link[data.table:data.table]{data.table::data.table} with one row per product: \code{product_id},
+\code{open}, \code{high}, \code{low}, \code{last}, \code{volume}, \code{volume_30day}, or a promise
+thereof.
+  }
+}
+
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-CoinbaseMarketData-get_product_stats"></a>}}
+\if{latex}{\out{\hypertarget{method-CoinbaseMarketData-get_product_stats}{}}}
+\subsection{\code{CoinbaseMarketData$get_product_stats()}}{
+  Retrieve 24-hour and 30-day stats for a single product.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{CoinbaseMarketData$get_product_stats(product_id)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{product_id}}{Character; the pair symbol, e.g. \code{"BTC-USD"}.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    A single-row \link[data.table:data.table]{data.table::data.table} with \code{open}, \code{high}, \code{low},
+\code{last}, \code{volume}, \code{volume_30day}, and the RFQ/conversion volumes, or a
+promise thereof.
+  }
+}
+
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-CoinbaseMarketData-get_best_bid_ask"></a>}}
+\if{latex}{\out{\hypertarget{method-CoinbaseMarketData-get_best_bid_ask}{}}}
+\subsection{\code{CoinbaseMarketData$get_best_bid_ask()}}{
+  Retrieve the best bid/ask for many products in one call.
+Unlike the other \code{CoinbaseMarketData} methods, this hits the \strong{Advanced
+Trade} host and therefore \strong{requires credentials} (construct the client
+with \code{keys}).
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{CoinbaseMarketData$get_best_bid_ask(product_ids = NULL)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{product_ids}}{Character vector or NULL; products to fetch. \code{NULL}
+returns the best bid/ask for all products.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    A \link[data.table:data.table]{data.table::data.table} with one row per product: \code{product_id},
+\code{bid_price}, \code{bid_size}, \code{ask_price}, \code{ask_size}, \code{time}, or a promise
+thereof.
   }
 }
 

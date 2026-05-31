@@ -108,3 +108,67 @@ test_that("trades_to_ohlcv returns an empty data.table for empty input", {
   )
   expect_equal(nrow(trades_to_ohlcv(empty)), 0L)
 })
+
+test_that("parse_stats flattens bulk product stats with no list columns", {
+  raw <- list(
+    `BTC-USD` = list(
+      stats_24hour = list(open = "100", high = "110", low = "90", last = "105", volume = "5"),
+      stats_30day = list(volume = "150")
+    ),
+    `ETH-USD` = list(
+      stats_24hour = list(open = "10", high = "12", low = "9", last = "11", volume = "50"),
+      stats_30day = list(volume = "1500")
+    )
+  )
+  dt <- parse_stats(raw)
+  expect_equal(nrow(dt), 2L)
+  expect_equal(names(dt), c("product_id", "open", "high", "low", "last", "volume", "volume_30day"))
+  expect_equal(dt[product_id == "BTC-USD"]$last, 105)
+  expect_equal(dt[product_id == "ETH-USD"]$volume_30day, 1500)
+  expect_false(any(vapply(dt, is.list, logical(1))))
+  expect_equal(nrow(parse_stats(NULL)), 0L)
+})
+
+test_that("parse_product_stats flattens a single product's stats", {
+  dt <- parse_product_stats(list(
+    open = "1",
+    high = "2",
+    low = "0.5",
+    last = "1.5",
+    volume = "9",
+    volume_30day = "99",
+    rfq_volume_24hour = "1",
+    rfq_volume_30day = "2",
+    conversions_volume_24hour = "0",
+    conversions_volume_30day = "0"
+  ))
+  expect_equal(nrow(dt), 1L)
+  expect_equal(dt$last, 1.5)
+  expect_equal(dt$volume_30day, 99)
+  expect_false(any(vapply(dt, is.list, logical(1))))
+})
+
+test_that("parse_best_bid_ask flattens pricebooks to one row per product", {
+  dt <- parse_best_bid_ask(list(
+    pricebooks = list(
+      list(
+        product_id = "BTC-USD",
+        bids = list(list(price = "100", size = "1")),
+        asks = list(list(price = "101", size = "2")),
+        time = "2026-05-31T00:00:00Z"
+      ),
+      list(
+        product_id = "ETH-USD",
+        bids = list(list(price = "10", size = "5")),
+        asks = list(list(price = "11", size = "6")),
+        time = "2026-05-31T00:00:00Z"
+      )
+    )
+  ))
+  expect_equal(nrow(dt), 2L)
+  expect_equal(names(dt), c("product_id", "bid_price", "bid_size", "ask_price", "ask_size", "time"))
+  expect_equal(dt[product_id == "BTC-USD"]$ask_price, 101)
+  expect_true(inherits(dt$time, "POSIXct"))
+  expect_false(any(vapply(dt, is.list, logical(1))))
+  expect_equal(nrow(parse_best_bid_ask(list(pricebooks = list()))), 0L)
+})
