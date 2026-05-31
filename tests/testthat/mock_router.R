@@ -29,7 +29,8 @@ box::use(./`helper-mockery`[
   # Trading (Advanced Trade host)
   mock_cb_orders_response, mock_cb_order_response,
   mock_cb_fills_response, mock_cb_preview_response,
-  mock_cb_create_order_response, mock_cb_edit_order_response,
+  mock_cb_create_order_response, mock_cb_close_position_response,
+  mock_cb_edit_order_response,
   mock_cb_edit_preview_response, mock_cb_cancel_orders_response,
   # Futures (CFM) (Advanced Trade host)
   mock_cb_futures_balance_response, mock_cb_futures_positions_response,
@@ -86,31 +87,80 @@ box::use(./`helper-mockery`[
   list(pattern = "/api/v3/brokerage/orders/historical/", fixture = function() return(mock_cb_order_response())),
 
   # Order actions (before the generic /orders create)
-  list(pattern = "/api/v3/brokerage/orders/preview", fixture = function() return(mock_cb_preview_response()), method = "POST"),
-  list(pattern = "/api/v3/brokerage/orders/edit_preview", fixture = function() return(mock_cb_edit_preview_response()), method = "POST"),
-  list(pattern = "/api/v3/brokerage/orders/edit", fixture = function() return(mock_cb_edit_order_response()), method = "POST"),
-  list(pattern = "/api/v3/brokerage/orders/batch_cancel", fixture = function() return(mock_cb_cancel_orders_response()), method = "POST"),
+  list(
+    pattern = "/api/v3/brokerage/orders/preview",
+    fixture = function() return(mock_cb_preview_response()),
+    method = "POST"
+  ),
+  list(
+    pattern = "/api/v3/brokerage/orders/edit_preview",
+    fixture = function() return(mock_cb_edit_preview_response()),
+    method = "POST"
+  ),
+  list(
+    pattern = "/api/v3/brokerage/orders/edit",
+    fixture = function() return(mock_cb_edit_order_response()),
+    method = "POST"
+  ),
+  list(
+    pattern = "/api/v3/brokerage/orders/batch_cancel",
+    fixture = function() return(mock_cb_cancel_orders_response()),
+    method = "POST"
+  ),
+  list(
+    pattern = "/api/v3/brokerage/orders/close_position",
+    fixture = function() return(mock_cb_close_position_response()),
+    method = "POST"
+  ),
 
   # Create order
-  list(pattern = "/api/v3/brokerage/orders", fixture = function() return(mock_cb_create_order_response()), method = "POST"),
+  list(
+    pattern = "/api/v3/brokerage/orders",
+    fixture = function() return(mock_cb_create_order_response()),
+    method = "POST"
+  ),
 
   # ---- Futures (CFM) (api.coinbase.com Advanced Trade) ----
 
-  list(pattern = "/api/v3/brokerage/cfm/balance_summary", fixture = function() return(mock_cb_futures_balance_response())),
+  list(pattern = "/api/v3/brokerage/cfm/balance_summary", fixture = function() {
+    return(mock_cb_futures_balance_response())
+  }),
 
   # Single position by product (before the positions list)
   list(pattern = "/api/v3/brokerage/cfm/positions/", fixture = function() return(mock_cb_futures_position_response())),
   list(pattern = "/api/v3/brokerage/cfm/positions", fixture = function() return(mock_cb_futures_positions_response())),
 
   # Sweeps: schedule (before generic), list (GET), cancel (DELETE)
-  list(pattern = "/api/v3/brokerage/cfm/sweeps/schedule", fixture = function() return(mock_cb_schedule_sweep_response()), method = "POST"),
-  list(pattern = "/api/v3/brokerage/cfm/sweeps", fixture = function() return(mock_cb_cancel_sweep_response()), method = "DELETE"),
-  list(pattern = "/api/v3/brokerage/cfm/sweeps", fixture = function() return(mock_cb_futures_sweeps_response()), method = "GET"),
+  list(
+    pattern = "/api/v3/brokerage/cfm/sweeps/schedule",
+    fixture = function() return(mock_cb_schedule_sweep_response()),
+    method = "POST"
+  ),
+  list(
+    pattern = "/api/v3/brokerage/cfm/sweeps",
+    fixture = function() return(mock_cb_cancel_sweep_response()),
+    method = "DELETE"
+  ),
+  list(
+    pattern = "/api/v3/brokerage/cfm/sweeps",
+    fixture = function() return(mock_cb_futures_sweeps_response()),
+    method = "GET"
+  ),
 
   # Intraday margin: current window, margin setting getter (GET) and setter (POST -> empty body)
-  list(pattern = "/api/v3/brokerage/cfm/intraday/current_margin_window", fixture = function() return(mock_cb_current_margin_window_response())),
-  list(pattern = "/api/v3/brokerage/cfm/intraday/margin_setting", fixture = function() return(mock_cb_empty_response()), method = "POST"),
-  list(pattern = "/api/v3/brokerage/cfm/intraday/margin_setting", fixture = function() return(mock_cb_intraday_margin_setting_response()), method = "GET")
+  list(pattern = "/api/v3/brokerage/cfm/intraday/current_margin_window", fixture = function() {
+    return(mock_cb_current_margin_window_response())
+  }),
+  list(
+    pattern = "/api/v3/brokerage/cfm/intraday/margin_setting",
+    fixture = function() return(mock_cb_empty_response()),
+    method = "POST"
+  ),
+  list(
+    pattern = "/api/v3/brokerage/cfm/intraday/margin_setting",
+    fixture = function() return(mock_cb_intraday_margin_setting_response()),
+    method = "GET"
+  )
 )
 
 #' Mock HTTP router for README and vignettes

@@ -155,10 +155,34 @@ mock_cb_candles_response <- function() {
 #' GET /products/{id}/trades -> parse_trades (array of trade objects).
 mock_cb_trades_response <- function() {
   return(list(
-    list(trade_id = 1026942323, side = "sell", size = "0.00000052", price = "74101.53000000", time = "2026-05-31T04:58:29.891511Z"),
-    list(trade_id = 1026942322, side = "sell", size = "0.00000240", price = "74101.53000000", time = "2026-05-31T04:58:29.547159Z"),
-    list(trade_id = 1026942321, side = "buy", size = "0.00058315", price = "74101.54000000", time = "2026-05-31T04:58:29.144132Z"),
-    list(trade_id = 1026942320, side = "buy", size = "0.01200000", price = "74100.98000000", time = "2026-05-31T04:58:28.882001Z")
+    list(
+      trade_id = 1026942323,
+      side = "sell",
+      size = "0.00000052",
+      price = "74101.53000000",
+      time = "2026-05-31T04:58:29.891511Z"
+    ),
+    list(
+      trade_id = 1026942322,
+      side = "sell",
+      size = "0.00000240",
+      price = "74101.53000000",
+      time = "2026-05-31T04:58:29.547159Z"
+    ),
+    list(
+      trade_id = 1026942321,
+      side = "buy",
+      size = "0.00058315",
+      price = "74101.54000000",
+      time = "2026-05-31T04:58:29.144132Z"
+    ),
+    list(
+      trade_id = 1026942320,
+      side = "buy",
+      size = "0.01200000",
+      price = "74100.98000000",
+      time = "2026-05-31T04:58:28.882001Z"
+    )
   ))
 }
 
@@ -490,6 +514,24 @@ mock_cb_create_order_response <- function() {
     order_configuration = list(
       market_market_ioc = list(
         quote_size = "10.00"
+      )
+    )
+  ))
+}
+
+#' POST /orders/close_position -> parse_create_order (close-position response).
+mock_cb_close_position_response <- function() {
+  return(list(
+    success = TRUE,
+    success_response = list(
+      order_id = "4444dddd-5555-eeee-6666-ffffffffffff",
+      product_id = "BIT-28FEB25-CDE",
+      side = "BUY",
+      client_order_id = "client-close-001"
+    ),
+    order_configuration = list(
+      market_market_ioc = list(
+        base_size = "1"
       )
     )
   ))

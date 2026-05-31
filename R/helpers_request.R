@@ -120,7 +120,7 @@ build_jwt <- function(keys, method, host, path) {
   # EdDSA for Ed25519 keys -- both of which Coinbase accepts.
   key <- load_private_key(keys$api_private_key)
 
-  now <- as.integer(unclass(Sys.time()))
+  now <- as.integer(as.numeric(lubridate::now("UTC")))
   claim <- jose::jwt_claim(
     sub = keys$api_key_name,
     iss = "cdp",

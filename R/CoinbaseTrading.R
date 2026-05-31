@@ -316,6 +316,29 @@ CoinbaseTrading <- R6::R6Class(
         auth = TRUE,
         .parser = function(b) parse_cancel_results(b$results)
       ))
+    },
+
+    #' @description Place an order to close an open position for a product. This
+    #'   is the idiomatic way to flatten a position -- e.g. the short leg of a
+    #'   futures pair -- without hand-constructing an opposing order.
+    #' @param product_id Character; the product whose position to close.
+    #' @param size Character/numeric or NULL; the amount (contracts / base size)
+    #'   to close. `NULL` closes the entire position.
+    #' @param client_order_id Character; idempotency key. Defaults to a fresh
+    #'   UUID via [generate_client_order_id()].
+    #' @return A single-row [data.table::data.table] with `success`, the scalar
+    #'   `order_id`, and flattened order details, or a promise thereof.
+    close_position = function(product_id, size = NULL, client_order_id = generate_client_order_id()) {
+      validate_symbol(product_id)
+      assert::assert_scalar_character(client_order_id)
+      size <- if (!is.null(size)) coerce_positive_string(size, "size") else NULL
+      return(private$.request(
+        endpoint = "/api/v3/brokerage/orders/close_position",
+        method = "POST",
+        body = list(client_order_id = client_order_id, product_id = product_id, size = size),
+        auth = TRUE,
+        .parser = parse_create_order
+      ))
     }
   ),
   private = list(
