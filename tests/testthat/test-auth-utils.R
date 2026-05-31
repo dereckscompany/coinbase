@@ -51,8 +51,14 @@ test_that("iso_to_datetime handles fractional seconds, NA, and vectors", {
 })
 
 test_that("datetime_to_epoch round-trips and s_to_datetime is UTC", {
-  expect_equal(datetime_to_epoch(s_to_datetime(1780000000)), 1780000000L)
+  expect_equal(datetime_to_epoch(s_to_datetime(1780000000)), 1780000000)
   expect_true(inherits(s_to_datetime(0), "POSIXct"))
+})
+
+test_that("datetime_to_epoch does not overflow past 2038 (no NA)", {
+  e <- datetime_to_epoch(lubridate::as_datetime("2040-01-01T00:00:00Z"))
+  expect_false(is.na(e))
+  expect_equal(e, as.numeric(lubridate::as_datetime("2040-01-01T00:00:00Z")))
 })
 
 test_that("build_jwt produces a 3-part ES256 token with a query-less uri claim", {

@@ -39,11 +39,28 @@ validate_side <- function(side) {
   return(up)
 }
 
+#' Format a Number as a Locale-Independent Non-Scientific Decimal String
+#'
+#' `format()`/`formatC()` honour `getOption("OutDec")`, so under a comma-decimal
+#' locale a price would serialise as e.g. `"50000,5"` and corrupt the order.
+#' This forces a `.` decimal mark and full (15-digit) non-scientific precision.
+#'
+#' @param v A finite numeric scalar.
+#' @return Character; the value as a plain decimal string with a `.` separator.
+#'
+#' @keywords internal
+#' @noRd
+format_decimal <- function(v) {
+  old <- options(OutDec = ".")
+  on.exit(options(old), add = TRUE)
+  return(format(v, scientific = FALSE, trim = TRUE, digits = 15))
+}
+
 #' Coerce a Value to a Positive Decimal String
 #'
-#' Validates that `x` is a single positive number and returns it as a plain
-#' (non-scientific) decimal string, the form the Coinbase API expects for
-#' prices, sizes, and amounts. Aborts with a clean message on anything else.
+#' Validates that `x` is a single positive, finite number and returns it as a
+#' plain (non-scientific, `.`-separated) decimal string, the form the Coinbase
+#' API expects for prices, sizes, and amounts. Aborts on anything else.
 #'
 #' @param x A scalar numeric or numeric-like string.
 #' @param name Character; the parameter name, for the error message.
@@ -62,11 +79,11 @@ coerce_positive_string <- function(x, name) {
   # exact value the user typed is sent unchanged, preserving full precision).
   # Anything else as.numeric() tolerates -- hex ("0x10"), a leading sign ("+5"),
   # a leading/trailing dot (".5", "1."), or scientific notation -- is routed
-  # through format() so the validated NUMBER (not the raw token) is transmitted.
+  # through the validated NUMBER (not the raw token).
   if (is.character(x) && grepl("^[0-9]+(\\.[0-9]+)?$", trimws(x))) {
     return(trimws(x))
   }
-  return(format(v, scientific = FALSE, trim = TRUE, digits = 15))
+  return(format_decimal(v))
 }
 
 #' Validate an Order Configuration
@@ -96,29 +113,34 @@ validate_order_config <- function(order_configuration) {
   return(invisible(TRUE))
 }
 
-#' Stringify Numeric Fields in an Order Configuration
+#' Validate and Stringify the Money Fields of an Order Configuration
 #'
-#' Coinbase expects order sizes/prices as strings. If a caller passes numerics
-#' inside `order_configuration` (e.g. `base_size = 0.00000001`), `jsonlite`
-#' would serialise them with only 4 decimals / scientific notation, silently
-#' corrupting the value. This converts every numeric leaf of the inner config to
-#' a full-precision, non-scientific decimal string; logicals (e.g. `post_only`)
-#' and existing strings are left untouched.
+#' Coinbase expects order sizes/prices as strings. The money leaves
+#' (`base_size`, `quote_size`, `limit_price`, `stop_price`, `stop_trigger_price`)
+#' are routed through [coerce_positive_string()] so they are both VALIDATED
+#' (positive, finite -- never `Inf`/`NaN`/negative) and serialised at full,
+#' locale-independent, non-scientific precision. Non-money leaves (`post_only`,
+#' `end_time`, `stop_direction`, `leverage`, ...) are left untouched.
 #'
-#' @param order_configuration A validated single-key order configuration.
-#' @return The same structure with numeric leaves converted to strings.
+#' @param order_configuration A structurally-validated single-key order config.
+#' @return The same structure with money leaves validated and stringified.
 #'
 #' @keywords internal
 #' @noRd
 stringify_order_config <- function(order_configuration) {
+  money_keys <- c("base_size", "quote_size", "limit_price", "stop_price", "stop_trigger_price")
   key <- names(order_configuration)[1]
   inner <- order_configuration[[key]]
-  inner <- lapply(inner, function(val) {
-    if (is.numeric(val)) {
-      return(format(val, scientific = FALSE, trim = TRUE, digits = 15))
+  inner_names <- names(inner)
+  inner <- lapply(seq_along(inner), function(i) {
+    nm <- inner_names[i]
+    val <- inner[[i]]
+    if (!is.null(nm) && nm %in% money_keys && !is.null(val)) {
+      return(coerce_positive_string(val, nm))
     }
     return(val)
   })
+  names(inner) <- inner_names
   out <- list()
   out[[key]] <- inner
   return(out)

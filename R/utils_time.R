@@ -33,7 +33,7 @@ s_to_datetime <- function(s) {
 #' Coinbase Exchange API expects for candle time bounds.
 #'
 #' @param x A POSIXct, Date, or value coercible by [lubridate::as_datetime()].
-#' @return Integer; epoch seconds. `NULL` passes through as `NULL`.
+#' @return Numeric; whole-number epoch seconds. `NULL` passes through as `NULL`.
 #'
 #' @importFrom lubridate as_datetime
 #' @keywords internal
@@ -42,5 +42,8 @@ datetime_to_epoch <- function(x) {
   if (is.null(x)) {
     return(NULL)
   }
-  return(as.integer(as.numeric(lubridate::as_datetime(x, tz = "UTC"))))
+  # Keep this a double, not as.integer(): epoch seconds beyond 2038-01-19 exceed
+  # the 32-bit integer range and would silently become NA. httr2 serialises a
+  # whole-number double cleanly (no scientific notation) in the query string.
+  return(floor(as.numeric(lubridate::as_datetime(x, tz = "UTC"))))
 }
