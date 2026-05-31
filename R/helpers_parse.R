@@ -778,3 +778,78 @@ parse_best_bid_ask <- function(data) {
   })
   return(data.table::rbindlist(rows, fill = TRUE)[])
 }
+
+#' Parse a Coinbase Portfolio Breakdown into a positions data.table (+ summary attr)
+#'
+#' The breakdown response nests a portfolio summary alongside several position
+#' arrays. To honour the no-list-column contract while still returning a single
+#' object, the spot/futures/perp positions are flattened into one data.table
+#' (one row per holding, tagged by `position_type`), and the portfolio's
+#' aggregate balance totals are attached as a one-row data.table in the
+#' `"summary"` attribute (the same idiom as the `"failures"` attribute on
+#' [coinbase_backfill_trades()]).
+#'
+#' @param data A `GetPortfolioBreakdownResponse` object with a `breakdown` field,
+#'   or NULL.
+#' @return A [data.table::data.table] of positions carrying a `"summary"`
+#'   attribute. Empty (but still with the attribute) when there are no positions.
+#'
+#' @keywords internal
+#' @noRd
+parse_portfolio_breakdown <- function(data) {
+  bd <- (data$breakdown) %or% list()
+
+  one_type <- function(items, type) {
+    items <- Filter(Negate(is.null), items %or% list())
+    if (length(items) == 0L) {
+      return(NULL)
+    }
+    rows <- lapply(items, function(p) {
+      return(data.table::data.table(
+        position_type = type,
+        asset = p$asset %or% NA_character_,
+        account_uuid = p$account_uuid %or% NA_character_,
+        total_balance_fiat = num_or_na(p$total_balance_fiat),
+        total_balance_crypto = num_or_na(p$total_balance_crypto),
+        available_to_trade_fiat = num_or_na(p$available_to_trade_fiat),
+        allocation = num_or_na(p$allocation),
+        one_day_change = num_or_na(p$one_day_change),
+        cost_basis = flex_num(p$cost_basis),
+        expires_at = iso_to_datetime(p$expires_at %or% NA_character_),
+        leverage = num_or_na(p$leverage),
+        rate = num_or_na(p$rate)
+      ))
+    })
+    return(data.table::rbindlist(rows, fill = TRUE))
+  }
+
+  parts <- Filter(
+    Negate(is.null),
+    list(
+      one_type(bd$spot_positions, "spot"),
+      one_type(bd$futures_positions, "futures"),
+      one_type(bd$perp_positions, "perp")
+    )
+  )
+  positions <- if (length(parts) == 0L) {
+    data.table::data.table()
+  } else {
+    data.table::rbindlist(parts, fill = TRUE)
+  }
+  positions <- positions[]
+
+  p <- bd$portfolio %or% list()
+  b <- bd$portfolio_balances %or% list()
+  summary <- data.table::data.table(
+    uuid = p$uuid %or% NA_character_,
+    name = p$name %or% NA_character_,
+    type = p$type %or% NA_character_,
+    total_balance = flex_num(b$total_balance),
+    total_futures_balance = flex_num(b$total_futures_balance),
+    total_cash_equivalent_balance = flex_num(b$total_cash_equivalent_balance),
+    total_crypto_balance = flex_num(b$total_crypto_balance),
+    total_neptune_balance = flex_num(b$total_neptune_balance)
+  )
+  data.table::setattr(positions, "summary", summary[])
+  return(positions)
+}

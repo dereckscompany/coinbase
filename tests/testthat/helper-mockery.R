@@ -423,6 +423,58 @@ mock_cb_portfolios_response <- function() {
   ))
 }
 
+#' GET /portfolios/{uuid} -> parse_portfolio_breakdown (summary + position arrays).
+mock_cb_portfolio_breakdown_response <- function() {
+  return(list(
+    breakdown = list(
+      portfolio = list(name = "Algo", uuid = "7d6e5f4c-2222-4b1a-8ccc-fedcba987654", type = "CONSUMER"),
+      portfolio_balances = list(
+        total_balance = list(value = "125000.00", currency = "USD"),
+        total_futures_balance = list(value = "25000.00", currency = "USD"),
+        total_cash_equivalent_balance = list(value = "40000.00", currency = "USD"),
+        total_crypto_balance = list(value = "85000.00", currency = "USD"),
+        total_neptune_balance = list(value = "0.00", currency = "USD")
+      ),
+      spot_positions = list(
+        list(
+          asset = "BTC",
+          account_uuid = "a1-spot",
+          total_balance_fiat = 60000.0,
+          total_balance_crypto = 0.81,
+          available_to_trade_fiat = 60000.0,
+          allocation = 0.48,
+          one_day_change = 0.012,
+          cost_basis = list(value = "55000.00", currency = "USD"),
+          is_cash = FALSE
+        ),
+        list(
+          asset = "USD",
+          account_uuid = "a2-spot",
+          total_balance_fiat = 40000.0,
+          total_balance_crypto = 40000.0,
+          available_to_trade_fiat = 40000.0,
+          allocation = 0.32,
+          one_day_change = 0.0,
+          cost_basis = list(value = "40000.00", currency = "USD"),
+          is_cash = TRUE
+        )
+      ),
+      futures_positions = list(
+        list(
+          asset = "BIT-28FEB25-CDE",
+          account_uuid = "f1-cfm",
+          total_balance_fiat = 25000.0,
+          allocation = 0.20,
+          one_day_change = -0.008,
+          leverage = 2.0,
+          expires_at = "2026-02-28T00:00:00Z"
+        )
+      ),
+      perp_positions = list()
+    )
+  ))
+}
+
 #' GET /key_permissions -> as_dt_row.
 mock_cb_key_permissions_response <- function() {
   return(list(
