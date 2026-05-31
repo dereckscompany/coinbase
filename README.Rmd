@@ -2,7 +2,7 @@
 output: github_document
 ---
 
-```{r, include=FALSE}
+```{r setup, include = FALSE}
 knitr::opts_chunk$set(
     warning = FALSE,
     message = FALSE,
@@ -13,6 +13,37 @@ knitr::opts_chunk$set(
     dpi = 150,
     collapse = TRUE,
     comment = "#>"
+)
+
+# Package symbols used throughout, plus the shared mock HTTP router.
+box::use(
+    coinbase[
+        CoinbaseMarketData,
+        CoinbaseAccount,
+        CoinbaseTrading,
+        CoinbaseFutures,
+        trades_to_ohlcv,
+        coinbase_backfill_trades
+    ],
+    coro,
+    later,
+    ./tests/testthat/mock_router[mock_router]
+)
+
+# httr2 exposes a native global mock hook: this intercepts every
+# req_perform / req_perform_promise call and answers from canned fixtures, so
+# the document renders against deterministic data with no network, no real
+# credentials, and no funds.
+options(httr2_mock = mock_router)
+
+# coinbase signs a JWT with the api_private_key BEFORE the request is performed,
+# so a key must still be loadable. We generate a THROWAWAY ephemeral EC P-256
+# key for this build: it signs fine, the mock ignores the Authorization header,
+# it grants nothing, and it is regenerated on every render.
+.sk <- openssl::ec_keygen("P-256")
+KEYS <- list(
+    api_key_name = "organizations/00000000-0000-0000-0000-000000000000/apiKeys/00000000-0000-0000-0000-000000000000",
+    api_private_key = openssl::write_pem(.sk)
 )
 ```
 
@@ -33,7 +64,7 @@ This software is provided for educational and research purposes. Trading cryptoc
 
 ## Installation
 
-``` r
+```{r install, eval = FALSE}
 # install.packages("remotes")
 remotes::install_github("dereckscompany/coinbase")
 ```
@@ -42,39 +73,75 @@ remotes::install_github("dereckscompany/coinbase")
 
 Create API credentials at <https://www.coinbase.com/settings/api> (download the JSON with a `name` and a `privateKey`). Store them as environment variables in `.Renviron` — the PEM newlines escaped as `\n` on a single line (see `.Renviron.example`):
 
-```
+```bash
 COINBASE_API_KEY_NAME="organizations/<org-uuid>/apiKeys/<key-uuid>"
 COINBASE_API_PRIVATE_KEY="-----BEGIN EC PRIVATE KEY-----\n...\n-----END EC PRIVATE KEY-----\n"
+```
+
+Load them with `get_api_keys()` (reads the two environment variables by default):
+
+```{r keys-example, eval = FALSE}
+box::use(coinbase[ get_api_keys ])
+
+keys <- get_api_keys()
 ```
 
 Public market data needs no credentials.
 
 ## Quick Start — Market Data (no auth)
 
-```{r market, eval = FALSE}
-box::use(coinbase[ CoinbaseMarketData, trades_to_ohlcv ])
-
+```{r market}
 market <- CoinbaseMarketData$new()
 
-# Best bid/ask, OHLCV candles, recent trades, order book
+# Best bid/ask
 market$get_ticker("BTC-USD")
-market$get_ohlcv("BTC-USD", granularity = "1min")
-market$get_trades("BTC-USD", limit = 100)
-market$get_orderbook("BTC-USD", level = 2)
+```
 
-# Deep tick history -> aggregate to OHLCV at any timeframe
-ticks <- market$get_trades_history("BTC-USD", start = Sys.time() - 3600)
+```{r market-ohlcv}
+# OHLCV candles
+market$get_ohlcv("BTC-USD", granularity = "1min")
+```
+
+```{r market-trades}
+# Recent tick trades
+market$get_trades("BTC-USD", limit = 100)
+```
+
+```{r market-book}
+# Order book (top of book, aggregated)
+market$get_orderbook("BTC-USD", level = 2)
+```
+
+Deep tick history pages the trades endpoint backwards in time; aggregate the
+result to OHLCV at any timeframe with `trades_to_ohlcv()`:
+
+```{r market-history}
+ticks <- market$get_trades("BTC-USD", limit = 100)
 bars <- trades_to_ohlcv(ticks, interval = 60)
+bars[]
 ```
 
 ## Account (auth)
 
-```{r account, eval = FALSE}
-box::use(coinbase[ CoinbaseAccount ])
-
+```{r account}
 account <- CoinbaseAccount$new()
-account$get_accounts()         # balances (paginated)
-account$get_fees()             # maker/taker fee tier
+```
+
+```{r account-hidden, echo = FALSE}
+account <- CoinbaseAccount$new(keys = KEYS)
+```
+
+```{r account-balances}
+# Balances across all wallets (paginated)
+account$get_accounts()
+```
+
+```{r account-fees}
+# Maker/taker fee tier
+account$get_fees()
+```
+
+```{r account-perms}
 account$get_key_permissions()
 ```
 
@@ -82,41 +149,77 @@ account$get_key_permissions()
 
 Always validate with a **preview** (which places nothing) before a live order.
 
-```{r trading, eval = FALSE}
-box::use(coinbase[ CoinbaseTrading ])
-
+```{r trading}
 trading <- CoinbaseTrading$new()
+```
 
+```{r trading-hidden, echo = FALSE}
+trading <- CoinbaseTrading$new(keys = KEYS)
+```
+
+```{r trading-preview}
 # Dry run -- executes nothing
 trading$preview_order(
   "BTC-USD", "BUY",
   list(market_market_ioc = list(quote_size = "10"))
 )
+```
 
-# Live order (uncomment to place)
-# trading$add_order(
-#   "BTC-USD", "BUY",
-#   list(limit_limit_gtc = list(base_size = "0.001", limit_price = "50000"))
-# )
+```{r trading-add}
+# Place an order (live -- against the mock here)
+order <- trading$add_order(
+  "BTC-USD", "BUY",
+  list(limit_limit_gtc = list(base_size = "0.001", limit_price = "70000"))
+)
+order[]
+```
 
+```{r trading-orders}
 trading$get_orders(product_ids = "BTC-USD", limit = 10)
-trading$get_fills(product_ids = "BTC-USD")
+```
+
+```{r trading-fills}
+trading$get_fills(product_ids = "ETH-USD")
+```
+
+```{r trading-edit}
+# Edit an open order's price or size (preview first, then apply)
+trading$preview_edit_order(order$order_id, price = "71000")
+trading$edit_order(order$order_id, price = "71000")
+```
+
+```{r trading-cancel}
+trading$cancel_orders(order$order_id)
 ```
 
 ## US Futures (CFM) — the short leg
 
 US residents short via CFTC-regulated futures (Coinbase Financial Markets). Futures orders go through the same order endpoint with a futures `product_id`; `CoinbaseFutures` manages the account, positions, and margin.
 
-```{r futures, eval = FALSE}
-box::use(coinbase[ CoinbaseFutures, CoinbaseTrading ])
-
+```{r futures}
 futures <- CoinbaseFutures$new()
-futures$get_balance_summary()
-futures$get_positions()
+```
 
-# Open a short on a futures product
+```{r futures-hidden, echo = FALSE}
+futures <- CoinbaseFutures$new(keys = KEYS)
+```
+
+```{r futures-balance}
+futures$get_balance_summary()
+```
+
+```{r futures-positions}
+futures$get_positions()
+```
+
+```{r futures-sweeps}
+futures$get_sweeps()
+```
+
+```{r futures-short, eval = FALSE}
+# Open a short on a futures product (live -- placed through CoinbaseTrading)
 # CoinbaseTrading$new()$add_order(
-#   "BIT-28FEB25-CDE", "SELL",
+#   "BIT-31OCT26-CDE", "SELL",
 #   list(market_market_ioc = list(base_size = "1"))
 # )
 ```
@@ -124,8 +227,6 @@ futures$get_positions()
 ## Bulk Backfill
 
 ```{r backfill, eval = FALSE}
-box::use(coinbase[ coinbase_backfill_trades ])
-
 # Walks trades back to `from`, writes CSV incrementally, resumes if re-run.
 coinbase_backfill_trades(
   symbols = c("BTC-USD", "ETH-USD"),
@@ -143,14 +244,12 @@ JavaScript). Pass `async = TRUE` to any class and its methods return a
 sequential-looking code, and drive the event loop with
 [later](https://r-lib.github.io/later/).
 
-```{r async, eval = FALSE}
-box::use(coinbase[ CoinbaseMarketData ], coro, later)
-
-market <- CoinbaseMarketData$new(async = TRUE)
+```{r async}
+market_async <- CoinbaseMarketData$new(async = TRUE)
 
 main <- coro$async(function() {
-  ticker <- await(market$get_ticker("BTC-USD"))
-  ohlcv <- await(market$get_ohlcv("BTC-USD", granularity = "1min"))
+  ticker <- await(market_async$get_ticker("BTC-USD"))
+  ohlcv <- await(market_async$get_ohlcv("BTC-USD", granularity = "1min"))
 
   print(ticker)
   print(ohlcv)

@@ -10,10 +10,35 @@ vignette: >
 
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(
-  results = "hold",
   collapse = TRUE,
   comment = "#>",
-  eval = FALSE
+  warning = FALSE,
+  message = FALSE
+)
+
+# This vignette renders against a global httr2 mock: every request is answered
+# from canned fixtures, so the examples execute and print realistic,
+# deterministic data with no network, no real credentials, and no funds.
+box::use(
+  coinbase[
+    CoinbaseMarketData, CoinbaseAccount, CoinbaseTrading,
+    trades_to_ohlcv, coinbase_backfill_trades, get_api_keys
+  ],
+  coro,
+  later,
+  ../tests/testthat/mock_router[mock_router]
+)
+
+options(httr2_mock = mock_router)
+
+# coinbase signs a JWT with the private key BEFORE the request is performed, so
+# a loadable key must exist even though the mock ignores the Authorization
+# header. Generate a throwaway ephemeral EC P-256 key for this build: it signs
+# fine, grants nothing, and is regenerated each render.
+.sk <- openssl::ec_keygen("P-256")
+KEYS <- list(
+  api_key_name = "organizations/00000000-0000-0000-0000-000000000000/apiKeys/00000000-0000-0000-0000-000000000000",
+  api_private_key = openssl::write_pem(.sk)
 )
 ```
 
@@ -32,7 +57,7 @@ submitting anything live.
 
 ## Installation
 
-```{r install}
+```{r install, eval = FALSE}
 # install.packages("remotes")
 remotes::install_github("dereckscompany/coinbase")
 ```
@@ -62,7 +87,7 @@ COINBASE_API_PRIVATE_KEY="-----BEGIN EC PRIVATE KEY-----\n<fake-key-body>\n-----
 > Each class selects the correct host per request, so you rarely set these by
 > hand.
 
-```{r load}
+```{r load, eval = FALSE}
 box::use(
   coinbase[
     CoinbaseMarketData, CoinbaseAccount, CoinbaseTrading,
@@ -97,7 +122,7 @@ List every available trading product (currency pair):
 
 ```{r products}
 products <- market$get_products()
-products
+products[]
 ```
 
 ### Ticker
@@ -106,7 +131,7 @@ Best bid/ask and the last trade for a single product:
 
 ```{r ticker}
 ticker <- market$get_ticker(product_id = "BTC-USD")
-ticker
+ticker[]
 ```
 
 ### OHLCV Candles
@@ -118,7 +143,7 @@ convenience for recent data. Valid granularities are `"1min"`, `"5min"`,
 
 ```{r ohlcv}
 candles <- market$get_ohlcv(product_id = "BTC-USD", granularity = "1min")
-candles
+candles[]
 ```
 
 ### Recent Trades
@@ -127,7 +152,7 @@ Recent tick trades, with columns `trade_id`, `side`, `price`, `size`, `time`:
 
 ```{r trades}
 trades <- market$get_trades(product_id = "BTC-USD", limit = 100)
-trades
+trades[]
 ```
 
 ### Order Book
@@ -137,14 +162,14 @@ non-aggregated). The result is a long table with a `side` column:
 
 ```{r orderbook}
 book <- market$get_orderbook(product_id = "BTC-USD", level = 2)
-book
+book[]
 ```
 
 ### Server Time
 
 ```{r server-time}
 st <- market$get_server_time()
-st
+st[]
 ```
 
 ---
@@ -159,10 +184,10 @@ sorted ascending by `time`:
 ```{r trades-history}
 ticks <- market$get_trades_history(
   product_id = "BTC-USD",
-  start = as.POSIXct("2026-05-30 00:00:00", tz = "UTC"),
-  end = as.POSIXct("2026-05-30 01:00:00", tz = "UTC")
+  start = as.POSIXct("2026-05-31 00:00:00", tz = "UTC"),
+  end = as.POSIXct("2026-05-31 06:00:00", tz = "UTC")
 )
-ticks
+ticks[]
 ```
 
 > **Note:** Tick volume is large. Bound the window with `start`/`end`, and use
@@ -174,7 +199,7 @@ Aggregate those ticks into OHLCV bars at any interval (in seconds) with
 
 ```{r aggregate}
 bars <- trades_to_ohlcv(ticks, interval = 60)
-bars
+bars[]
 ```
 
 ---
@@ -186,7 +211,9 @@ tick history for one or more products and writes the results to a CSV
 incrementally, so progress survives an interruption. Re-running the same call
 resumes each product from its last recorded trade.
 
-```{r backfill}
+It writes a file to disk, so it is shown here but not executed:
+
+```{r backfill, eval = FALSE}
 coinbase_backfill_trades(
   symbols = c("BTC-USD", "ETH-USD"),
   from = as.POSIXct("2026-05-01", tz = "UTC"),
@@ -211,7 +238,11 @@ The `CoinbaseAccount` class reads authenticated account state from the Advanced
 Trade host. All endpoints require credentials.
 
 ```{r account-init}
-account <- CoinbaseAccount$new(keys = keys)
+account <- CoinbaseAccount$new()
+```
+
+```{r account-init-hidden, echo = FALSE}
+account <- CoinbaseAccount$new(keys = KEYS)
 ```
 
 ### Balances
@@ -241,7 +272,7 @@ Confirm what the calling API key is allowed to do:
 
 ```{r permissions}
 perms <- account$get_key_permissions()
-perms
+perms[]
 ```
 
 ---
@@ -252,7 +283,11 @@ The `CoinbaseTrading` class places, previews, edits, cancels, and queries orders
 and fills. All endpoints require credentials.
 
 ```{r trading-init}
-trading <- CoinbaseTrading$new(keys = keys)
+trading <- CoinbaseTrading$new()
+```
+
+```{r trading-init-hidden, echo = FALSE}
+trading <- CoinbaseTrading$new(keys = KEYS)
 ```
 
 ### Order Configuration
@@ -289,21 +324,37 @@ preview[, .(order_total, commission_total, base_size, best_ask, errs)]
 `preview_order()` also accepts the optional `leverage`, `margin_type`
 (`"CROSS"` or `"ISOLATED"`), and `retail_portfolio_id` arguments.
 
-### Place a Live Order
+### Place an Order
 
 `add_order()` submits a live order that may execute. It mirrors
 `preview_order()` and additionally accepts `client_order_id` (an idempotency
-key, defaulting to a fresh UUID) and `self_trade_prevention_id`. It is left
-commented out here so this vignette never places a real order:
+key, defaulting to a fresh UUID) and `self_trade_prevention_id`. The call below
+runs against the mock; against the live API it would place a real order, so
+preview first:
 
 ```{r add-order}
-# Live order -- uncomment to actually place. This moves real money.
-# order <- trading$add_order(
-#   product_id = "BTC-USD",
-#   side = "BUY",
-#   order_configuration = limit_cfg
-# )
-# order[, .(success, order_id, product_id, side, failure_reason)]
+order <- trading$add_order(
+  product_id = "BTC-USD",
+  side = "BUY",
+  order_configuration = limit_cfg
+)
+order[, .(success, order_id, product_id, side)]
+```
+
+### Edit an Order
+
+`preview_edit_order()` is a dry run for an edit (it changes nothing), and
+`edit_order()` applies a new price and/or size to an open order:
+
+```{r edit-order}
+edit_preview <- trading$preview_edit_order(
+  order_id = order$order_id,
+  price = "71000"
+)
+edit_preview[, .(order_total, commission_total, slippage)]
+
+edited <- trading$edit_order(order_id = order$order_id, price = "71000")
+edited[, .(success, order_id)]
 ```
 
 ### Query Orders
@@ -343,9 +394,8 @@ fills[, .(trade_id, order_id, side, price, size, commission)]
 results:
 
 ```{r cancel-orders}
-# Dangerous: cancels the listed open orders.
-# cancelled <- trading$cancel_orders(order_ids = c("order-uuid-123"))
-# cancelled[, .(order_id, success, failure_reason)]
+cancelled <- trading$cancel_orders(order_ids = c(order$order_id))
+cancelled[, .(order_id, success, failure_reason)]
 ```
 
 ---
@@ -358,8 +408,6 @@ is `coro::async()` / `await()` for sequential-looking code, driving the event
 loop with [later](https://r-lib.github.io/later/):
 
 ```{r async}
-box::use(coinbase[CoinbaseMarketData], coro, later)
-
 market_async <- CoinbaseMarketData$new(async = TRUE)
 
 main <- coro$async(function() {

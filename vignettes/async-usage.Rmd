@@ -13,7 +13,29 @@ knitr::opts_chunk$set(
   results = "hold",
   collapse = TRUE,
   comment = "#>",
-  eval = FALSE
+  warning = FALSE,
+  message = FALSE
+)
+
+box::use(
+  coinbase[CoinbaseMarketData, CoinbaseTrading, CoinbaseAccount, get_api_keys],
+  coro[async, await],
+  later[run_now, loop_empty],
+  promises[then, catch, promise_all]
+)
+
+box::use(../tests/testthat/mock_router[mock_router])
+
+options(httr2_mock = mock_router)
+
+# Throwaway, ephemeral EC P-256 key for the authenticated examples. It signs the
+# JWT before the request is sent (so the key must be loadable), but the mock
+# router ignores the Authorization header entirely: it grants nothing, touches
+# no funds, and is regenerated on every build.
+.sk <- openssl::ec_keygen("P-256")
+KEYS <- list(
+  api_key_name = "organizations/00000000-0000-0000-0000-000000000000/apiKeys/00000000-0000-0000-0000-000000000000",
+  api_private_key = openssl::write_pem(.sk)
 )
 ```
 
@@ -21,6 +43,10 @@ Every R6 class in `coinbase` accepts an `async = TRUE` flag at construction.
 When enabled, all methods return `promises::promise` objects instead of
 direct values. This vignette shows how to consume those promises with
 `coro::async`/`await` and `later::run_now`.
+
+The examples below execute against a built-in mock of the Coinbase API, so the
+printed output is real, deterministic data produced with no network, no
+credentials, and no funds.
 
 ## Disclaimer
 
@@ -55,12 +81,12 @@ Public market data needs no credentials. For the authenticated classes,
 store your CDP API key in `.Renviron` (the PEM newlines escaped as `\n` on a
 single line) and let `get_api_keys()` read them — never hardcode secrets:
 
-```
+```bash
 COINBASE_API_KEY_NAME="organizations/<org-uuid>/apiKeys/<key-uuid>"
 COINBASE_API_PRIVATE_KEY="-----BEGIN EC PRIVATE KEY-----\n...\n-----END EC PRIVATE KEY-----\n"
 ```
 
-```{r keys}
+```{r keys, eval = FALSE}
 keys <- get_api_keys()
 ```
 
@@ -82,23 +108,27 @@ data.tables:
 
 ```{r async-basic}
 market <- CoinbaseMarketData$new(async = TRUE)
+ticker <- NULL
 
 get_ticker <- async(function() {
-  ticker <- await(market$get_ticker("BTC-USD"))
-  return(ticker)
+  res <- await(market$get_ticker("BTC-USD"))
+  ticker <<- res
+  return(invisible(NULL))
 })
 
 get_ticker()
 while (!loop_empty()) {
   run_now()
 }
+ticker
 ```
 
 > **Key pattern**: define an `async` function, `await` each API call,
-> return the result. Drain the event loop with `while (!loop_empty()) run_now()`.
+> capture the result with `<<-`, drive the event loop with
+> `while (!loop_empty()) run_now()`.
 
-The resolved `get_ticker()` value is a single-row `data.table` with numeric
-`ask`, `bid`, `price`, `size`, `volume`, and a POSIXct `time`.
+The resolved value is a single-row `data.table` with numeric `ask`, `bid`,
+`price`, `size`, `volume`, and a POSIXct `time`.
 
 ---
 
@@ -142,10 +172,10 @@ results <- NULL
 
 fetch_parallel <- async(function() {
   # Launch both requests concurrently — no await yet, just collect promises
-  btc_promise <- market$get_ticker("BTC-USD")
-  eth_promise <- market$get_ticker("ETH-USD")
-  # Await them together — like Promise.all([btc, eth])
-  res <- await(promise_all(btc = btc_promise, eth = eth_promise))
+  ticker_promise <- market$get_ticker("BTC-USD")
+  candles_promise <- market$get_ohlcv("BTC-USD", granularity = "1hour")
+  # Await them together — like Promise.all([ticker, candles])
+  res <- await(promise_all(ticker = ticker_promise, candles = candles_promise))
   results <<- res
   return(invisible(NULL))
 })
@@ -154,44 +184,50 @@ fetch_parallel()
 while (!loop_empty()) {
   run_now()
 }
-results$btc
-results$eth
+results$ticker
+results$candles
 ```
 
 ---
 
-## Practical Example: Polling a Watchlist Concurrently
+## Practical Example: Polling Several Endpoints Concurrently
 
-A common use case is polling tickers for a watchlist of products. With async
-mode, all requests fly in parallel rather than sequentially:
+A common use case is gathering several views of a product at once — the
+ticker, recent candles, recent trades, and the order book. With async mode,
+all requests fly in parallel rather than sequentially:
 
 ```{r multi-symbol}
 market <- CoinbaseMarketData$new(async = TRUE)
-products <- c("BTC-USD", "ETH-USD", "SOL-USD", "DOGE-USD")
-all_tickers <- NULL
+snapshot <- NULL
 
-fetch_watchlist <- async(function() {
+fetch_snapshot <- async(function() {
   # Fire all requests concurrently
-  ticker_promises <- lapply(products, function(p) {
-    return(market$get_ticker(p))
-  })
-  names(ticker_promises) <- products
+  promises <- list(
+    ticker = market$get_ticker("BTC-USD"),
+    candles = market$get_ohlcv("BTC-USD", granularity = "1min"),
+    trades = market$get_trades("BTC-USD", limit = 100),
+    orderbook = market$get_orderbook("BTC-USD", level = 2)
+  )
 
   # Await all at once
-  res <- await(do.call(promise_all, ticker_promises))
-  all_tickers <<- res
+  res <- await(do.call(promise_all, promises))
+  snapshot <<- res
   return(invisible(NULL))
 })
 
-fetch_watchlist()
+fetch_snapshot()
 while (!loop_empty()) {
   run_now()
 }
 
-# Each element is a single-row data.table with the ticker result
-all_tickers$`BTC-USD`
-all_tickers$`ETH-USD`
+# Each element is the parsed data.table for one endpoint
+snapshot$ticker
+snapshot$orderbook
 ```
+
+The same `lapply` + `do.call(promise_all, ...)` shape scales to a watchlist:
+build one promise per product, name the list by product id, and await them
+together.
 
 ---
 
@@ -227,10 +263,20 @@ chain_result
 
 Trading methods return promises in async mode just like market data. Always
 **preview** an order (a dry run that places nothing) before submitting a live
-one. Sequential `await` keeps the flow readable:
+one. Sequential `await` keeps the flow readable.
+
+Construct the client with your credentials (read from `.Renviron` via
+`get_api_keys()`):
+
+```{r async-trading-init}
+trading <- CoinbaseTrading$new(async = TRUE)
+```
+
+```{r async-trading-init-hidden, echo = FALSE}
+trading <- CoinbaseTrading$new(keys = KEYS, async = TRUE)
+```
 
 ```{r async-trading}
-trading <- CoinbaseTrading$new(keys = keys, async = TRUE)
 results <- NULL
 
 preview_then_query <- async(function() {
@@ -252,8 +298,8 @@ preview_then_query()
 while (!loop_empty()) {
   run_now()
 }
-results$preview
-results$orders
+results$preview[, .(order_total, commission_total, base_size, best_ask, errs)]
+results$orders[, .(order_id, product_id, side, status, order_type, filled_size)]
 ```
 
 To place a live order, call `add_order()` instead of `preview_order()`. It
@@ -269,20 +315,23 @@ and `failure_reason`.
 
 Inside `async` functions, use `tryCatch` around `await` calls for structured
 error handling — `await()` re-throws the promise rejection as a normal R
-error, so the try/catch pattern works directly:
+error, so the try/catch pattern works directly. Here a malformed product id
+is rejected (validated before any request is sent) and caught:
 
 ```{r async-error-handling}
 market <- CoinbaseMarketData$new(async = TRUE)
+result <- NULL
 
 safe_fetch <- async(function() {
-  result <- tryCatch(
-    await(market$get_ticker("INVALID-PAIR")),
+  res <- tryCatch(
+    await(market$get_ticker("NOTAVALIDSYMBOL")),
     error = function(e) {
       message("Caught error: ", conditionMessage(e))
       return(NULL)
     }
   )
-  return(result)
+  result <<- res
+  return(invisible(NULL))
 })
 
 safe_fetch()
@@ -332,9 +381,9 @@ promises from reactive expressions and Shiny handles resolution.
 | `f(await(promise))` | **No** | Nested inside function args |
 
 > **Rule of thumb**: `await()` must appear as the RHS of a `<-` or as a bare
-> statement — never inside another expression. Return values from the async
-> function and extract them via `then()` or the `<<-` pattern outside the
-> async body.
+> statement — never inside another expression. Assign the result to a local
+> with `<-`, then copy it out of the async body with `<<-` after the await
+> returns.
 
 ---
 
