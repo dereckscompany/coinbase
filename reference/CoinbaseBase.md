@@ -16,14 +16,13 @@ The `async` parameter controls execution mode for all API methods:
   [promises::promise](https://rstudio.github.io/promises/reference/promise.html)
   objects that resolve to the same types.
 
-Async mode requires the `promises` and `later` packages (both
-`Suggests`). Consume promises with
+Async mode requires the `promises` package (a `Suggests`). Consume
+promises with
 [`coro::async()`](https://coro.r-lib.org/reference/async.html) and
 `await()` or
-[`promises::then()`](https://rstudio.github.io/promises/reference/then.html),
-and drive the event loop with
-[`later::run_now()`](https://later.r-lib.org/reference/run_now.html)
-(e.g. `while (!later::loop_empty()) later::run_now()`).
+[`promises::then()`](https://rstudio.github.io/promises/reference/then.html);
+to drive the event loop in a script use the (optional) `later` package,
+e.g. `while (!later::loop_empty()) later::run_now()`.
 
 ### Hosts
 

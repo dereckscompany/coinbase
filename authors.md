@@ -2,7 +2,7 @@
 
 ## Authors
 
-- **Dereck Mezquita**. Author, maintainer.
+- **[Dereck Mezquita](https://derecksnotes.com)**. Author, maintainer.
   [](https://orcid.org/0000-0002-9307-6762)
 
 ## Citation

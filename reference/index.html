@@ -23,9 +23,9 @@
     <li><a class="dropdown-item" href="../articles/data-shapes.html">Package Tour and Data-Shape Conventions</a></li>
     <li><a class="dropdown-item" href="../articles/futures-shorting.html">Shorting with US Futures (CFM) with coinbase</a></li>
   </ul></li>
-      </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
+      </ul><ul class="navbar-nav"><li class="nav-item"><a class="external-link nav-link" href="https://github.com/dereckscompany/coinbase" target="_blank"><span class="fa fa-github fa-lg"></span></a></li>
+<li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
-<li class="nav-item"><a class="external-link nav-link" href="https://github.com/dereckscompany/coinbase" aria-label="GitHub repository"><span class="fa fa-github"></span></a></li>
       </ul></div>
 
 
@@ -38,9 +38,9 @@
     </div>
 
     <div class="section level2">
-      <h2 id="all-functions">All functions<a class="anchor" aria-label="anchor" href="#all-functions"></a></h2>
+      <h2 id="api-client-classes">API Client Classes<a class="anchor" aria-label="anchor" href="#api-client-classes"></a></h2>
 
-
+      <div class="section-desc"><p>R6 classes for interacting with the Coinbase API</p></div>
 
       <dl></dl></div><div class="section level2">
 
@@ -49,24 +49,10 @@
 
       <dl><dt>
 
-          <code><a href="CoinbaseAccount.html">CoinbaseAccount</a></code>
-
-        </dt>
-        <dd>CoinbaseAccount: Account, Balance, and Fee Information</dd>
-
-        <dt>
-
           <code><a href="CoinbaseBase.html">CoinbaseBase</a></code>
 
         </dt>
         <dd>CoinbaseBase: Abstract Base Class for Coinbase API Clients</dd>
-
-        <dt>
-
-          <code><a href="CoinbaseFutures.html">CoinbaseFutures</a></code>
-
-        </dt>
-        <dd>CoinbaseFutures: US Futures (CFM) Account, Positions, and Margin</dd>
 
         <dt>
 
@@ -77,6 +63,13 @@
 
         <dt>
 
+          <code><a href="CoinbaseAccount.html">CoinbaseAccount</a></code>
+
+        </dt>
+        <dd>CoinbaseAccount: Account, Balance, and Fee Information</dd>
+
+        <dt>
+
           <code><a href="CoinbaseTrading.html">CoinbaseTrading</a></code>
 
         </dt>
@@ -84,26 +77,21 @@
 
         <dt>
 
-          <code><a href="coinbase_backfill_trades.html">coinbase_backfill_trades()</a></code>
+          <code><a href="CoinbaseFutures.html">CoinbaseFutures</a></code>
 
         </dt>
-        <dd>Backfill Coinbase Trade History to CSV</dd>
+        <dd>CoinbaseFutures: US Futures (CFM) Account, Positions, and Margin</dd>
+      </dl></div><div class="section level2">
+      <h2 id="configuration">Configuration<a class="anchor" aria-label="anchor" href="#configuration"></a></h2>
 
-        <dt>
+      <div class="section-desc"><p>API credential and endpoint helpers</p></div>
 
-          <code><a href="coinbase_build_request.html">coinbase_build_request()</a></code>
+      <dl></dl></div><div class="section level2">
 
-        </dt>
-        <dd>Build and Execute a Coinbase API Request</dd>
 
-        <dt>
 
-          <code><a href="generate_client_order_id.html">generate_client_order_id()</a></code>
 
-        </dt>
-        <dd>Generate a Client Order ID</dd>
-
-        <dt>
+      <dl><dt>
 
           <code><a href="get_api_keys.html">get_api_keys()</a></code>
 
@@ -126,10 +114,26 @@
 
         <dt>
 
-          <code><a href="trades_to_ohlcv.html">trades_to_ohlcv()</a></code>
+          <code><a href="generate_client_order_id.html">generate_client_order_id()</a></code>
 
         </dt>
-        <dd>Aggregate Tick Trades into OHLCV Bars</dd>
+        <dd>Generate a Client Order ID</dd>
+      </dl></div><div class="section level2">
+      <h2 id="low-level-request-helpers">Low-Level Request Helpers<a class="anchor" aria-label="anchor" href="#low-level-request-helpers"></a></h2>
+
+      <div class="section-desc"><p>Functions for building Coinbase API requests</p></div>
+
+      <dl></dl></div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="coinbase_build_request.html">coinbase_build_request()</a></code>
+
+        </dt>
+        <dd>Build and Execute a Coinbase API Request</dd>
 
         <dt>
 
@@ -137,12 +141,66 @@
 
         </dt>
         <dd>Verify a Coinbase Product Symbol</dd>
+      </dl></div><div class="section level2">
+      <h2 id="backfill-and-data">Backfill and Data<a class="anchor" aria-label="anchor" href="#backfill-and-data"></a></h2>
+
+      <div class="section-desc"><p>Bulk data download, tick aggregation, and included datasets</p></div>
+
+      <dl></dl></div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="coinbase_backfill_trades.html">coinbase_backfill_trades()</a></code>
+
+        </dt>
+        <dd>Backfill Coinbase Trade History to CSV</dd>
+
+        <dt>
+
+          <code><a href="trades_to_ohlcv.html">trades_to_ohlcv()</a></code>
+
+        </dt>
+        <dd>Aggregate Tick Trades into OHLCV Bars</dd>
+
+        <dt>
+
+          <code><a href="coinbase_ohlcv.html">coinbase_ohlcv</a></code>
+
+        </dt>
+        <dd>Daily OHLCV Sample Data from Coinbase</dd>
+      </dl></div><div class="section level2">
+      <h2 id="utilities">Utilities<a class="anchor" aria-label="anchor" href="#utilities"></a></h2>
+
+      <div class="section-desc"><p>Time conversion helpers</p></div>
+
+      <dl></dl></div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="time_convert_from_coinbase.html">time_convert_from_coinbase()</a></code>
+
+        </dt>
+        <dd>Convert a Coinbase Timestamp to POSIXct</dd>
+
+        <dt>
+
+          <code><a href="time_convert_to_coinbase.html">time_convert_to_coinbase()</a></code>
+
+        </dt>
+        <dd>Convert a POSIXct to a Coinbase Timestamp</dd>
       </dl></div>
-  </main></div>
+  </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
+    </nav></aside></div>
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by Dereck Mezquita.</p>
+  <p>Developed by <a href="https://derecksnotes.com" class="external-link">Dereck Mezquita</a>.</p>
 </div>
 
 <div class="pkgdown-footer-right">

@@ -16,11 +16,14 @@
 <url><loc>https://dereckscompany.github.io/coinbase/reference/CoinbaseTrading.html</loc></url>
 <url><loc>https://dereckscompany.github.io/coinbase/reference/coinbase_backfill_trades.html</loc></url>
 <url><loc>https://dereckscompany.github.io/coinbase/reference/coinbase_build_request.html</loc></url>
+<url><loc>https://dereckscompany.github.io/coinbase/reference/coinbase_ohlcv.html</loc></url>
 <url><loc>https://dereckscompany.github.io/coinbase/reference/generate_client_order_id.html</loc></url>
 <url><loc>https://dereckscompany.github.io/coinbase/reference/get_api_keys.html</loc></url>
 <url><loc>https://dereckscompany.github.io/coinbase/reference/get_base_url.html</loc></url>
 <url><loc>https://dereckscompany.github.io/coinbase/reference/get_exchange_base_url.html</loc></url>
 <url><loc>https://dereckscompany.github.io/coinbase/reference/index.html</loc></url>
+<url><loc>https://dereckscompany.github.io/coinbase/reference/time_convert_from_coinbase.html</loc></url>
+<url><loc>https://dereckscompany.github.io/coinbase/reference/time_convert_to_coinbase.html</loc></url>
 <url><loc>https://dereckscompany.github.io/coinbase/reference/trades_to_ohlcv.html</loc></url>
 <url><loc>https://dereckscompany.github.io/coinbase/reference/verify_symbol.html</loc></url>
 </urlset>
