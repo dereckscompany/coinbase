@@ -137,11 +137,32 @@ coinbase_backfill_trades(
 
 ## Asynchronous Use
 
+The package is written around promises for non-blocking, event-loop use
+(à la JavaScript). Pass `async = TRUE` to any class and its methods
+return a \[promise\]\[promises::promise\] instead of a `data.table`.
+Resolve it with `$then()` chaining or, as recommended, `coro::async()` /
+`await()` for sequential-looking code, and drive the event loop with
+[later](https://r-lib.github.io/later/).
+
 ``` r
-box::use(coinbase[ CoinbaseMarketData ], promises[ `%...>%` ])
+box::use(coinbase[ CoinbaseMarketData ], coro, later)
 
 market <- CoinbaseMarketData$new(async = TRUE)
-market$get_ticker("BTC-USD") %...>% print()
+
+main <- coro$async(function() {
+  ticker <- await(market$get_ticker("BTC-USD"))
+  ohlcv <- await(market$get_ohlcv("BTC-USD", granularity = "1min"))
+
+  print(ticker)
+  print(ohlcv)
+})
+
+main()
+
+# Drain the event loop until every promise has resolved.
+while (!later$loop_empty()) {
+  later$run_now()
+}
 ```
 
 ## Available Classes

@@ -14,8 +14,10 @@
 #' - `async = TRUE`: methods return [promises::promise] objects that resolve to
 #'   the same types.
 #'
-#' The `promises` package must be installed for async mode (a `Suggests`
-#' dependency).
+#' Async mode requires the `promises` and `later` packages (both `Suggests`).
+#' Consume promises with [coro::async()] and `await()` or [promises::then()],
+#' and drive the event loop with `later::run_now()` (e.g.
+#' `while (!later::loop_empty()) later::run_now()`).
 #'
 #' ### Hosts
 #' Coinbase splits across two hosts. Authenticated trading and account endpoints

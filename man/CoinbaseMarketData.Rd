@@ -40,7 +40,12 @@ market$get_ohlcv("BTC-USD", granularity = "1min")
 
 # Asynchronous
 market_async <- CoinbaseMarketData$new(async = TRUE)
-p <- market_async$get_trades("BTC-USD")
+main <- coro::async(function() {
+  ticker <- await(market_async$get_ticker("BTC-USD"))
+  print(ticker)
+})
+main()
+while (!later::loop_empty()) later::run_now()
 }
 
 }
