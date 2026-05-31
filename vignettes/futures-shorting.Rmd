@@ -10,10 +10,31 @@ vignette: >
 
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(
-  results = "hold",
   collapse = TRUE,
   comment = "#>",
-  eval = FALSE
+  warning = FALSE,
+  message = FALSE
+)
+
+# This vignette renders against a mock HTTP router so it prints realistic,
+# deterministic data with no network, no real credentials, and no funds.
+# httr2's native global mock hook intercepts every request; coinbase still
+# signs a JWT before the request fires, so we hand it a THROWAWAY, ephemeral
+# EC P-256 key generated fresh at build time. It signs fine, the mock ignores
+# the Authorization header, and it grants nothing.
+box::use(
+  coinbase[
+    CoinbaseTrading, CoinbaseFutures, CoinbaseMarketData
+  ],
+  ../tests/testthat/mock_router[mock_router]
+)
+
+options(httr2_mock = mock_router)
+
+.sk <- openssl::ec_keygen("P-256")
+KEYS <- list(
+  api_key_name = "organizations/00000000-0000-0000-0000-000000000000/apiKeys/00000000-0000-0000-0000-000000000000",
+  api_private_key = openssl::write_pem(.sk)
 )
 ```
 
@@ -32,10 +53,10 @@ positions, cash sweeps, and intraday margin.
 > underlying rises, your loss grows without limit, and the position can be
 > **liquidated** the moment your equity falls below the maintenance threshold,
 > crystallising losses that may exceed your initial margin. Funding, fees, and
-> contract expiry add further risk. Every example below uses `eval = FALSE` and
-> a **dry-run preview** for any order — nothing here ever transmits a live
-> order. Trade futures only with risk capital you can afford to lose, and never
-> run a live order example without understanding it fully.
+> contract expiry add further risk. Every order below is shown as a **dry-run
+> preview** — nothing here ever transmits a live order. Trade futures only with
+> risk capital you can afford to lose, and never run a live order example
+> without understanding it fully.
 
 ## Why CFM futures for shorting
 
@@ -65,13 +86,17 @@ Credentials come from the Coinbase Developer Platform (a JSON file with a
 characters `\n`, which `get_api_keys()` unescapes before signing. The CFM
 futures account also requires separate approval and funding on Coinbase.
 
-```{r renviron}
+```bash
 # In ~/.Renviron (these are obviously-fake placeholders — never commit real keys):
-# COINBASE_API_KEY_NAME="organizations/00000000-0000-0000-0000-000000000000/apiKeys/11111111-1111-1111-1111-111111111111"
-# COINBASE_API_PRIVATE_KEY="-----BEGIN EC PRIVATE KEY-----\nFAKEKEYLINE1\nFAKEKEYLINE2\n-----END EC PRIVATE KEY-----\n"
+COINBASE_API_KEY_NAME="organizations/<org-uuid>/apiKeys/<key-uuid>"
+COINBASE_API_PRIVATE_KEY="-----BEGIN EC PRIVATE KEY-----\n<fake-key-body>\n-----END EC PRIVATE KEY-----\n"
 ```
 
-```{r load}
+With those set, `get_api_keys()` reads them with no arguments, so you simply
+construct each client and the credentials are picked up automatically. Public
+market data needs no credentials at all.
+
+```{r load, eval = FALSE}
 box::use(
   coinbase[
     CoinbaseTrading, CoinbaseFutures, CoinbaseMarketData, get_api_keys
@@ -80,9 +105,17 @@ box::use(
 
 keys <- get_api_keys()
 
-market <- CoinbaseMarketData$new(keys = keys)
+market <- CoinbaseMarketData$new()
 trading <- CoinbaseTrading$new(keys = keys)
 futures <- CoinbaseFutures$new(keys = keys)
+```
+
+```{r load-hidden, echo = FALSE}
+# Build the clients against the mock with a throwaway key so the authenticated
+# calls below sign and execute.
+market <- CoinbaseMarketData$new()
+trading <- CoinbaseTrading$new(keys = KEYS)
+futures <- CoinbaseFutures$new(keys = KEYS)
 ```
 
 ---
@@ -130,7 +163,7 @@ positions[, .(
 Query a single contract by its product ID:
 
 ```{r position}
-pos <- futures$get_position(product_id = "BIT-28FEB25-CDE")
+pos <- futures$get_position(product_id = "BIT-31OCT26-CDE")
 pos[, .(product_id, side, number_of_contracts, avg_entry_price, unrealized_pnl)]
 ```
 
@@ -143,14 +176,14 @@ pending sweeps, and cancel the pending sweep:
 ```{r sweeps}
 # Schedule a sweep of $100 from the CFM futures account to the spot USD wallet
 scheduled <- futures$schedule_sweep(usd_amount = 100)
-print(scheduled)
+scheduled[]
 
 # List scheduled and pending sweeps
 sweeps <- futures$get_sweeps()
 sweeps[, .(id, requested_amount, should_sweep_all, status, schedule_time)]
 
 # Cancel the pending sweep
-futures$cancel_sweep()
+futures$cancel_sweep()[]
 ```
 
 ### Intraday Margin
@@ -161,13 +194,13 @@ the standard setting applies the full requirement.
 
 ```{r margin-setting}
 # Current setting
-futures$get_intraday_margin_setting()
+futures$get_intraday_margin_setting()[]
 
 # Switch to intraday margin (raises leverage and liquidation risk)
-futures$set_intraday_margin_setting(setting = "INTRADAY_MARGIN_SETTING_INTRADAY")
+futures$set_intraday_margin_setting(setting = "INTRADAY_MARGIN_SETTING_INTRADAY")[]
 
 # Switch back to the standard (full) margin requirement
-futures$set_intraday_margin_setting(setting = "INTRADAY_MARGIN_SETTING_STANDARD")
+futures$set_intraday_margin_setting(setting = "INTRADAY_MARGIN_SETTING_STANDARD")[]
 ```
 
 Check the current margin window — whether intraday margin is presently active
@@ -189,20 +222,21 @@ window[, .(
 
 ## Finding a Futures Product
 
-Futures products appear in the same product catalogue as spot. List products
-and pick out the expiring CFM contracts (their IDs carry an expiry, e.g.
-`BIT-28FEB25-CDE`):
+Futures products appear in the same product catalogue as spot. List the
+products and pick out the expiring CFM contracts — their IDs carry an expiry
+(e.g. `BIT-31OCT26-CDE`):
 
 ```{r products}
 products <- market$get_products()
-products[grepl("-CDE$", product_id), .(product_id, status)]
+products[, .(id, status)]
 ```
 
-Inspect a single contract's metadata before trading it:
+Inspect a single contract's metadata before trading it. The same `get_product()`
+call works for an expiring CFM contract by passing its futures `product_id`:
 
-```{r product}
-contract <- market$get_product(product_id = "BIT-28FEB25-CDE")
-print(contract)
+```{r product, eval = FALSE}
+contract <- market$get_product(product_id = "BIT-31OCT26-CDE")
+contract[]
 ```
 
 ---
@@ -223,7 +257,7 @@ commission, sizes, and any errors — and **places nothing**.
 
 ```{r preview-market-short}
 preview <- trading$preview_order(
-  product_id = "BIT-28FEB25-CDE",
+  product_id = "BIT-31OCT26-CDE",
   side = "SELL",                                    # SELL on a future = open short
   order_configuration = list(
     market_market_ioc = list(base_size = "1")       # 1 contract
@@ -240,7 +274,7 @@ closer liquidation threshold — preview the numbers before committing:
 
 ```{r preview-limit-short}
 preview <- trading$preview_order(
-  product_id = "BIT-28FEB25-CDE",
+  product_id = "BIT-31OCT26-CDE",
   side = "SELL",
   order_configuration = list(
     limit_limit_gtc = list(
@@ -262,7 +296,7 @@ real, leveraged, short position — it can be liquidated. The example is left
 
 ```{r live-short, eval = FALSE}
 order <- trading$add_order(
-  product_id = "BIT-28FEB25-CDE",
+  product_id = "BIT-31OCT26-CDE",
   side = "SELL",
   order_configuration = list(
     limit_limit_gtc = list(
@@ -306,7 +340,7 @@ or `product_ids`:
 
 ```{r futures-fills}
 fills <- trading$get_fills(
-  product_ids = "BIT-28FEB25-CDE",
+  product_ids = "BIT-31OCT26-CDE",
   sort_by = "TRADE_TIME"
 )
 fills[, .(trade_id, order_id, product_id, side, price, size, commission, trade_time)]
@@ -316,12 +350,12 @@ fills[, .(trade_id, order_id, product_id, side, price, size, commission, trade_t
 
 Reprice or resize an open short, or cancel it outright:
 
-```{r edit-cancel, eval = FALSE}
+```{r edit-cancel}
 # Move the limit short to a new price
-trading$edit_order(order_id = "your-order-id", price = 96000)
+trading$edit_order(order_id = "1111aaaa-2222-bbbb-3333-cccccccccccc", price = 96000)
 
 # Cancel one or more orders
-trading$cancel_orders(order_ids = "your-order-id")
+trading$cancel_orders(order_ids = "1111aaaa-2222-bbbb-3333-cccccccccccc")
 ```
 
 ### Closing the Short
@@ -331,7 +365,7 @@ futures product, for the same number of contracts. Preview it first:
 
 ```{r preview-close}
 preview <- trading$preview_order(
-  product_id = "BIT-28FEB25-CDE",
+  product_id = "BIT-31OCT26-CDE",
   side = "BUY",                                     # BUY closes (covers) the short
   order_configuration = list(
     market_market_ioc = list(base_size = "1")
@@ -349,17 +383,17 @@ position in `alpaca` and short a correlated crypto future on CFM. The two
 brokers are driven independently — `alpaca` for the long stock leg, `coinbase`
 for the short futures leg — and each reports its own positions and PnL:
 
-```{r pairs, eval = FALSE}
+```{r pairs}
 # Long leg (alpaca): buy the equity
 # alpaca_trading$add_order(symbol = "COIN", side = "buy", type = "market",
 #   time_in_force = "day", qty = 100)
 
 # Short leg (coinbase CFM): preview the offsetting futures short
 trading$preview_order(
-  product_id = "BIT-28FEB25-CDE",
+  product_id = "BIT-31OCT26-CDE",
   side = "SELL",
   order_configuration = list(market_market_ioc = list(base_size = "1"))
-)
+)[, .(order_total, commission_total, base_size, errs)]
 ```
 
 Monitor both legs' exposure: the equity position via `alpaca`'s account
@@ -374,12 +408,19 @@ Every method runs asynchronously when the client is constructed with
 `async = TRUE`, returning a promise. Consume promises with `coro::async()` and
 `await()`, and drain the event loop yourself — without any pipe operator:
 
-```{r async}
-box::use(coro[async, await])
-box::use(later)
+```{r async-visible, eval = FALSE}
+box::use(coro[async, await], later)
 
 futures_async <- CoinbaseFutures$new(keys = keys, async = TRUE)
+```
 
+```{r async-hidden, echo = FALSE}
+box::use(coro[async, await], later)
+
+futures_async <- CoinbaseFutures$new(keys = KEYS, async = TRUE)
+```
+
+```{r async}
 run <- async(function() {
   summary <- await(futures_async$get_balance_summary())
   positions <- await(futures_async$get_positions())

@@ -11,7 +11,35 @@ vignette: >
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
-  eval = FALSE
+  warning = FALSE,
+  message = FALSE
+)
+
+# Package symbols used throughout this vignette.
+box::use(
+  coinbase[
+    CoinbaseMarketData, CoinbaseAccount, CoinbaseTrading, CoinbaseFutures,
+    get_api_keys, get_base_url, get_exchange_base_url,
+    trades_to_ohlcv, verify_symbol, generate_client_order_id
+  ]
+)
+
+# httr2 exposes a global mock hook: `options(httr2_mock = ...)` intercepts every
+# req_perform / req_perform_promise call. Loading the shared router and setting
+# the option makes every chunk below execute against canned, deterministic
+# fixtures -- no network, no real credentials, no funds.
+box::use(../tests/testthat/mock_router[mock_router])
+options(httr2_mock = mock_router)
+
+# coinbase signs a JWT with the private key BEFORE the request is performed, so
+# the authenticated examples need a loadable key. We mint a THROWAWAY ephemeral
+# EC P-256 key here: it signs the request fine, the mock ignores the
+# Authorization header entirely, it grants nothing, and it is regenerated on
+# every build. Never put a real key here.
+.sk <- openssl::ec_keygen("P-256")
+KEYS <- list(
+  api_key_name = "organizations/00000000-0000-0000-0000-000000000000/apiKeys/00000000-0000-0000-0000-000000000000",
+  api_private_key = openssl::write_pem(.sk)
 )
 ```
 
@@ -35,6 +63,10 @@ fixed-schema nested objects (`fee_tier`, `order_configuration`,
 `margin_window`) are collapsed into scalar columns, and error arrays
 are joined to a single string — so a returned table never hides a
 list cell.
+
+Every example below is **live**: it runs against a built-in mock of
+the Coinbase API, so the tables you see are exactly the shape the real
+endpoints return.
 
 ---
 
@@ -86,9 +118,11 @@ The placeholders above are deliberately fake; never commit a real key.
 Both EC keys (ES256) and base64 Ed25519 keys (EdDSA) are supported by
 the signer.
 
-Then in R, using `box::use` rather than `library()`:
+Then in R, using `box::use` rather than `library()`. When the
+environment variables are set, `get_api_keys()` reads them with no
+arguments:
 
-```{r}
+```{r setup-keys, eval = FALSE}
 box::use(
   coinbase[
     CoinbaseMarketData, CoinbaseAccount, CoinbaseTrading,
@@ -125,17 +159,31 @@ aggregate with `trades_to_ohlcv()`.
 | `get_ticker(product_id)` | `GET /products/{id}/ticker` | single row |
 | `get_server_time()` | `GET /time` | single row |
 
+Public market data needs no keys:
+
+```{r market-init}
+market <- CoinbaseMarketData$new()
+```
+
 ### Products
 
 `get_products()` and `get_product()` go through the generic
 `as_dt_list` / `as_dt_row` flatteners: every scalar field becomes a
 column, and any nested object or multi-element value the API returns
 is collapsed to a single JSON string (never a list column). Field names
-are snake_case. Typical columns include `id`, `base_currency`,
-`quote_currency`, `display_name`, `status`, `quote_increment`,
-`base_increment`, `min_market_funds`, `trading_disabled`,
-`fx_stablecoin`, `auction_mode`. Numeric-looking fields are returned
-as the character strings Coinbase sends — cast at the point of use.
+are snake_case. Numeric-looking fields are returned as the character
+strings Coinbase sends — cast at the point of use.
+
+```{r products}
+products <- market$get_products()
+products[]
+```
+
+A single product is the same row shape:
+
+```{r product}
+market$get_product("BTC-USD")[]
+```
 
 ### OHLCV / candles
 
@@ -152,7 +200,7 @@ layout and sorts ascending. Exactly six columns:
 | `close` | `numeric` | |
 | `volume` | `numeric` | |
 
-```{r}
+```{r ohlcv}
 candles <- market$get_ohlcv("BTC-USD", granularity = "1min")
 candles[, .(datetime, open, high, low, close, volume)]
 ```
@@ -173,9 +221,19 @@ return one row per tick trade, with exactly five typed columns:
 | `size` | `numeric` | |
 | `time` | `POSIXct` (UTC) | |
 
+```{r trades}
+trades <- market$get_trades("BTC-USD", limit = 1000L)
+trades[]
+```
+
 To page deeper into history with `get_trades()`, pass the smallest
 `trade_id` seen so far as `after`; `get_trades_history()` does this
-loop for you and returns a single de-duplicated, ascending table.
+loop for you and returns a single de-duplicated, ascending table:
+
+```{r trades-history}
+ticks <- market$get_trades_history("BTC-USD")
+ticks[]
+```
 
 ### Order book
 
@@ -199,12 +257,16 @@ string; the parser emits it as a character `order_id` column instead
 of coercing it to numeric. A given call returns one or the other,
 never both.
 
-```{r}
+```{r orderbook}
 # Top 5 highest-priced asks (aggregated level-2 book)
 depth <- market$get_orderbook("BTC-USD", level = 2L)
-depth[side == "ask"][order(-price)][1:5]
+depth[side == "ask"][order(-price)][1:min(5, .N)]
+```
 
-# Level 3 carries order_id instead of num_orders
+At level 3 the third column is a character `order_id` instead of
+`num_orders` (a single call returns one or the other, never both):
+
+```{r orderbook-l3}
 l3 <- market$get_orderbook("BTC-USD", level = 3L)
 l3[, .(side, price, size, order_id)]
 ```
@@ -214,8 +276,17 @@ l3[, .(side, price, size, order_id)]
 `get_ticker()` returns a single row; the numeric fields (`ask`, `bid`,
 `price`, `size`, `volume`, `rfq_volume` where present) are cast to
 `numeric` and `time` to `POSIXct`, with any other fields (e.g.
-`trade_id`) left as the API sends them. `get_server_time()` returns a
-single row with `iso` and `epoch`.
+`trade_id`) left as the API sends them.
+
+```{r ticker}
+market$get_ticker("BTC-USD")[]
+```
+
+`get_server_time()` returns a single row with `iso` and `epoch`:
+
+```{r server-time}
+market$get_server_time()[]
+```
 
 ---
 
@@ -232,6 +303,16 @@ across pages.
 | `get_fees(product_type)` | `GET /api/v3/brokerage/transaction_summary` | single row |
 | `get_portfolios()` | `GET /api/v3/brokerage/portfolios` | one row per portfolio |
 | `get_key_permissions()` | `GET /api/v3/brokerage/key_permissions` | single row |
+
+Construct the authenticated client with your keys:
+
+```{r account-init}
+account <- CoinbaseAccount$new()
+```
+
+```{r account-init-hidden, echo = FALSE}
+account <- CoinbaseAccount$new(keys = KEYS)
+```
 
 ### Accounts
 
@@ -255,8 +336,9 @@ plain numerics. Exactly these columns:
 | `created_at` | `POSIXct` (UTC) |
 | `updated_at` | `POSIXct` (UTC) |
 
-```{r}
+```{r accounts}
 accts <- account$get_accounts()
+accts[]
 accts[available_balance > 0, .(currency, available_balance, hold)]
 ```
 
@@ -277,15 +359,22 @@ A single row, every column numeric except `pricing_tier`:
 | `total_fees` | `numeric` |
 | `total_balance` | `numeric` |
 
+```{r fees}
+account$get_fees()[]
+```
+
 Pass `product_type = "SPOT"` or `"FUTURE"` to scope the summary.
 
 ### Portfolios and key permissions
 
 `get_portfolios()` returns one row per portfolio via the generic
-`as_dt_list` flattener (columns such as `name`, `uuid`, `type`,
-`deleted`). `get_key_permissions()` returns a single row via
-`as_dt_row` (columns such as `can_view`, `can_trade`,
-`can_transfer`, `portfolio_uuid`, `portfolio_type`).
+`as_dt_list` flattener; `get_key_permissions()` returns a single row
+via `as_dt_row`:
+
+```{r portfolios}
+account$get_portfolios()[]
+account$get_key_permissions()[]
+```
 
 ---
 
@@ -315,6 +404,14 @@ take `leverage`, `margin_type` (`"CROSS"` / `"ISOLATED"`), and
 only); `get_orders()` takes the full filter set above; and
 `get_fills()` filters by `order_ids` (**plural**) and `trade_ids`, with
 sequence-timestamp bounds and a `sort_by`.
+
+```{r trading-init}
+trading <- CoinbaseTrading$new()
+```
+
+```{r trading-init-hidden, echo = FALSE}
+trading <- CoinbaseTrading$new(keys = KEYS)
+```
 
 ### Orders (`get_order` / `get_orders`)
 
@@ -347,10 +444,17 @@ via `flatten_order_config`. Exactly these columns, one row per order:
 | `end_time` | `POSIXct` (UTC) | GTD expiry; from `order_configuration` |
 | `post_only` | `logical` | from `order_configuration` |
 
-```{r}
+```{r orders}
 orders <- trading$get_orders(product_ids = "BTC-USD", limit = 50L)
-orders[status == "FILLED" & average_filled_price > 50000,
-       .(order_id, side, filled_size, average_filled_price)]
+orders[, .(order_id, product_id, side, status, order_type, config_type, filled_size)]
+```
+
+A single order by id is the same row shape:
+
+```{r order}
+trading$get_order("1111aaaa-2222-bbbb-3333-cccccccccccc")[
+  , .(order_id, side, status, config_type, base_size, limit_price)
+]
 ```
 
 ### Fills (`get_fills`)
@@ -372,6 +476,11 @@ Parser `parse_fills`, one row per fill, exactly:
 | `size_in_quote` | `logical` |
 | `liquidity_indicator` | `character` |
 
+```{r fills}
+fills <- trading$get_fills(product_ids = "BTC-USD", sort_by = "TRADE_TIME")
+fills[]
+```
+
 ### Preview (`preview_order`)
 
 Parser `parse_preview`, a single row. `errs` collapses Coinbase's
@@ -390,13 +499,13 @@ error array (objects or bare strings) into one human-readable string —
 | `errs` | `character` (collapsed; `NA` if none) |
 | `preview_id` | `character` |
 
-```{r}
+```{r preview-order}
 # Validate without placing anything (dry run; executes nothing)
 pv <- trading$preview_order(
   "BTC-USD", "BUY",
   list(market_market_ioc = list(quote_size = "10"))
 )
-pv[, .(order_total, commission_total, base_size, errs)]
+pv[]
 ```
 
 ### Create-order (`add_order`)
@@ -421,6 +530,15 @@ are collapsed to one `failure_reason` string, and the
 | `stop_price` | `numeric` |
 | `stop_trigger_price` | `numeric` |
 
+```{r add-order}
+order <- trading$add_order(
+  "BTC-USD", "BUY",
+  list(market_market_ioc = list(quote_size = "10")),
+  client_order_id = "client-001"
+)
+order[, .(success, order_id, product_id, side, client_order_id, failure_reason)]
+```
+
 ### Edit, edit-preview, and cancel
 
 | Method | Parser | Columns |
@@ -432,6 +550,18 @@ are collapsed to one `failure_reason` string, and the
 `edit_order()` / `preview_edit_order()` require at least one of `price`
 or `size`. `cancel_orders()` takes a character vector of `order_ids`.
 
+```{r edit-order}
+trading$edit_order("1111aaaa-2222-bbbb-3333-cccccccccccc", price = 71000)[]
+```
+
+```{r preview-edit-order}
+trading$preview_edit_order("1111aaaa-2222-bbbb-3333-cccccccccccc", price = 71000)[]
+```
+
+```{r cancel-orders}
+trading$cancel_orders(c("1111aaaa-2222-bbbb-3333-cccccccccccc"))[]
+```
+
 ---
 
 ## `CoinbaseFutures` — US futures (CFM)
@@ -439,7 +569,7 @@ or `size`. `cancel_orders()` takes a character vector of `order_ids`.
 All endpoints require credentials and a funded, approved CFM futures
 account. Futures **orders are placed through the same order endpoint as
 spot** — use `CoinbaseTrading$add_order()` with a futures `product_id`
-(e.g. `"BIT-28FEB25-CDE"`) and a futures order configuration; this
+(e.g. `"BIT-31OCT26-CDE"`) and a futures order configuration; this
 class manages the surrounding account state only. Coinbase's INTX
 perpetual endpoints (non-US) are intentionally not wrapped.
 
@@ -454,6 +584,14 @@ perpetual endpoints (non-US) are intentionally not wrapped.
 | `get_intraday_margin_setting()` | `GET /api/v3/brokerage/cfm/intraday/margin_setting` | single row |
 | `set_intraday_margin_setting(setting)` | `POST /api/v3/brokerage/cfm/intraday/margin_setting` | single row (echoes `setting`) |
 | `get_current_margin_window(margin_profile_type)` | `GET /api/v3/brokerage/cfm/intraday/current_margin_window` | single row |
+
+```{r futures-init}
+futures <- CoinbaseFutures$new()
+```
+
+```{r futures-init-hidden, echo = FALSE}
+futures <- CoinbaseFutures$new(keys = KEYS)
+```
 
 ### Balance summary
 
@@ -477,6 +615,10 @@ object). A single row:
 | `liquidation_buffer_amount` | `numeric` |
 | `liquidation_buffer_percentage` | `numeric` (plain scalar, not `{value, currency}`) |
 
+```{r futures-balance}
+futures$get_balance_summary()[]
+```
+
 ### Positions
 
 Parser `parse_futures_positions`, one row per open position:
@@ -492,6 +634,10 @@ Parser `parse_futures_positions`, one row per open position:
 | `daily_realized_pnl` | `numeric` (flattened) |
 | `expiration_time` | `POSIXct` (UTC) |
 
+```{r futures-positions}
+futures$get_positions()[]
+```
+
 ### Sweeps
 
 Parser `parse_futures_sweeps`, one row per sweep:
@@ -503,6 +649,10 @@ Parser `parse_futures_sweeps`, one row per sweep:
 | `should_sweep_all` | `logical` |
 | `status` | `character` |
 | `schedule_time` | `POSIXct` (UTC) |
+
+```{r futures-sweeps}
+futures$get_sweeps()[]
+```
 
 ### Margin window and settings
 
@@ -517,18 +667,28 @@ generic `as_dt_row` flattener; `set_intraday_margin_setting()` returns
 a single-row `data.table(setting = <applied value>)` because the
 success body is empty.
 
+```{r margin-window}
+futures$get_current_margin_window("MARGIN_PROFILE_TYPE_RETAIL_INTRADAY_MARGIN_1")[]
+futures$get_intraday_margin_setting()[]
+```
+
 ---
 
 ## Standalone helpers
 
 ### Credentials and base URLs
 
-```{r}
-box::use(coinbase[get_api_keys, get_base_url, get_exchange_base_url])
+```{r helpers-credentials}
+adv_url <- get_base_url()              # api.coinbase.com (auth)
+ex_url  <- get_exchange_base_url()     # api.exchange.coinbase.com (public)
+c(advanced_trade = adv_url, exchange = ex_url)
+```
 
-keys     <- get_api_keys()              # reads .Renviron
-adv_url  <- get_base_url()              # api.coinbase.com (auth)
-ex_url   <- get_exchange_base_url()     # api.exchange.coinbase.com (public)
+`get_api_keys()` reads `COINBASE_API_KEY_NAME` / `COINBASE_API_PRIVATE_KEY`
+from `.Renviron` (never run with real credentials in a document):
+
+```{r helpers-keys, eval = FALSE}
+keys <- get_api_keys()   # reads .Renviron
 ```
 
 ### Low-level HTTP
@@ -540,7 +700,12 @@ re-implementing ES256 / EdDSA signing.
 
 ### Bulk tick-history download
 
-```{r}
+`coinbase_backfill_trades()` downloads deep tick history for many
+products and writes the results to a CSV incrementally, so progress
+survives an interruption. It writes to disk, so it is shown but not run
+here:
+
+```{r backfill, eval = FALSE}
 box::use(coinbase[coinbase_backfill_trades], lubridate[ymd])
 
 # Backfill deep tick history for many products, with CSV resume so an
@@ -577,7 +742,7 @@ within an identical timestamp when present); empty intervals produce no
 row. The column layout matches `get_ohlcv()` exactly, so candle data
 from either source is interchangeable.
 
-```{r}
+```{r aggregate}
 ticks <- market$get_trades("BTC-USD", limit = 1000L)
 bars  <- trades_to_ohlcv(ticks, interval = 60)   # 1-minute bars
 bars[, .(datetime, open, high, low, close, volume)]
@@ -585,9 +750,7 @@ bars[, .(datetime, open, high, low, close, volume)]
 
 ### Symbol verification and client order IDs
 
-```{r}
-box::use(coinbase[verify_symbol, generate_client_order_id])
-
+```{r helpers-verify}
 verify_symbol("BTC-USD")          # TRUE
 verify_symbol("BIT-28FEB25-CDE")  # TRUE  (multi-segment expiring future)
 verify_symbol("BTCUSD")           # FALSE (no dash separator)
@@ -601,24 +764,27 @@ Pass `async = TRUE` to any class constructor; methods then return
 promises. Drive them with the `coro::async()` / `await()` idiom and
 drain the `later` event loop. No pipes anywhere.
 
-```{r}
+```{r async}
 box::use(
-  coinbase[CoinbaseMarketData],
   coro[async, await],
   later
 )
 
 market_async <- CoinbaseMarketData$new(async = TRUE)
+results <- NULL
 
 main <- async(function() {
   ticker  <- await(market_async$get_ticker("BTC-USD"))
   candles <- await(market_async$get_ohlcv("BTC-USD", granularity = "1min"))
-  print(ticker)
-  print(candles)
+  results <<- list(ticker = ticker, candles = candles)
+  return(invisible(NULL))
 })
 
 main()
 while (!later$loop_empty()) later$run_now()
+
+results$ticker[]
+results$candles[]
 ```
 
 See `vignette("async-usage", package = "coinbase")` for the full
@@ -655,14 +821,12 @@ objects on the wire. Every such field is flattened to its numeric
 tag — the currency is already implied by the column or by a sibling
 `currency` column.
 
-```{r}
+```{r treatment-a}
 accts <- account$get_accounts()
 accts$available_balance     # numeric, not list({value=..., currency=...})
-#> 0.5
 
 bal <- futures$get_balance_summary()
 bal$futures_buying_power    # numeric, flattened from {value, currency}
-#> 1000
 ```
 
 Where it's used: `available_balance` / `hold` on accounts; every
@@ -680,14 +844,9 @@ When an array's elements are themselves records (each has a `price`, a
 position column where order matters. On `coinbase` this applies to
 exactly one endpoint: the order book.
 
-```{r}
+```{r treatment-b}
 ob <- market$get_orderbook("BTC-USD", level = 2L)
 ob[, .(side, price, size, num_orders)]
-#>    side    price    size num_orders
-#> 1: bid  42950.50  0.5      3
-#> 2: bid  42949.00  1.2      5
-#> 3: ask  42951.00  0.3      2
-#> 4: ask  42952.50  0.8      1
 ```
 
 The `bids` and `asks` arrays are stacked with a `side` discriminator.
@@ -703,18 +862,14 @@ When the nested data is an *object* (not an array) with a known fixed
 key set, flatten the inner fields into scalar columns on the same row.
 The entity stays one row.
 
-```{r}
+```{r treatment-c}
 fees <- account$get_fees()
 fees$maker_fee_rate   # was nested under fee_tier
-#> 0.004
 fees$pricing_tier     # was nested under fee_tier
-#> "Advanced 1"
 
 orders <- trading$get_orders(product_ids = "BTC-USD")
 orders$config_type    # the order_configuration's one key
-#> "limit_limit_gtc"
 orders$limit_price    # was nested inside order_configuration
-#> 50000
 ```
 
 Where it's used: `fee_tier` on `get_fees`
@@ -738,16 +893,12 @@ than leave a list column, `collapse_errors` looks each element up by
 its known keys and joins the array into a single `"; "`-separated
 character string — `NA_character_` when there are no errors.
 
-```{r}
+```{r treatment-d}
 pv <- trading$preview_order(
   "BTC-USD", "BUY",
-  list(limit_limit_gtc = list(base_size = "0.001", limit_price = "1"))
+  list(market_market_ioc = list(quote_size = "10"))
 )
-pv$errs
-#> "PREVIEW_INSUFFICIENT_FUND"     # one string, never a list cell
-
-# A clean preview:
-#> NA
+pv$errs   # one string, or NA when the preview validated cleanly
 ```
 
 Where it's used: `errs` on `preview_order`; `failure_reason` on
@@ -813,7 +964,7 @@ balances across multiple exchanges with a straight `rbindlist` plus an
 `exchange` column, no per-source shape massage and no escape hatch into
 `lapply` over hidden lists.
 
-```{r}
+```{r ledger}
 # Combine spot accounts + futures balance into one ledger
 ledger <- data.table::rbindlist(
   list(
@@ -823,7 +974,7 @@ ledger <- data.table::rbindlist(
   use.names = TRUE,
   fill = TRUE
 )
-ledger[available_balance > 0]
+ledger[, .(wallet, currency, available_balance, futures_buying_power)]
 ```
 
 The same predictability is what makes the connector layer (`exchanges`
@@ -841,3 +992,4 @@ columns or unwrapping nested structures.
 - The sister `alpaca`, `binance`, and `kucoin` packages — the same
   convention applied to other exchanges, with the same Package Tour
   layout.
+```
