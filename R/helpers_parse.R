@@ -28,6 +28,26 @@ num_or_na <- function(x) {
   return(as.numeric(x))
 }
 
+#' Coerce a Scalar or `{value, currency}` Object to Numeric
+#'
+#' Some Coinbase fields are plain numeric strings, others are nested
+#' `{value, currency}` objects. This returns the numeric value either way.
+#'
+#' @param x A scalar, a `{value, ...}` list, or NULL.
+#' @return Numeric scalar, or `NA_real_` if NULL.
+#'
+#' @keywords internal
+#' @noRd
+flex_num <- function(x) {
+  if (is.null(x)) {
+    return(NA_real_)
+  }
+  if (is.list(x)) {
+    return(amount_value(x))
+  }
+  return(as.numeric(x))
+}
+
 #' Extract the Numeric `value` from a Coinbase `{value, currency}` Object
 #'
 #' Coinbase represents monetary amounts as nested `{value, currency}` objects.
@@ -358,6 +378,84 @@ parse_preview <- function(data) {
     errs = err_str,
     preview_id = data$preview_id %or% NA_character_
   )[])
+}
+
+#' Parse a Coinbase Futures (CFM) Balance Summary into a one-row data.table
+#'
+#' Flattens the nested `{value, currency}` amounts into numeric columns.
+#'
+#' @param data A balance-summary object, or NULL.
+#' @return A single-row [data.table::data.table]. Empty if NULL.
+#'
+#' @keywords internal
+#' @noRd
+parse_futures_balance <- function(data) {
+  if (is.null(data) || length(data) == 0) {
+    return(data.table::data.table()[])
+  }
+  return(data.table::data.table(
+    futures_buying_power = flex_num(data$futures_buying_power),
+    total_usd_balance = flex_num(data$total_usd_balance),
+    cbi_usd_balance = flex_num(data$cbi_usd_balance),
+    cfm_usd_balance = flex_num(data$cfm_usd_balance),
+    total_open_orders_hold_amount = flex_num(data$total_open_orders_hold_amount),
+    unrealized_pnl = flex_num(data$unrealized_pnl),
+    daily_realized_pnl = flex_num(data$daily_realized_pnl),
+    initial_margin = flex_num(data$initial_margin),
+    available_margin = flex_num(data$available_margin),
+    liquidation_threshold = flex_num(data$liquidation_threshold),
+    liquidation_buffer_amount = flex_num(data$liquidation_buffer_amount),
+    liquidation_buffer_percentage = num_or_na(data$liquidation_buffer_percentage)
+  )[])
+}
+
+#' Parse Coinbase Futures (CFM) Positions into a data.table
+#'
+#' @param items A list of position objects, or NULL.
+#' @return A [data.table::data.table], one row per position. Empty if NULL/empty.
+#'
+#' @keywords internal
+#' @noRd
+parse_futures_positions <- function(items) {
+  if (is.null(items) || length(items) == 0) {
+    return(data.table::data.table()[])
+  }
+  rows <- lapply(items, function(p) {
+    return(data.table::data.table(
+      product_id = p$product_id %or% NA_character_,
+      side = p$side %or% NA_character_,
+      number_of_contracts = flex_num(p$number_of_contracts),
+      current_price = flex_num(p$current_price),
+      avg_entry_price = flex_num(p$avg_entry_price),
+      unrealized_pnl = flex_num(p$unrealized_pnl),
+      daily_realized_pnl = flex_num(p$daily_realized_pnl),
+      expiration_time = iso_to_datetime(p$expiration_time %or% NA_character_)
+    ))
+  })
+  return(data.table::rbindlist(rows, fill = TRUE)[])
+}
+
+#' Parse Coinbase Futures (CFM) Sweeps into a data.table
+#'
+#' @param items A list of sweep objects, or NULL.
+#' @return A [data.table::data.table], one row per sweep. Empty if NULL/empty.
+#'
+#' @keywords internal
+#' @noRd
+parse_futures_sweeps <- function(items) {
+  if (is.null(items) || length(items) == 0) {
+    return(data.table::data.table()[])
+  }
+  rows <- lapply(items, function(s) {
+    return(data.table::data.table(
+      id = s$id %or% NA_character_,
+      requested_amount = flex_num(s$requested_amount),
+      should_sweep_all = s$should_sweep_all %or% NA,
+      status = s$status %or% NA_character_,
+      schedule_time = iso_to_datetime(s$schedule_time %or% NA_character_)
+    ))
+  })
+  return(data.table::rbindlist(rows, fill = TRUE)[])
 }
 
 #' Parse a Coinbase Exchange Order Book into a long data.table

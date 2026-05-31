@@ -2,6 +2,7 @@
 
 export(CoinbaseAccount)
 export(CoinbaseBase)
+export(CoinbaseFutures)
 export(CoinbaseMarketData)
 export(CoinbaseTrading)
 export(coinbase_backfill_trades)
