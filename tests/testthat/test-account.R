@@ -130,3 +130,62 @@ test_that("coinbase_paginate_cursor respects max_pages", {
   # two pages of one item each, then capped
   expect_equal(res, 2L)
 })
+
+test_that("parse_portfolio_breakdown returns a positions table with a summary attribute", {
+  resp <- list(
+    breakdown = list(
+      portfolio = list(name = "Algo", uuid = "p-1", type = "CONSUMER"),
+      portfolio_balances = list(
+        total_balance = list(value = "125000", currency = "USD"),
+        total_futures_balance = list(value = "25000", currency = "USD"),
+        total_crypto_balance = list(value = "85000", currency = "USD")
+      ),
+      spot_positions = list(
+        list(
+          asset = "BTC",
+          account_uuid = "a1",
+          total_balance_fiat = 60000,
+          allocation = 0.48,
+          cost_basis = list(value = "55000", currency = "USD")
+        ),
+        list(asset = "USD", account_uuid = "a2", total_balance_fiat = 40000, allocation = 0.32)
+      ),
+      futures_positions = list(
+        list(
+          asset = "BIT-28FEB25-CDE",
+          account_uuid = "f1",
+          total_balance_fiat = 25000,
+          leverage = 2,
+          expires_at = "2026-02-28T00:00:00Z"
+        )
+      ),
+      perp_positions = list()
+    )
+  )
+  dt <- parse_portfolio_breakdown(resp)
+  expect_equal(nrow(dt), 3L) # 2 spot + 1 futures
+  expect_true("position_type" %in% names(dt))
+  expect_equal(sort(unique(dt$position_type)), c("futures", "spot"))
+  expect_equal(dt[asset == "BTC"]$cost_basis, 55000)
+  expect_true(inherits(dt[position_type == "futures"]$expires_at, "POSIXct"))
+  expect_false(any(vapply(dt, is.list, logical(1))))
+
+  s <- attr(dt, "summary")
+  expect_true(data.table::is.data.table(s))
+  expect_equal(nrow(s), 1L)
+  expect_equal(s$total_balance, 125000)
+  expect_equal(s$uuid, "p-1")
+  expect_false(any(vapply(s, is.list, logical(1))))
+})
+
+test_that("parse_portfolio_breakdown handles no positions (empty table, summary still attached)", {
+  dt <- parse_portfolio_breakdown(list(
+    breakdown = list(
+      portfolio = list(uuid = "p-2"),
+      portfolio_balances = list(total_balance = list(value = "0", currency = "USD"))
+    )
+  ))
+  expect_equal(nrow(dt), 0L)
+  expect_equal(attr(dt, "summary")$uuid, "p-2")
+  expect_equal(attr(dt, "summary")$total_balance, 0)
+})

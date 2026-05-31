@@ -27,6 +27,7 @@ box::use(./`helper-mockery`[
   # Account (Advanced Trade host)
   mock_cb_accounts_response, mock_cb_account_response,
   mock_cb_fees_response, mock_cb_portfolios_response,
+  mock_cb_portfolio_breakdown_response,
   mock_cb_key_permissions_response,
   # Trading (Advanced Trade host)
   mock_cb_orders_response, mock_cb_order_response,
@@ -84,6 +85,7 @@ box::use(./`helper-mockery`[
   list(pattern = "/api/v3/brokerage/accounts", fixture = function() return(mock_cb_accounts_response())),
 
   list(pattern = "/api/v3/brokerage/transaction_summary", fixture = function() return(mock_cb_fees_response())),
+  list(pattern = "/api/v3/brokerage/portfolios/", fixture = function() return(mock_cb_portfolio_breakdown_response())),
   list(pattern = "/api/v3/brokerage/portfolios", fixture = function() return(mock_cb_portfolios_response())),
   list(pattern = "/api/v3/brokerage/key_permissions", fixture = function() return(mock_cb_key_permissions_response())),
   list(

@@ -318,6 +318,27 @@ perms <- account$get_key_permissions()
 perms[]
 ```
 
+### Portfolios
+
+`get_portfolios()` lists your portfolios; `get_portfolio_breakdown()` returns the
+per-asset breakdown of one. The positions come back as the `data.table` (one row
+per holding, tagged with `position_type`), while the portfolio's aggregate
+balance totals are attached as a one-row `data.table` in the `"summary"`
+attribute:
+
+```{r portfolios}
+ports <- account$get_portfolios()
+ports[]
+```
+
+```{r portfolio-breakdown}
+bd <- account$get_portfolio_breakdown(ports$uuid[1])
+bd[, .(position_type, asset, total_balance_fiat, allocation, cost_basis)]
+
+# Portfolio-level totals live on the "summary" attribute
+attr(bd, "summary")[]
+```
+
 ---
 
 ## Trading
