@@ -63,4 +63,5 @@ articles:
     contents:
       - getting-started
       - async-usage
+      - data-shapes
       - futures-shorting
