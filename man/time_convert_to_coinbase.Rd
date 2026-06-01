@@ -23,7 +23,7 @@ candle bounds).
 \dontrun{
 dt <- lubridate::as_datetime("2026-05-31 18:40:29", tz = "UTC")
 time_convert_to_coinbase(dt)            # "2026-05-31T18:40:29Z"
-time_convert_to_coinbase(dt, unit = "s") # 1780303229
+time_convert_to_coinbase(dt, unit = "s") # 1780252829
 }
 
 }

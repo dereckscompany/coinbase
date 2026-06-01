@@ -137,54 +137,123 @@ test_that("coinbase_paginate_cursor respects max_pages", {
   expect_equal(res, 2L)
 })
 
-test_that("parse_portfolio_breakdown returns a positions table with a summary attribute", {
+test_that("parse_portfolio_breakdown stacks spot/futures/perp into one positions table", {
   resp <- list(
     breakdown = list(
       portfolio = list(name = "Algo", uuid = "p-1", type = "CONSUMER"),
       portfolio_balances = list(
         total_balance = list(value = "125000", currency = "USD"),
         total_futures_balance = list(value = "25000", currency = "USD"),
-        total_crypto_balance = list(value = "85000", currency = "USD")
+        total_crypto_balance = list(value = "85000", currency = "USD"),
+        futures_unrealized_pnl = list(value = "120", currency = "USD"),
+        perp_unrealized_pnl = list(value = "45", currency = "USD")
       ),
       spot_positions = list(
         list(
           asset = "BTC",
           account_uuid = "a1",
+          total_balance_crypto = 0.81,
           total_balance_fiat = 60000,
           allocation = 0.48,
-          cost_basis = list(value = "55000", currency = "USD")
+          unrealized_pnl = 5000,
+          average_entry_price = list(value = "67900", currency = "USD"),
+          cost_basis = list(value = "55000", currency = "USD"),
+          is_cash = FALSE
         ),
-        list(asset = "USD", account_uuid = "a2", total_balance_fiat = 40000, allocation = 0.32)
+        list(
+          asset = "USD",
+          account_uuid = "a2",
+          total_balance_fiat = 40000,
+          allocation = 0.32,
+          is_cash = TRUE
+        )
       ),
       futures_positions = list(
         list(
-          asset = "BIT-28FEB25-CDE",
-          account_uuid = "f1",
-          total_balance_fiat = 25000,
-          leverage = 2,
-          expires_at = "2026-02-28T00:00:00Z"
+          product_id = "BIT-28FEB26-CDE",
+          side = "LONG",
+          amount = 2,
+          contract_size = 0.01,
+          avg_entry_price = "95000",
+          current_price = "96000",
+          unrealized_pnl = "120",
+          notional_value = "1920",
+          expiry = "2026-02-28T00:00:00Z",
+          underlying_asset = "BTC",
+          venue = "FCM"
         )
       ),
-      perp_positions = list()
+      perp_positions = list(
+        list(
+          product_id = "BTC-PERP-INTX",
+          symbol = "BTC-PERP",
+          position_side = "LONG",
+          net_size = "1.5",
+          vwap = list(
+            userNativeCurrency = list(value = "94000", currency = "USD"),
+            rawCurrency = list(value = "94000", currency = "USDC")
+          ),
+          mark_price = list(
+            userNativeCurrency = list(value = "95500", currency = "USD"),
+            rawCurrency = list(value = "95500", currency = "USDC")
+          ),
+          unrealized_pnl = list(
+            userNativeCurrency = list(value = "45", currency = "USD"),
+            rawCurrency = list(value = "45", currency = "USDC")
+          ),
+          liquidation_price = list(
+            userNativeCurrency = list(value = "80000", currency = "USD"),
+            rawCurrency = list(value = "80000", currency = "USDC")
+          ),
+          leverage = "5",
+          margin_type = "CROSS"
+        )
+      )
     )
   )
   dt <- parse_portfolio_breakdown(resp)
-  expect_equal(nrow(dt), 3L) # 2 spot + 1 futures
+  expect_equal(nrow(dt), 4L) # 2 spot + 1 futures + 1 perp
   expect_true("position_type" %in% names(dt))
-  expect_equal(sort(unique(dt$position_type)), c("futures", "spot"))
-  expect_equal(dt[asset == "BTC"]$cost_basis, 55000)
-  expect_true(inherits(dt[position_type == "futures"]$expires_at, "POSIXct"))
+  expect_equal(sort(unique(dt$position_type)), c("futures", "perp", "spot"))
+  # normalised shared columns, flattened across Amount and BalancePair shapes
+  expect_equal(dt[asset == "BTC"]$entry_price, 67900)
+  expect_equal(dt[position_type == "futures"]$entry_price, 95000)
+  expect_equal(dt[position_type == "futures"]$mark_price, 96000)
+  expect_equal(dt[position_type == "perp"]$entry_price, 94000) # BalancePair userNativeCurrency
+  expect_equal(dt[position_type == "perp"]$mark_price, 95500)
+  expect_equal(dt[position_type == "perp"]$unrealized_pnl, 45)
+  expect_equal(dt[position_type == "perp"]$liquidation_price, 80000)
+  # futures expiry parses to POSIXct
+  expect_true(inherits(dt[position_type == "futures"]$expiry, "POSIXct"))
+  # no list columns, and no summary attribute (totals live in a separate method)
   expect_false(any(vapply(dt, is.list, logical(1))))
+  expect_null(attr(dt, "summary"))
+})
 
-  s <- attr(dt, "summary")
+test_that("parse_portfolio_summary returns a one-row totals table", {
+  resp <- list(
+    breakdown = list(
+      portfolio = list(name = "Algo", uuid = "p-1", type = "CONSUMER"),
+      portfolio_balances = list(
+        total_balance = list(value = "125000", currency = "USD"),
+        total_futures_balance = list(value = "25000", currency = "USD"),
+        total_crypto_balance = list(value = "85000", currency = "USD"),
+        futures_unrealized_pnl = list(value = "120", currency = "USD"),
+        perp_unrealized_pnl = list(value = "45", currency = "USD")
+      )
+    )
+  )
+  s <- parse_portfolio_summary(resp)
   expect_true(data.table::is.data.table(s))
   expect_equal(nrow(s), 1L)
-  expect_equal(s$total_balance, 125000)
   expect_equal(s$uuid, "p-1")
+  expect_equal(s$total_balance, 125000)
+  expect_equal(s$futures_unrealized_pnl, 120)
+  expect_equal(s$perp_unrealized_pnl, 45)
   expect_false(any(vapply(s, is.list, logical(1))))
 })
 
-test_that("parse_portfolio_breakdown handles no positions (empty table, summary still attached)", {
+test_that("parse_portfolio_breakdown handles no positions (empty table, no attribute)", {
   dt <- parse_portfolio_breakdown(list(
     breakdown = list(
       portfolio = list(uuid = "p-2"),
@@ -192,6 +261,5 @@ test_that("parse_portfolio_breakdown handles no positions (empty table, summary 
     )
   ))
   expect_equal(nrow(dt), 0L)
-  expect_equal(attr(dt, "summary")$uuid, "p-2")
-  expect_equal(attr(dt, "summary")$total_balance, 0)
+  expect_null(attr(dt, "summary"))
 })

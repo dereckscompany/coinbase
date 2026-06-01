@@ -13,9 +13,10 @@ both synchronous and asynchronous (promise-based) operations.
   product's inception, with incremental CSV writes and resume. Aggregate ticks
   into OHLCV at any timeframe with `trades_to_ohlcv()`.
 * **Account** (`CoinbaseAccount`): accounts/balances (cursor-paginated), fee
-  tier, portfolios, and key permissions.
-* **Trading** (`CoinbaseTrading`): place, preview (dry run), edit, cancel, and
-  query orders and fills.
+  tier, portfolios (with `get_portfolio_breakdown()` stacking spot/futures/perp
+  positions and `get_portfolio_summary()` for the totals), and key permissions.
+* **Trading** (`CoinbaseTrading`): place, preview (dry run), edit, cancel, close
+  (`close_position()`), and query orders and fills.
 * **US futures / CFM** (`CoinbaseFutures`): balance summary, positions, margin
   settings, and cash sweeps for the short leg of pairs strategies. Futures
   orders are placed through the shared order endpoint with a futures product.

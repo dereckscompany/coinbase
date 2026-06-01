@@ -320,11 +320,11 @@ perms[]
 
 ### Portfolios
 
-`get_portfolios()` lists your portfolios; `get_portfolio_breakdown()` returns the
-per-asset breakdown of one. The positions come back as the `data.table` (one row
-per holding, tagged with `position_type`), while the portfolio's aggregate
-balance totals are attached as a one-row `data.table` in the `"summary"`
-attribute:
+`get_portfolios()` lists your portfolios. For one portfolio,
+`get_portfolio_breakdown()` returns its positions (spot, futures, and perpetual)
+stacked into one `data.table`, tagged with `position_type`, and
+`get_portfolio_summary()` returns the portfolio's aggregate totals as a separate
+one-row `data.table` (both read the same endpoint):
 
 ```{r portfolios}
 ports <- account$get_portfolios()
@@ -333,10 +333,10 @@ ports[]
 
 ```{r portfolio-breakdown}
 bd <- account$get_portfolio_breakdown(ports$uuid[1])
-bd[, .(position_type, asset, total_balance_fiat, allocation, cost_basis)]
+bd[, .(position_type, product_id, asset, side, entry_price, mark_price, unrealized_pnl)]
 
-# Portfolio-level totals live on the "summary" attribute
-attr(bd, "summary")[]
+# Portfolio-level totals come from a separate one-row table
+account$get_portfolio_summary(ports$uuid[1])[]
 ```
 
 ---
