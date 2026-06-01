@@ -22,6 +22,7 @@
 #' | get_fees | GET /api/v3/brokerage/transaction_summary | Yes |
 #' | get_portfolios | GET /api/v3/brokerage/portfolios | Yes |
 #' | get_portfolio_breakdown | GET /api/v3/brokerage/portfolios/\{uuid\} | Yes |
+#' | get_portfolio_summary | GET /api/v3/brokerage/portfolios/\{uuid\} | Yes |
 #' | get_key_permissions | GET /api/v3/brokerage/key_permissions | Yes |
 #'
 #' @examples
@@ -90,17 +91,17 @@ CoinbaseAccount <- R6::R6Class(
       ))
     },
 
-    #' @description Retrieve the detailed breakdown of a single portfolio: its
-    #'   spot, futures, and perpetual positions. Positions are returned as the
-    #'   `data.table` (one row per holding, with a `position_type` column); the
-    #'   portfolio's aggregate balance totals are attached as a one-row
-    #'   [data.table::data.table] in `attr(x, "summary")` (mirroring the
-    #'   `"failures"` attribute on [coinbase_backfill_trades()]).
+    #' @description Retrieve a single portfolio's positions: its spot, futures,
+    #'   and perpetual holdings stacked into one `data.table`, one row per
+    #'   holding, tagged by a `position_type` column. The concepts shared across
+    #'   types are normalised to common columns (`entry_price`, `mark_price`,
+    #'   `side`, `unrealized_pnl`); the rest keep their API names. For the
+    #'   portfolio's aggregate balance totals, use `get_portfolio_summary()` (it
+    #'   reads the same endpoint).
     #' @param portfolio_uuid Character; the portfolio UUID (from
     #'   `get_portfolios()`).
     #' @param currency Character or NULL; quote currency for fiat values. Optional.
-    #' @return A [data.table::data.table] of positions carrying a `"summary"`
-    #'   attribute, or a promise thereof.
+    #' @return A [data.table::data.table] of positions, or a promise thereof.
     get_portfolio_breakdown = function(portfolio_uuid, currency = NULL) {
       assert::assert_scalar_character(portfolio_uuid)
       return(private$.request(
@@ -108,6 +109,25 @@ CoinbaseAccount <- R6::R6Class(
         query = list(currency = currency),
         auth = TRUE,
         .parser = parse_portfolio_breakdown
+      ))
+    },
+
+    #' @description Retrieve a single portfolio's aggregate balance totals (total
+    #'   balance, futures/crypto/cash-equivalent balances, and futures/perp
+    #'   unrealized PnL). The positions companion is `get_portfolio_breakdown()`;
+    #'   both read the same endpoint.
+    #' @param portfolio_uuid Character; the portfolio UUID (from
+    #'   `get_portfolios()`).
+    #' @param currency Character or NULL; quote currency for fiat values. Optional.
+    #' @return A single-row [data.table::data.table] of totals, or a promise
+    #'   thereof.
+    get_portfolio_summary = function(portfolio_uuid, currency = NULL) {
+      assert::assert_scalar_character(portfolio_uuid)
+      return(private$.request(
+        endpoint = paste0("/api/v3/brokerage/portfolios/", portfolio_uuid),
+        query = list(currency = currency),
+        auth = TRUE,
+        .parser = parse_portfolio_summary
       ))
     },
 

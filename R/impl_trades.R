@@ -60,41 +60,67 @@ coinbase_fetch_trades_history <- function(
     return(dt[])
   }
 
-  fetch_page <- function(after, page_no) {
+  request_page <- function(after) {
     query <- list(limit = as.integer(page_limit), after = after)
-    result <- .req_fn(
+    return(.req_fn(
       endpoint = paste0("/products/", product_id, "/trades"),
       query = query,
       .parser = parse_trades
-    )
-
-    return(then_or_now(
-      result,
-      function(dt) {
-        if (nrow(dt) > 0L) {
-          accumulator[[length(accumulator) + 1L]] <<- dt
-        }
-
-        # Stop when: the page came back empty, the API returned fewer than a
-        # full page (start of history), we've paged past the requested start
-        # time, we've hit the page cap, or we've reached the first-ever trade.
-        min_id <- 0
-        if (nrow(dt) > 0L) {
-          min_id <- min(dt$trade_id)
-        }
-        reached_start <- !is.null(start_s) && nrow(dt) > 0L && min(as.numeric(dt$time)) <= start_s
-        exhausted <- nrow(dt) < page_limit
-        reached_cap <- page_no >= max_pages
-
-        if (nrow(dt) == 0L || exhausted || reached_start || reached_cap || min_id <= 1) {
-          return(combine())
-        }
-        # Next (older) page: trades with id strictly less than the smallest seen.
-        return(fetch_page(min_id, page_no + 1L))
-      },
-      is_async = is_async
     ))
   }
 
-  return(fetch_page(NULL, 1L))
+  # Accumulate one fetched page and decide whether to keep paging. Pure logic,
+  # shared by both the synchronous loop and the asynchronous promise chain; it
+  # returns `done` (stop now) and `next_after` (the cursor for the older page).
+  step <- function(dt, page_no) {
+    if (nrow(dt) > 0L) {
+      accumulator[[length(accumulator) + 1L]] <<- dt
+    }
+
+    # Stop when: the page came back empty, the API returned fewer than a full
+    # page (start of history), we've paged past the requested start time, we've
+    # hit the page cap, or we've reached the first-ever trade.
+    min_id <- 0
+    if (nrow(dt) > 0L) {
+      min_id <- min(dt$trade_id)
+    }
+    reached_start <- !is.null(start_s) && nrow(dt) > 0L && min(as.numeric(dt$time)) <= start_s
+    exhausted <- nrow(dt) < page_limit
+    reached_cap <- page_no >= max_pages
+    done <- nrow(dt) == 0L || exhausted || reached_start || reached_cap || min_id <= 1
+    return(list(done = done, next_after = min_id))
+  }
+
+  # Async: chain pages through the promise event loop. Each continuation runs as
+  # a fresh task, so the call stack unwinds between pages and a deep walk does
+  # not accumulate stack frames.
+  if (is_async) {
+    fetch_page <- function(after, page_no) {
+      return(promises::then(request_page(after), function(dt) {
+        outcome <- step(dt, page_no)
+        if (outcome$done) {
+          return(combine())
+        }
+        # Next (older) page: trades with id strictly less than the smallest seen.
+        return(fetch_page(outcome$next_after, page_no + 1L))
+      }))
+    }
+    return(fetch_page(NULL, 1L))
+  }
+
+  # Sync: iterate. A loop (not self-recursion) means a backfill all the way to a
+  # product's first-ever trade does not overflow the call stack, whatever the
+  # page count.
+  after <- NULL
+  page_no <- 1L
+  repeat {
+    dt <- request_page(after)
+    outcome <- step(dt, page_no)
+    if (outcome$done) {
+      break
+    }
+    after <- outcome$next_after
+    page_no <- page_no + 1L
+  }
+  return(combine())
 }

@@ -28,43 +28,71 @@ coinbase_paginate_cursor <- function(
 ) {
   accumulator <- list()
 
-  fetch_page <- function(cursor, page_no) {
+  request_page <- function(cursor) {
     q <- query
     if (!is.null(cursor) && nzchar(cursor)) {
       q$cursor <- cursor
     }
-    result <- .req_fn(endpoint = endpoint, query = q)
-
-    return(then_or_now(
-      result,
-      function(body) {
-        items <- body[[items_field]]
-        if (!is.null(items) && length(items) > 0L) {
-          accumulator[[length(accumulator) + 1L]] <<- items
-        }
-
-        # Some endpoints omit has_next entirely (e.g. the fills endpoint returns
-        # only `fills` + `cursor`). When it is absent, treat it as TRUE and let
-        # the non-empty-cursor guard terminate the walk; otherwise honour it.
-        has_next <- TRUE
-        if ("has_next" %in% names(body)) {
-          has_next <- isTRUE(body$has_next)
-        }
-        next_cursor <- body$cursor
-        more <- has_next &&
-          page_no < max_pages &&
-          !is.null(next_cursor) &&
-          nzchar(next_cursor)
-
-        if (!more) {
-          # Flatten the per-page item lists into one list before parsing.
-          return(.parser(do.call(c, accumulator)))
-        }
-        return(fetch_page(next_cursor, page_no + 1L))
-      },
-      is_async = is_async
-    ))
+    return(.req_fn(endpoint = endpoint, query = q))
   }
 
-  return(fetch_page(NULL, 1L))
+  finish <- function() {
+    # Flatten the per-page item lists into one list before parsing.
+    return(.parser(do.call(c, accumulator)))
+  }
+
+  # Accumulate one page's items and decide whether to keep paging. Pure logic,
+  # shared by the synchronous loop and the asynchronous chain; returns `done`
+  # and the `next_cursor` to request.
+  step <- function(body, page_no, cursor) {
+    items <- body[[items_field]]
+    if (!is.null(items) && length(items) > 0L) {
+      accumulator[[length(accumulator) + 1L]] <<- items
+    }
+
+    # Some endpoints omit has_next entirely (e.g. the fills endpoint returns
+    # only `fills` + `cursor`). When it is absent, treat it as TRUE and let the
+    # cursor guards terminate the walk; otherwise honour it. The repeated-cursor
+    # guard ensures forward progress now that the sync path is a loop.
+    has_next <- TRUE
+    if ("has_next" %in% names(body)) {
+      has_next <- isTRUE(body$has_next)
+    }
+    next_cursor <- body$cursor
+    more <- has_next &&
+      page_no < max_pages &&
+      !is.null(next_cursor) &&
+      nzchar(next_cursor) &&
+      !identical(next_cursor, cursor)
+    return(list(done = !more, next_cursor = next_cursor))
+  }
+
+  # Async: chain pages through the promise event loop (the call stack unwinds
+  # between pages).
+  if (is_async) {
+    fetch_page <- function(cursor, page_no) {
+      return(promises::then(request_page(cursor), function(body) {
+        outcome <- step(body, page_no, cursor)
+        if (outcome$done) {
+          return(finish())
+        }
+        return(fetch_page(outcome$next_cursor, page_no + 1L))
+      }))
+    }
+    return(fetch_page(NULL, 1L))
+  }
+
+  # Sync: iterate, so a long cursor walk does not overflow the call stack.
+  cursor <- NULL
+  page_no <- 1L
+  repeat {
+    body <- request_page(cursor)
+    outcome <- step(body, page_no, cursor)
+    if (outcome$done) {
+      break
+    }
+    cursor <- outcome$next_cursor
+    page_no <- page_no + 1L
+  }
+  return(finish())
 }

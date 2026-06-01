@@ -23,6 +23,7 @@ asynchronous execution depending on the \code{async} argument at construction.
    get_fees \tab GET /api/v3/brokerage/transaction_summary \tab Yes \cr
    get_portfolios \tab GET /api/v3/brokerage/portfolios \tab Yes \cr
    get_portfolio_breakdown \tab GET /api/v3/brokerage/portfolios/\{uuid\} \tab Yes \cr
+   get_portfolio_summary \tab GET /api/v3/brokerage/portfolios/\{uuid\} \tab Yes \cr
    get_key_permissions \tab GET /api/v3/brokerage/key_permissions \tab Yes \cr
 }
 
@@ -47,6 +48,7 @@ account$get_fees()
     \item \href{#method-CoinbaseAccount-get_fees}{\code{CoinbaseAccount$get_fees()}}
     \item \href{#method-CoinbaseAccount-get_portfolios}{\code{CoinbaseAccount$get_portfolios()}}
     \item \href{#method-CoinbaseAccount-get_portfolio_breakdown}{\code{CoinbaseAccount$get_portfolio_breakdown()}}
+    \item \href{#method-CoinbaseAccount-get_portfolio_summary}{\code{CoinbaseAccount$get_portfolio_summary()}}
     \item \href{#method-CoinbaseAccount-get_key_permissions}{\code{CoinbaseAccount$get_key_permissions()}}
     \item \href{#method-CoinbaseAccount-clone}{\code{CoinbaseAccount$clone()}}
   }
@@ -145,12 +147,13 @@ summary. Optional.}
 \if{html}{\out{<a id="method-CoinbaseAccount-get_portfolio_breakdown"></a>}}
 \if{latex}{\out{\hypertarget{method-CoinbaseAccount-get_portfolio_breakdown}{}}}
 \subsection{\code{CoinbaseAccount$get_portfolio_breakdown()}}{
-  Retrieve the detailed breakdown of a single portfolio: its
-spot, futures, and perpetual positions. Positions are returned as the
-\code{data.table} (one row per holding, with a \code{position_type} column); the
-portfolio's aggregate balance totals are attached as a one-row
-\link[data.table:data.table]{data.table::data.table} in \code{attr(x, "summary")} (mirroring the
-\code{"failures"} attribute on \code{\link[=coinbase_backfill_trades]{coinbase_backfill_trades()}}).
+  Retrieve a single portfolio's positions: its spot, futures,
+and perpetual holdings stacked into one \code{data.table}, one row per
+holding, tagged by a \code{position_type} column. The concepts shared across
+types are normalised to common columns (\code{entry_price}, \code{mark_price},
+\code{side}, \code{unrealized_pnl}); the rest keep their API names. For the
+portfolio's aggregate balance totals, use \code{get_portfolio_summary()} (it
+reads the same endpoint).
   \subsection{Usage}{
     \if{html}{\out{<div class="r">}}
     \preformatted{CoinbaseAccount$get_portfolio_breakdown(portfolio_uuid, currency = NULL)}
@@ -166,8 +169,35 @@ portfolio's aggregate balance totals are attached as a one-row
     \if{html}{\out{</div>}}
   }
   \subsection{Returns}{
-    A \link[data.table:data.table]{data.table::data.table} of positions carrying a \code{"summary"}
-attribute, or a promise thereof.
+    A \link[data.table:data.table]{data.table::data.table} of positions, or a promise thereof.
+  }
+}
+
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-CoinbaseAccount-get_portfolio_summary"></a>}}
+\if{latex}{\out{\hypertarget{method-CoinbaseAccount-get_portfolio_summary}{}}}
+\subsection{\code{CoinbaseAccount$get_portfolio_summary()}}{
+  Retrieve a single portfolio's aggregate balance totals (total
+balance, futures/crypto/cash-equivalent balances, and futures/perp
+unrealized PnL). The positions companion is \code{get_portfolio_breakdown()};
+both read the same endpoint.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{CoinbaseAccount$get_portfolio_summary(portfolio_uuid, currency = NULL)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{portfolio_uuid}}{Character; the portfolio UUID (from
+\code{get_portfolios()}).}
+      \item{\code{currency}}{Character or NULL; quote currency for fiat values. Optional.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    A single-row \link[data.table:data.table]{data.table::data.table} of totals, or a promise
+thereof.
   }
 }
 

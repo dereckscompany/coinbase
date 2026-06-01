@@ -302,6 +302,8 @@ across pages.
 | `get_account(account_uuid)` | `GET /api/v3/brokerage/accounts/{uuid}` | single row |
 | `get_fees(product_type)` | `GET /api/v3/brokerage/transaction_summary` | single row |
 | `get_portfolios()` | `GET /api/v3/brokerage/portfolios` | one row per portfolio |
+| `get_portfolio_breakdown(portfolio_uuid, currency)` | `GET /api/v3/brokerage/portfolios/{uuid}` | one row per position |
+| `get_portfolio_summary(portfolio_uuid, currency)` | `GET /api/v3/brokerage/portfolios/{uuid}` | single row |
 | `get_key_permissions()` | `GET /api/v3/brokerage/key_permissions` | single row |
 
 Construct the authenticated client with your keys:
@@ -376,6 +378,23 @@ account$get_portfolios()[]
 account$get_key_permissions()[]
 ```
 
+### Portfolio breakdown and totals
+
+`get_portfolio_breakdown()` stacks a portfolio's spot, futures, and
+perpetual positions into one table, tagged by a `position_type` column,
+with the concepts shared across types normalised to common columns
+(`entry_price`, `mark_price`, `side`, `unrealized_pnl`) and the rest
+kept under their API names. The aggregate totals are a separate one-row
+table from `get_portfolio_summary()` (same endpoint) — no attributes,
+no nested lists:
+
+```{r portfolio-breakdown}
+pf <- account$get_portfolios()$uuid[1L]
+cols <- c("position_type", "product_id", "asset", "side", "entry_price", "mark_price", "unrealized_pnl")
+account$get_portfolio_breakdown(pf)[, ..cols]
+account$get_portfolio_summary(pf)[]
+```
+
 ---
 
 ## `CoinbaseTrading` — order management
@@ -397,6 +416,7 @@ columns (see Treatment C below).
 | `edit_order(order_id, price, size)` | `POST /api/v3/brokerage/orders/edit` | single row |
 | `preview_edit_order(order_id, price, size)` | `POST /api/v3/brokerage/orders/edit_preview` | single row |
 | `cancel_orders(order_ids)` | `POST /api/v3/brokerage/orders/batch_cancel` | one row per order |
+| `close_position(product_id, size, client_order_id)` | `POST /api/v3/brokerage/orders/close_position` | single row |
 
 Note the recently-widened signatures: `add_order()` / `preview_order()`
 take `leverage`, `margin_type` (`"CROSS"` / `"ISOLATED"`), and
@@ -952,8 +972,9 @@ A few intentional non-goals, shared with the sister `alpaca`,
   rate-limit errors but does not back off on its own — that is the
   caller's job.
 - **No reconnect / retry on transient network errors.** The single
-  call is what you asked for; wrap with `httr2::req_retry()` (passed
-  through `coinbase_build_request()`) if you want retries.
+  call is what you asked for. The low-level `coinbase_build_request()`
+  takes a `.perform` argument, so you can supply one that wraps the
+  request in `httr2::req_retry()` before performing it.
 
 ## Why this matters across exchanges
 

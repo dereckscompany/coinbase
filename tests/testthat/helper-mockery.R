@@ -423,7 +423,8 @@ mock_cb_portfolios_response <- function() {
   ))
 }
 
-#' GET /portfolios/{uuid} -> parse_portfolio_breakdown (summary + position arrays).
+#' GET /portfolios/{uuid} -> parse_portfolio_breakdown (positions) and
+#' parse_portfolio_summary (totals); both read this same endpoint.
 mock_cb_portfolio_breakdown_response <- function() {
   return(list(
     breakdown = list(
@@ -433,44 +434,76 @@ mock_cb_portfolio_breakdown_response <- function() {
         total_futures_balance = list(value = "25000.00", currency = "USD"),
         total_cash_equivalent_balance = list(value = "40000.00", currency = "USD"),
         total_crypto_balance = list(value = "85000.00", currency = "USD"),
-        total_neptune_balance = list(value = "0.00", currency = "USD")
+        futures_unrealized_pnl = list(value = "120.00", currency = "USD"),
+        perp_unrealized_pnl = list(value = "45.00", currency = "USD"),
+        total_equities_balance = list(value = "0.00", currency = "USD")
       ),
       spot_positions = list(
         list(
           asset = "BTC",
           account_uuid = "a1-spot",
-          total_balance_fiat = 60000.0,
           total_balance_crypto = 0.81,
-          available_to_trade_fiat = 60000.0,
+          total_balance_fiat = 60000.0,
+          available_to_trade_crypto = 0.80,
           allocation = 0.48,
-          one_day_change = 0.012,
+          unrealized_pnl = 5000.0,
+          average_entry_price = list(value = "67900.00", currency = "USD"),
           cost_basis = list(value = "55000.00", currency = "USD"),
           is_cash = FALSE
         ),
         list(
           asset = "USD",
           account_uuid = "a2-spot",
-          total_balance_fiat = 40000.0,
           total_balance_crypto = 40000.0,
-          available_to_trade_fiat = 40000.0,
+          total_balance_fiat = 40000.0,
+          available_to_trade_crypto = 40000.0,
           allocation = 0.32,
-          one_day_change = 0.0,
+          unrealized_pnl = 0.0,
           cost_basis = list(value = "40000.00", currency = "USD"),
           is_cash = TRUE
         )
       ),
       futures_positions = list(
         list(
-          asset = "BIT-28FEB25-CDE",
-          account_uuid = "f1-cfm",
-          total_balance_fiat = 25000.0,
-          allocation = 0.20,
-          one_day_change = -0.008,
-          leverage = 2.0,
-          expires_at = "2026-02-28T00:00:00Z"
+          product_id = "BIT-28FEB26-CDE",
+          side = "LONG",
+          amount = 2.0,
+          contract_size = 0.01,
+          avg_entry_price = "95000.00",
+          current_price = "96000.00",
+          unrealized_pnl = "120.00",
+          notional_value = "1920.00",
+          expiry = "2026-02-28T00:00:00Z",
+          underlying_asset = "BTC",
+          venue = "FCM"
         )
       ),
-      perp_positions = list()
+      perp_positions = list(
+        list(
+          product_id = "BTC-PERP-INTX",
+          symbol = "BTC-PERP",
+          position_side = "LONG",
+          net_size = "1.5",
+          vwap = list(
+            userNativeCurrency = list(value = "94000.00", currency = "USD"),
+            rawCurrency = list(value = "94000.00", currency = "USDC")
+          ),
+          mark_price = list(
+            userNativeCurrency = list(value = "95500.00", currency = "USD"),
+            rawCurrency = list(value = "95500.00", currency = "USDC")
+          ),
+          unrealized_pnl = list(
+            userNativeCurrency = list(value = "45.00", currency = "USD"),
+            rawCurrency = list(value = "45.00", currency = "USDC")
+          ),
+          liquidation_price = list(
+            userNativeCurrency = list(value = "80000.00", currency = "USD"),
+            rawCurrency = list(value = "80000.00", currency = "USDC")
+          ),
+          leverage = "5",
+          margin_type = "CROSS"
+        )
+      )
     )
   ))
 }

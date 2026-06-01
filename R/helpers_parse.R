@@ -75,6 +75,72 @@ amount_value <- function(x) {
   return(result)
 }
 
+#' Coerce a Money Field (number, Amount, or BalancePair) to Numeric
+#'
+#' Coinbase expresses monetary fields three ways: a plain numeric string, an
+#' `Amount` (`{value, currency}`), or a `BalancePair`
+#' (`{userNativeCurrency, rawCurrency}`, each an `Amount`). This returns the
+#' numeric value for any of them, preferring the user's native (display)
+#' currency for a `BalancePair`. Used by the portfolio-breakdown parsers, where
+#' spot uses `Amount` and perp uses `BalancePair`.
+#'
+#' @param x A scalar, an `Amount`, a `BalancePair`, or NULL.
+#' @return Numeric scalar, or `NA_real_` when absent.
+#'
+#' @keywords internal
+#' @noRd
+money_value <- function(x) {
+  result <- NA_real_
+  if (is.list(x)) {
+    if (!is.null(x$value)) {
+      result <- as.numeric(x$value)
+    } else if (!is.null(x$userNativeCurrency) && !is.null(x$userNativeCurrency$value)) {
+      result <- as.numeric(x$userNativeCurrency$value)
+    } else if (!is.null(x$rawCurrency) && !is.null(x$rawCurrency$value)) {
+      result <- as.numeric(x$rawCurrency$value)
+    }
+  } else if (!is.null(x)) {
+    result <- as.numeric(x)
+  }
+  return(result)
+}
+
+#' Safely Read the i-th Element of a Positional Array as Numeric
+#'
+#' Coinbase returns candles and order-book levels as positional arrays. A short
+#' or partial array would make `x[[i]]` raise a subscript error; this returns
+#' `NA_real_` instead when the element is missing or NULL.
+#'
+#' @param x A list/vector, or NULL.
+#' @param i Integer; the element index.
+#' @return `as.numeric(x[[i]])`, or `NA_real_` when absent.
+#'
+#' @keywords internal
+#' @noRd
+nth_num <- function(x, i) {
+  result <- NA_real_
+  if (length(x) >= i && !is.null(x[[i]])) {
+    result <- as.numeric(x[[i]])
+  }
+  return(result)
+}
+
+#' Safely Read the i-th Element of a Positional Array as Character
+#'
+#' @param x A list/vector, or NULL.
+#' @param i Integer; the element index.
+#' @return `as.character(x[[i]])`, or `NA_character_` when absent.
+#'
+#' @keywords internal
+#' @noRd
+nth_chr <- function(x, i) {
+  result <- NA_character_
+  if (length(x) >= i && !is.null(x[[i]])) {
+    result <- as.character(x[[i]])
+  }
+  return(result)
+}
+
 #' Collapse a Coinbase Errors Array to a Single String
 #'
 #' Coinbase returns validation/preview/edit errors as an array whose elements are
@@ -221,12 +287,12 @@ parse_candles <- function(data) {
     return(data.table::data.table()[])
   }
   dt <- data.table::data.table(
-    datetime = s_to_datetime(vapply(data, function(c) as.numeric(c[[1L]]), numeric(1))),
-    open = vapply(data, function(c) as.numeric(c[[4L]]), numeric(1)),
-    high = vapply(data, function(c) as.numeric(c[[3L]]), numeric(1)),
-    low = vapply(data, function(c) as.numeric(c[[2L]]), numeric(1)),
-    close = vapply(data, function(c) as.numeric(c[[5L]]), numeric(1)),
-    volume = vapply(data, function(c) as.numeric(c[[6L]]), numeric(1))
+    datetime = s_to_datetime(vapply(data, function(c) nth_num(c, 1L), numeric(1))),
+    open = vapply(data, function(c) nth_num(c, 4L), numeric(1)),
+    high = vapply(data, function(c) nth_num(c, 3L), numeric(1)),
+    low = vapply(data, function(c) nth_num(c, 2L), numeric(1)),
+    close = vapply(data, function(c) nth_num(c, 5L), numeric(1)),
+    volume = vapply(data, function(c) nth_num(c, 6L), numeric(1))
   )
   data.table::setorder(dt, datetime)
   return(dt[])
@@ -246,11 +312,11 @@ parse_trades <- function(data) {
     return(data.table::data.table()[])
   }
   dt <- data.table::data.table(
-    trade_id = vapply(data, function(t) as.numeric(t$trade_id), numeric(1)),
-    side = vapply(data, function(t) as.character(t$side), character(1)),
-    price = vapply(data, function(t) as.numeric(t$price), numeric(1)),
-    size = vapply(data, function(t) as.numeric(t$size), numeric(1)),
-    time = iso_to_datetime(vapply(data, function(t) as.character(t$time), character(1)))
+    trade_id = vapply(data, function(t) num_or_na(t$trade_id), numeric(1)),
+    side = vapply(data, function(t) as.character(coalesce_null(t$side, NA_character_)), character(1)),
+    price = vapply(data, function(t) num_or_na(t$price), numeric(1)),
+    size = vapply(data, function(t) num_or_na(t$size), numeric(1)),
+    time = iso_to_datetime(vapply(data, function(t) coalesce_null(t$time, NA_character_), character(1)))
   )
   return(dt[])
 }
@@ -689,13 +755,13 @@ parse_orderbook <- function(data, level = 2L) {
     }
     dt <- data.table::data.table(
       side = side,
-      price = vapply(levels, function(l) as.numeric(l[[1L]]), numeric(1)),
-      size = vapply(levels, function(l) as.numeric(l[[2L]]), numeric(1))
+      price = vapply(levels, function(l) nth_num(l, 1L), numeric(1)),
+      size = vapply(levels, function(l) nth_num(l, 2L), numeric(1))
     )
     if (is_l3) {
-      dt[, order_id := vapply(levels, function(l) as.character(l[[3L]]), character(1))]
+      dt[, order_id := vapply(levels, function(l) nth_chr(l, 3L), character(1))]
     } else {
-      dt[, num_orders := vapply(levels, function(l) as.numeric(l[[3L]]), numeric(1))]
+      dt[, num_orders := vapply(levels, function(l) nth_num(l, 3L), numeric(1))]
     }
     return(dt[])
   }
@@ -801,76 +867,128 @@ parse_best_bid_ask <- function(data) {
   return(data.table::rbindlist(rows, fill = TRUE)[])
 }
 
-#' Parse a Coinbase Portfolio Breakdown into a positions data.table (+ summary attr)
+#' Parse a Coinbase Portfolio Breakdown into a stacked positions data.table
 #'
-#' The breakdown response nests a portfolio summary alongside several position
-#' arrays. To honour the no-list-column contract while still returning a single
-#' object, the spot/futures/perp positions are flattened into one data.table
-#' (one row per holding, tagged by `position_type`), and the portfolio's
-#' aggregate balance totals are attached as a one-row data.table in the
-#' `"summary"` attribute (the same idiom as the `"failures"` attribute on
-#' [coinbase_backfill_trades()]).
+#' The breakdown response nests three position arrays (spot, futures, perp) that
+#' the live API returns with genuinely different shapes. They are flattened into
+#' one [data.table::data.table], one row per holding, tagged by a `position_type`
+#' discriminator column and combined with `fill = TRUE` (the same convention the
+#' sibling packages use: kucoin's `account_type`, alpaca's `asset_class`). The
+#' three concepts shared across types are normalised to common columns
+#' (`entry_price`, `mark_price`, `side`, `unrealized_pnl`); the rest keep their
+#' real API names. The portfolio's aggregate totals are returned separately by
+#' [parse_portfolio_summary()] rather than attached as an attribute.
 #'
 #' @param data A `GetPortfolioBreakdownResponse` object with a `breakdown` field,
 #'   or NULL.
-#' @return A [data.table::data.table] of positions carrying a `"summary"`
-#'   attribute. Empty (but still with the attribute) when there are no positions.
+#' @return A [data.table::data.table] of positions. Empty if there are none.
 #'
 #' @keywords internal
 #' @noRd
 parse_portfolio_breakdown <- function(data) {
   bd <- coalesce_null(data$breakdown, list())
 
-  one_type <- function(items, type) {
+  spot_row <- function(p) {
+    return(data.table::data.table(
+      position_type = "spot",
+      asset = coalesce_null(p$asset, NA_character_),
+      side = NA_character_,
+      entry_price = money_value(p$average_entry_price),
+      mark_price = NA_real_,
+      unrealized_pnl = num_or_na(p$unrealized_pnl),
+      total_balance_crypto = num_or_na(p$total_balance_crypto),
+      total_balance_fiat = num_or_na(p$total_balance_fiat),
+      available_to_trade_crypto = num_or_na(p$available_to_trade_crypto),
+      cost_basis = money_value(p$cost_basis),
+      allocation = num_or_na(p$allocation),
+      is_cash = coalesce_null(p$is_cash, NA),
+      account_uuid = coalesce_null(p$account_uuid, NA_character_)
+    ))
+  }
+
+  futures_row <- function(p) {
+    return(data.table::data.table(
+      position_type = "futures",
+      product_id = coalesce_null(p$product_id, NA_character_),
+      side = coalesce_null(p$side, NA_character_),
+      entry_price = num_or_na(p$avg_entry_price),
+      mark_price = num_or_na(p$current_price),
+      unrealized_pnl = num_or_na(p$unrealized_pnl),
+      amount = num_or_na(p$amount),
+      contract_size = num_or_na(p$contract_size),
+      notional_value = num_or_na(p$notional_value),
+      expiry = iso_to_datetime(coalesce_null(p$expiry, NA_character_)),
+      underlying_asset = coalesce_null(p$underlying_asset, NA_character_),
+      venue = coalesce_null(p$venue, NA_character_)
+    ))
+  }
+
+  perp_row <- function(p) {
+    return(data.table::data.table(
+      position_type = "perp",
+      product_id = coalesce_null(p$product_id, NA_character_),
+      symbol = coalesce_null(p$symbol, NA_character_),
+      side = coalesce_null(p$position_side, NA_character_),
+      entry_price = money_value(p$vwap),
+      mark_price = money_value(p$mark_price),
+      unrealized_pnl = money_value(p$unrealized_pnl),
+      net_size = num_or_na(p$net_size),
+      leverage = num_or_na(p$leverage),
+      liquidation_price = money_value(p$liquidation_price),
+      margin_type = coalesce_null(p$margin_type, NA_character_)
+    ))
+  }
+
+  read_type <- function(items, reader) {
     items <- Filter(Negate(is.null), coalesce_null(items, list()))
     if (length(items) == 0L) {
       return(NULL)
     }
-    rows <- lapply(items, function(p) {
-      return(data.table::data.table(
-        position_type = type,
-        asset = coalesce_null(p$asset, NA_character_),
-        account_uuid = coalesce_null(p$account_uuid, NA_character_),
-        total_balance_fiat = num_or_na(p$total_balance_fiat),
-        total_balance_crypto = num_or_na(p$total_balance_crypto),
-        available_to_trade_fiat = num_or_na(p$available_to_trade_fiat),
-        allocation = num_or_na(p$allocation),
-        one_day_change = num_or_na(p$one_day_change),
-        cost_basis = flex_num(p$cost_basis),
-        expires_at = iso_to_datetime(coalesce_null(p$expires_at, NA_character_)),
-        leverage = num_or_na(p$leverage),
-        rate = num_or_na(p$rate)
-      ))
-    })
-    return(data.table::rbindlist(rows, fill = TRUE))
+    return(data.table::rbindlist(lapply(items, reader), fill = TRUE))
   }
 
   parts <- Filter(
     Negate(is.null),
     list(
-      one_type(bd$spot_positions, "spot"),
-      one_type(bd$futures_positions, "futures"),
-      one_type(bd$perp_positions, "perp")
+      read_type(bd$spot_positions, spot_row),
+      read_type(bd$futures_positions, futures_row),
+      read_type(bd$perp_positions, perp_row)
     )
   )
   positions <- data.table::data.table()
   if (length(parts) > 0L) {
     positions <- data.table::rbindlist(parts, fill = TRUE)
   }
-  positions <- positions[]
+  return(positions[])
+}
 
+#' Parse a Coinbase Portfolio Breakdown's Aggregate Totals into a one-row data.table
+#'
+#' Reads the portfolio meta and `portfolio_balances` block from the breakdown
+#' response. This is the summary companion to [parse_portfolio_breakdown()];
+#' both parse the same endpoint, returning the totals and the positions
+#' respectively, so each remains a single flat data.table.
+#'
+#' @param data A `GetPortfolioBreakdownResponse` object with a `breakdown` field,
+#'   or NULL.
+#' @return A single-row [data.table::data.table] of portfolio totals.
+#'
+#' @keywords internal
+#' @noRd
+parse_portfolio_summary <- function(data) {
+  bd <- coalesce_null(data$breakdown, list())
   p <- coalesce_null(bd$portfolio, list())
   b <- coalesce_null(bd$portfolio_balances, list())
-  summary <- data.table::data.table(
+  return(data.table::data.table(
     uuid = coalesce_null(p$uuid, NA_character_),
     name = coalesce_null(p$name, NA_character_),
     type = coalesce_null(p$type, NA_character_),
-    total_balance = flex_num(b$total_balance),
-    total_futures_balance = flex_num(b$total_futures_balance),
-    total_cash_equivalent_balance = flex_num(b$total_cash_equivalent_balance),
-    total_crypto_balance = flex_num(b$total_crypto_balance),
-    total_neptune_balance = flex_num(b$total_neptune_balance)
-  )
-  data.table::setattr(positions, "summary", summary[])
-  return(positions)
+    total_balance = money_value(b$total_balance),
+    total_futures_balance = money_value(b$total_futures_balance),
+    total_cash_equivalent_balance = money_value(b$total_cash_equivalent_balance),
+    total_crypto_balance = money_value(b$total_crypto_balance),
+    futures_unrealized_pnl = money_value(b$futures_unrealized_pnl),
+    perp_unrealized_pnl = money_value(b$perp_unrealized_pnl),
+    total_equities_balance = money_value(b$total_equities_balance)
+  ))
 }
