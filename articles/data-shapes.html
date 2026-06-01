@@ -30,7 +30,7 @@
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
-<li class="nav-item dropdown">
+<li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><a class="dropdown-item" href="../articles/getting-started.html">Getting Started with coinbase</a></li>
@@ -598,6 +598,16 @@ Coinbase’s body-cursor pagination (<code>cursor</code> /
 <td>one row per portfolio</td>
 </tr>
 <tr class="odd">
+<td><code>get_portfolio_breakdown(portfolio_uuid, currency)</code></td>
+<td><code>GET /api/v3/brokerage/portfolios/{uuid}</code></td>
+<td>one row per position</td>
+</tr>
+<tr class="even">
+<td><code>get_portfolio_summary(portfolio_uuid, currency)</code></td>
+<td><code>GET /api/v3/brokerage/portfolios/{uuid}</code></td>
+<td>single row</td>
+</tr>
+<tr class="odd">
 <td><code>get_key_permissions()</code></td>
 <td><code>GET /api/v3/brokerage/key_permissions</code></td>
 <td>single row</td>
@@ -780,6 +790,44 @@ generic <code>as_dt_list</code> flattener;
 <span><span class="co">#&gt;    portfolio_type</span></span>
 <span><span class="co">#&gt;            &lt;char&gt;</span></span>
 <span><span class="co">#&gt; 1:        DEFAULT</span></span></code></pre>
+</div>
+<div class="section level4">
+<h4 id="portfolio-breakdown-and-totals">Portfolio breakdown and totals<a class="anchor" aria-label="anchor" href="#portfolio-breakdown-and-totals"></a>
+</h4>
+<p><code>get_portfolio_breakdown()</code> stacks a portfolio’s spot,
+futures, and perpetual positions into one table, tagged by a
+<code>position_type</code> column, with the concepts shared across types
+normalised to common columns (<code>entry_price</code>,
+<code>mark_price</code>, <code>side</code>, <code>unrealized_pnl</code>)
+and the rest kept under their API names. The aggregate totals are a
+separate one-row table from <code>get_portfolio_summary()</code> (same
+endpoint) — no attributes, no nested lists:</p>
+<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">pf</span> <span class="op">&lt;-</span> <span class="va">account</span><span class="op">$</span><span class="fu">get_portfolios</span><span class="op">(</span><span class="op">)</span><span class="op">$</span><span class="va">uuid</span><span class="op">[</span><span class="fl">1L</span><span class="op">]</span></span>
+<span><span class="va">cols</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"position_type"</span>, <span class="st">"product_id"</span>, <span class="st">"asset"</span>, <span class="st">"side"</span>, <span class="st">"entry_price"</span>, <span class="st">"mark_price"</span>, <span class="st">"unrealized_pnl"</span><span class="op">)</span></span>
+<span><span class="va">account</span><span class="op">$</span><span class="fu">get_portfolio_breakdown</span><span class="op">(</span><span class="va">pf</span><span class="op">)</span><span class="op">[</span>, <span class="va">..cols</span><span class="op">]</span></span>
+<span><span class="va">account</span><span class="op">$</span><span class="fu">get_portfolio_summary</span><span class="op">(</span><span class="va">pf</span><span class="op">)</span><span class="op">[</span><span class="op">]</span></span></code></pre></div>
+<pre><code><span><span class="co">#&gt;    position_type      product_id  asset   side entry_price mark_price</span></span>
+<span><span class="co">#&gt;           &lt;char&gt;          &lt;char&gt; &lt;char&gt; &lt;char&gt;       &lt;num&gt;      &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1:          spot            &lt;NA&gt;    BTC   &lt;NA&gt;       67900         NA</span></span>
+<span><span class="co">#&gt; 2:          spot            &lt;NA&gt;    USD   &lt;NA&gt;          NA         NA</span></span>
+<span><span class="co">#&gt; 3:       futures BIT-28FEB26-CDE   &lt;NA&gt;   LONG       95000      96000</span></span>
+<span><span class="co">#&gt; 4:          perp   BTC-PERP-INTX   &lt;NA&gt;   LONG       94000      95500</span></span>
+<span><span class="co">#&gt;    unrealized_pnl</span></span>
+<span><span class="co">#&gt;             &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1:           5000</span></span>
+<span><span class="co">#&gt; 2:              0</span></span>
+<span><span class="co">#&gt; 3:            120</span></span>
+<span><span class="co">#&gt; 4:             45</span></span>
+<span><span class="co">#&gt;                                    uuid   name     type total_balance</span></span>
+<span><span class="co">#&gt;                                  &lt;char&gt; &lt;char&gt;   &lt;char&gt;         &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1: 7d6e5f4c-2222-4b1a-8ccc-fedcba987654   Algo CONSUMER        125000</span></span>
+<span><span class="co">#&gt;    total_futures_balance total_cash_equivalent_balance total_crypto_balance</span></span>
+<span><span class="co">#&gt;                    &lt;num&gt;                         &lt;num&gt;                &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1:                 25000                         40000                85000</span></span>
+<span><span class="co">#&gt;    futures_unrealized_pnl perp_unrealized_pnl total_equities_balance</span></span>
+<span><span class="co">#&gt;                     &lt;num&gt;               &lt;num&gt;                  &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1:                    120                  45                      0</span></span></code></pre>
 <hr>
 </div>
 </div>
@@ -846,6 +894,11 @@ below).</p>
 <td><code>POST /api/v3/brokerage/orders/batch_cancel</code></td>
 <td>one row per order</td>
 </tr>
+<tr class="odd">
+<td><code>close_position(product_id, size, client_order_id)</code></td>
+<td><code>POST /api/v3/brokerage/orders/close_position</code></td>
+<td>single row</td>
+</tr>
 </tbody>
 </table>
 <p>Note the recently-widened signatures: <code>add_order()</code> /
@@ -857,7 +910,7 @@ below).</p>
 <code>get_fills()</code> filters by <code>order_ids</code>
 (<strong>plural</strong>) and <code>trade_ids</code>, with
 sequence-timestamp bounds and a <code>sort_by</code>.</p>
-<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">trading</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/CoinbaseTrading.html">CoinbaseTrading</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <div class="section level4">
 <h4 id="orders-get_order-get_orders">Orders (<code>get_order</code> / <code>get_orders</code>)<a class="anchor" aria-label="anchor" href="#orders-get_order-get_orders"></a>
@@ -1006,7 +1059,7 @@ Exactly these columns, one row per order:</p>
 </tr>
 </tbody>
 </table>
-<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">orders</span> <span class="op">&lt;-</span> <span class="va">trading</span><span class="op">$</span><span class="fu">get_orders</span><span class="op">(</span>product_ids <span class="op">=</span> <span class="st">"BTC-USD"</span>, limit <span class="op">=</span> <span class="fl">50L</span><span class="op">)</span></span>
 <span><span class="va">orders</span><span class="op">[</span>, <span class="fu">.</span><span class="op">(</span><span class="va">order_id</span>, <span class="va">product_id</span>, <span class="va">side</span>, <span class="va">status</span>, <span class="va">order_type</span>, <span class="va">config_type</span>, <span class="va">filled_size</span><span class="op">)</span><span class="op">]</span></span></code></pre></div>
 <pre><code><span><span class="co">#&gt;                                order_id product_id   side status order_type</span></span>
@@ -1018,7 +1071,7 @@ Exactly these columns, one row per order:</p>
 <span><span class="co">#&gt; 1:   limit_limit_gtc         0.0</span></span>
 <span><span class="co">#&gt; 2: market_market_ioc         0.5</span></span></code></pre>
 <p>A single order by id is the same row shape:</p>
-<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">trading</span><span class="op">$</span><span class="fu">get_order</span><span class="op">(</span><span class="st">"1111aaaa-2222-bbbb-3333-cccccccccccc"</span><span class="op">)</span><span class="op">[</span></span>
 <span>  , <span class="fu">.</span><span class="op">(</span><span class="va">order_id</span>, <span class="va">side</span>, <span class="va">status</span>, <span class="va">config_type</span>, <span class="va">base_size</span>, <span class="va">limit_price</span><span class="op">)</span></span>
 <span><span class="op">]</span></span></code></pre></div>
@@ -1090,7 +1143,7 @@ Exactly these columns, one row per order:</p>
 </tr>
 </tbody>
 </table>
-<div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fills</span> <span class="op">&lt;-</span> <span class="va">trading</span><span class="op">$</span><span class="fu">get_fills</span><span class="op">(</span>product_ids <span class="op">=</span> <span class="st">"BTC-USD"</span>, sort_by <span class="op">=</span> <span class="st">"TRADE_TIME"</span><span class="op">)</span></span>
 <span><span class="va">fills</span><span class="op">[</span><span class="op">]</span></span></code></pre></div>
 <pre><code><span><span class="co">#&gt;      entry_id   trade_id                             order_id product_id   side</span></span>
@@ -1158,7 +1211,7 @@ cleanly.</p>
 </tr>
 </tbody>
 </table>
-<div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb38"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Validate without placing anything (dry run; executes nothing)</span></span>
 <span><span class="va">pv</span> <span class="op">&lt;-</span> <span class="va">trading</span><span class="op">$</span><span class="fu">preview_order</span><span class="op">(</span></span>
 <span>  <span class="st">"BTC-USD"</span>, <span class="st">"BUY"</span>,</span>
@@ -1237,7 +1290,7 @@ to one <code>failure_reason</code> string, and the
 </tr>
 </tbody>
 </table>
-<div class="sourceCode" id="cb38"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb40"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">order</span> <span class="op">&lt;-</span> <span class="va">trading</span><span class="op">$</span><span class="fu">add_order</span><span class="op">(</span></span>
 <span>  <span class="st">"BTC-USD"</span>, <span class="st">"BUY"</span>,</span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>market_market_ioc <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>quote_size <span class="op">=</span> <span class="st">"10"</span><span class="op">)</span><span class="op">)</span>,</span>
@@ -1297,12 +1350,12 @@ character)</td>
 at least one of <code>price</code> or <code>size</code>.
 <code>cancel_orders()</code> takes a character vector of
 <code>order_ids</code>.</p>
-<div class="sourceCode" id="cb40"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb42"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">trading</span><span class="op">$</span><span class="fu">edit_order</span><span class="op">(</span><span class="st">"1111aaaa-2222-bbbb-3333-cccccccccccc"</span>, price <span class="op">=</span> <span class="fl">71000</span><span class="op">)</span><span class="op">[</span><span class="op">]</span></span></code></pre></div>
 <pre><code><span><span class="co">#&gt;    success                             order_id errors</span></span>
 <span><span class="co">#&gt;     &lt;lgcl&gt;                               &lt;char&gt; &lt;char&gt;</span></span>
 <span><span class="co">#&gt; 1:    TRUE 1111aaaa-2222-bbbb-3333-cccccccccccc   &lt;NA&gt;</span></span></code></pre>
-<div class="sourceCode" id="cb42"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb44"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">trading</span><span class="op">$</span><span class="fu">preview_edit_order</span><span class="op">(</span><span class="st">"1111aaaa-2222-bbbb-3333-cccccccccccc"</span>, price <span class="op">=</span> <span class="fl">71000</span><span class="op">)</span><span class="op">[</span><span class="op">]</span></span></code></pre></div>
 <pre><code><span><span class="co">#&gt;    errors slippage order_total commission_total quote_size base_size best_bid</span></span>
 <span><span class="co">#&gt;    &lt;char&gt;    &lt;num&gt;       &lt;num&gt;            &lt;num&gt;      &lt;num&gt;     &lt;num&gt;    &lt;num&gt;</span></span>
@@ -1310,7 +1363,7 @@ at least one of <code>price</code> or <code>size</code>.
 <span><span class="co">#&gt;    average_filled_price</span></span>
 <span><span class="co">#&gt;                   &lt;num&gt;</span></span>
 <span><span class="co">#&gt; 1:                    0</span></span></code></pre>
-<div class="sourceCode" id="cb44"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb46"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">trading</span><span class="op">$</span><span class="fu">cancel_orders</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"1111aaaa-2222-bbbb-3333-cccccccccccc"</span><span class="op">)</span><span class="op">)</span><span class="op">[</span><span class="op">]</span></span></code></pre></div>
 <pre><code><span><span class="co">#&gt;                                order_id success                failure_reason</span></span>
 <span><span class="co">#&gt;                                  &lt;char&gt;  &lt;lgcl&gt;                        &lt;char&gt;</span></span>
@@ -1388,7 +1441,7 @@ perpetual endpoints (non-US) are intentionally not wrapped.</p>
 </tr>
 </tbody>
 </table>
-<div class="sourceCode" id="cb46"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb48"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">futures</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/CoinbaseFutures.html">CoinbaseFutures</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <div class="section level4">
 <h4 id="balance-summary">Balance summary<a class="anchor" aria-label="anchor" href="#balance-summary"></a>
@@ -1459,7 +1512,7 @@ a scalar or a <code>{value, currency}</code> object). A single row:</p>
 </tr>
 </tbody>
 </table>
-<div class="sourceCode" id="cb47"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb49"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">futures</span><span class="op">$</span><span class="fu">get_balance_summary</span><span class="op">(</span><span class="op">)</span><span class="op">[</span><span class="op">]</span></span></code></pre></div>
 <pre><code><span><span class="co">#&gt;    futures_buying_power total_usd_balance cbi_usd_balance cfm_usd_balance</span></span>
 <span><span class="co">#&gt;                   &lt;num&gt;             &lt;num&gt;           &lt;num&gt;           &lt;num&gt;</span></span>
@@ -1525,7 +1578,7 @@ position:</p>
 </tr>
 </tbody>
 </table>
-<div class="sourceCode" id="cb49"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb51"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">futures</span><span class="op">$</span><span class="fu">get_positions</span><span class="op">(</span><span class="op">)</span><span class="op">[</span><span class="op">]</span></span></code></pre></div>
 <pre><code><span><span class="co">#&gt;         product_id   side number_of_contracts current_price avg_entry_price</span></span>
 <span><span class="co">#&gt;             &lt;char&gt; &lt;char&gt;               &lt;num&gt;         &lt;num&gt;           &lt;num&gt;</span></span>
@@ -1568,7 +1621,7 @@ position:</p>
 </tr>
 </tbody>
 </table>
-<div class="sourceCode" id="cb51"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb53"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">futures</span><span class="op">$</span><span class="fu">get_sweeps</span><span class="op">(</span><span class="op">)</span><span class="op">[</span><span class="op">]</span></span></code></pre></div>
 <pre><code><span><span class="co">#&gt;            id requested_amount should_sweep_all  status schedule_time</span></span>
 <span><span class="co">#&gt;        &lt;char&gt;            &lt;num&gt;           &lt;lgcl&gt;  &lt;char&gt;        &lt;POSc&gt;</span></span>
@@ -1591,7 +1644,7 @@ It requires a <code>margin_profile_type</code> argument.
 <code>set_intraday_margin_setting()</code> returns a single-row
 <code>data.table(setting = &lt;applied value&gt;)</code> because the
 success body is empty.</p>
-<div class="sourceCode" id="cb53"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb55"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">futures</span><span class="op">$</span><span class="fu">get_current_margin_window</span><span class="op">(</span><span class="st">"MARGIN_PROFILE_TYPE_RETAIL_INTRADAY_MARGIN_1"</span><span class="op">)</span><span class="op">[</span><span class="op">]</span></span>
 <span><span class="va">futures</span><span class="op">$</span><span class="fu">get_intraday_margin_setting</span><span class="op">(</span><span class="op">)</span><span class="op">[</span><span class="op">]</span></span></code></pre></div>
 <pre><code><span><span class="co">#&gt;                  margin_window_type            end_time</span></span>
@@ -1615,7 +1668,7 @@ success body is empty.</p>
 <div class="section level4">
 <h4 id="credentials-and-base-urls">Credentials and base URLs<a class="anchor" aria-label="anchor" href="#credentials-and-base-urls"></a>
 </h4>
-<div class="sourceCode" id="cb55"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb57"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">adv_url</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_base_url.html">get_base_url</a></span><span class="op">(</span><span class="op">)</span>              <span class="co"># api.coinbase.com (auth)</span></span>
 <span><span class="va">ex_url</span>  <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_exchange_base_url.html">get_exchange_base_url</a></span><span class="op">(</span><span class="op">)</span>     <span class="co"># api.exchange.coinbase.com (public)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>advanced_trade <span class="op">=</span> <span class="va">adv_url</span>, exchange <span class="op">=</span> <span class="va">ex_url</span><span class="op">)</span></span></code></pre></div>
@@ -1624,7 +1677,7 @@ success body is empty.</p>
 <p><code><a href="../reference/get_api_keys.html">get_api_keys()</a></code> reads <code>COINBASE_API_KEY_NAME</code>
 / <code>COINBASE_API_PRIVATE_KEY</code> from <code>.Renviron</code>
 (never run with real credentials in a document):</p>
-<div class="sourceCode" id="cb57"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb59"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">keys</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_api_keys.html">get_api_keys</a></span><span class="op">(</span><span class="op">)</span>   <span class="co"># reads .Renviron</span></span></code></pre></div>
 </div>
 <div class="section level4">
@@ -1642,7 +1695,7 @@ without re-implementing ES256 / EdDSA signing.</p>
 for many products and writes the results to a CSV incrementally, so
 progress survives an interruption. It writes to disk, so it is shown but
 not run here:</p>
-<div class="sourceCode" id="cb58"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb60"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">box</span><span class="fu">::</span><span class="fu"><a href="https://klmr.me/box/reference/use.html" class="external-link">use</a></span><span class="op">(</span><span class="va">coinbase</span><span class="op">[</span><span class="va">coinbase_backfill_trades</span><span class="op">]</span>, <span class="va">lubridate</span><span class="op">[</span><span class="va">ymd</span><span class="op">]</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Backfill deep tick history for many products, with CSV resume so an</span></span>
@@ -1710,7 +1763,7 @@ six-column OHLCV table:</p>
 breaks ties within an identical timestamp when present); empty intervals
 produce no row. The column layout matches <code>get_ohlcv()</code>
 exactly, so candle data from either source is interchangeable.</p>
-<div class="sourceCode" id="cb59"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb61"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ticks</span> <span class="op">&lt;-</span> <span class="va">market</span><span class="op">$</span><span class="fu">get_trades</span><span class="op">(</span><span class="st">"BTC-USD"</span>, limit <span class="op">=</span> <span class="fl">1000L</span><span class="op">)</span></span>
 <span><span class="va">bars</span>  <span class="op">&lt;-</span> <span class="fu"><a href="../reference/trades_to_ohlcv.html">trades_to_ohlcv</a></span><span class="op">(</span><span class="va">ticks</span>, interval <span class="op">=</span> <span class="fl">60</span><span class="op">)</span>   <span class="co"># 1-minute bars</span></span>
 <span><span class="va">bars</span><span class="op">[</span>, <span class="fu">.</span><span class="op">(</span><span class="va">datetime</span>, <span class="va">open</span>, <span class="va">high</span>, <span class="va">low</span>, <span class="va">close</span>, <span class="va">volume</span><span class="op">)</span><span class="op">]</span></span></code></pre></div>
@@ -1721,7 +1774,7 @@ exactly, so candle data from either source is interchangeable.</p>
 <div class="section level4">
 <h4 id="symbol-verification-and-client-order-ids">Symbol verification and client order IDs<a class="anchor" aria-label="anchor" href="#symbol-verification-and-client-order-ids"></a>
 </h4>
-<div class="sourceCode" id="cb61"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb63"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/verify_symbol.html">verify_symbol</a></span><span class="op">(</span><span class="st">"BTC-USD"</span><span class="op">)</span>          <span class="co"># TRUE</span></span>
 <span><span class="fu"><a href="../reference/verify_symbol.html">verify_symbol</a></span><span class="op">(</span><span class="st">"BIT-28FEB25-CDE"</span><span class="op">)</span>  <span class="co"># TRUE  (multi-segment expiring future)</span></span>
 <span><span class="fu"><a href="../reference/verify_symbol.html">verify_symbol</a></span><span class="op">(</span><span class="st">"BTCUSD"</span><span class="op">)</span>           <span class="co"># FALSE (no dash separator)</span></span>
@@ -1730,7 +1783,7 @@ exactly, so candle data from either source is interchangeable.</p>
 <pre><code><span><span class="co">#&gt; [1] TRUE</span></span>
 <span><span class="co">#&gt; [1] TRUE</span></span>
 <span><span class="co">#&gt; [1] FALSE</span></span>
-<span><span class="co">#&gt; [1] "1aa24e1e-9ab9-4e16-9a23-6c1f9a1160c0"</span></span></code></pre>
+<span><span class="co">#&gt; [1] "4d4c802e-29f9-4963-88d8-8662970afa35"</span></span></code></pre>
 </div>
 <div class="section level4">
 <h4 id="async-usage">Async usage<a class="anchor" aria-label="anchor" href="#async-usage"></a>
@@ -1739,7 +1792,7 @@ exactly, so candle data from either source is interchangeable.</p>
 return promises. Drive them with the <code><a href="https://coro.r-lib.org/reference/async.html" class="external-link">coro::async()</a></code> /
 <code>await()</code> idiom and drain the <code>later</code> event loop.
 No pipes anywhere.</p>
-<div class="sourceCode" id="cb63"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb65"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">box</span><span class="fu">::</span><span class="fu"><a href="https://klmr.me/box/reference/use.html" class="external-link">use</a></span><span class="op">(</span></span>
 <span>  <span class="va">coro</span><span class="op">[</span><span class="va">async</span>, <span class="va">await</span><span class="op">]</span>,</span>
 <span>  <span class="va">later</span></span>
@@ -1807,7 +1860,7 @@ flattened to its numeric <code>value</code> (helpers
 <code>amount_value</code> / <code>flex_num</code>), dropping the
 currency tag — the currency is already implied by the column or by a
 sibling <code>currency</code> column.</p>
-<div class="sourceCode" id="cb65"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb67"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">accts</span> <span class="op">&lt;-</span> <span class="va">account</span><span class="op">$</span><span class="fu">get_accounts</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">accts</span><span class="op">$</span><span class="va">available_balance</span>     <span class="co"># numeric, not list({value=..., currency=...})</span></span>
 <span></span>
@@ -1832,7 +1885,7 @@ arrive in either form depending on the account state.</p>
 explode to one row per element with a <code>side</code> or position
 column where order matters. On <code>coinbase</code> this applies to
 exactly one endpoint: the order book.</p>
-<div class="sourceCode" id="cb67"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb69"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ob</span> <span class="op">&lt;-</span> <span class="va">market</span><span class="op">$</span><span class="fu">get_orderbook</span><span class="op">(</span><span class="st">"BTC-USD"</span>, level <span class="op">=</span> <span class="fl">2L</span><span class="op">)</span></span>
 <span><span class="va">ob</span><span class="op">[</span>, <span class="fu">.</span><span class="op">(</span><span class="va">side</span>, <span class="va">price</span>, <span class="va">size</span>, <span class="va">num_orders</span><span class="op">)</span><span class="op">]</span></span></code></pre></div>
 <pre><code><span><span class="co">#&gt;      side    price       size num_orders</span></span>
@@ -1859,7 +1912,7 @@ columns<a class="anchor" aria-label="anchor" href="#treatment-c-flatten-fixed-sc
 <p>When the nested data is an <em>object</em> (not an array) with a
 known fixed key set, flatten the inner fields into scalar columns on the
 same row. The entity stays one row.</p>
-<div class="sourceCode" id="cb69"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb71"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fees</span> <span class="op">&lt;-</span> <span class="va">account</span><span class="op">$</span><span class="fu">get_fees</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">fees</span><span class="op">$</span><span class="va">maker_fee_rate</span>   <span class="co"># was nested under fee_tier</span></span>
 <span><span class="va">fees</span><span class="op">$</span><span class="va">pricing_tier</span>     <span class="co"># was nested under fee_tier</span></span>
@@ -1899,7 +1952,7 @@ reason lives under different keys per endpoint (<code>error_code</code>,
 each element up by its known keys and joins the array into a single
 <code>"; "</code>-separated character string —
 <code>NA_character_</code> when there are no errors.</p>
-<div class="sourceCode" id="cb71"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb73"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pv</span> <span class="op">&lt;-</span> <span class="va">trading</span><span class="op">$</span><span class="fu">preview_order</span><span class="op">(</span></span>
 <span>  <span class="st">"BTC-USD"</span>, <span class="st">"BUY"</span>,</span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>market_market_ioc <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>quote_size <span class="op">=</span> <span class="st">"10"</span><span class="op">)</span><span class="op">)</span></span>
@@ -1975,9 +2028,10 @@ Coinbase’s rate-limit errors but does not back off on its own — that is
 the caller’s job.</li>
 <li>
 <strong>No reconnect / retry on transient network errors.</strong>
-The single call is what you asked for; wrap with
-<code><a href="https://httr2.r-lib.org/reference/req_retry.html" class="external-link">httr2::req_retry()</a></code> (passed through
-<code><a href="../reference/coinbase_build_request.html">coinbase_build_request()</a></code>) if you want retries.</li>
+The single call is what you asked for. The low-level
+<code><a href="../reference/coinbase_build_request.html">coinbase_build_request()</a></code> takes a <code>.perform</code>
+argument, so you can supply one that wraps the request in
+<code><a href="https://httr2.r-lib.org/reference/req_retry.html" class="external-link">httr2::req_retry()</a></code> before performing it.</li>
 </ul>
 </div>
 <div class="section level3">
@@ -1990,7 +2044,7 @@ idioms work on the others — pivot a portfolio’s balances across multiple
 exchanges with a straight <code>rbindlist</code> plus an
 <code>exchange</code> column, no per-source shape massage and no escape
 hatch into <code>lapply</code> over hidden lists.</p>
-<div class="sourceCode" id="cb73"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb75"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Combine spot accounts + futures balance into one ledger</span></span>
 <span><span class="va">ledger</span> <span class="op">&lt;-</span> <span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/data.table/man/rbindlist.html" class="external-link">rbindlist</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>

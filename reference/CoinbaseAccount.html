@@ -20,6 +20,7 @@ get_accountGET /api/v3/brokerage/accounts/{uuid}Yes
 get_feesGET /api/v3/brokerage/transaction_summaryYes
 get_portfoliosGET /api/v3/brokerage/portfoliosYes
 get_portfolio_breakdownGET /api/v3/brokerage/portfolios/{uuid}Yes
+get_portfolio_summaryGET /api/v3/brokerage/portfolios/{uuid}Yes
 get_key_permissionsGET /api/v3/brokerage/key_permissionsYes
 
 
@@ -47,6 +48,7 @@ get_accountGET /api/v3/brokerage/accounts/{uuid}Yes
 get_feesGET /api/v3/brokerage/transaction_summaryYes
 get_portfoliosGET /api/v3/brokerage/portfoliosYes
 get_portfolio_breakdownGET /api/v3/brokerage/portfolios/{uuid}Yes
+get_portfolio_summaryGET /api/v3/brokerage/portfolios/{uuid}Yes
 get_key_permissionsGET /api/v3/brokerage/key_permissionsYes
 
 
@@ -108,7 +110,7 @@ asynchronous execution depending on the <code>async</code> argument at construct
 
 <div class="section">
 <h3 id="endpoints-covered">Endpoints Covered<a class="anchor" aria-label="anchor" href="#endpoints-covered"></a></h3>
-<table class="table table"><tr><td>Method</td><td>Endpoint</td><td>Auth</td></tr><tr><td>get_accounts</td><td>GET /api/v3/brokerage/accounts</td><td>Yes</td></tr><tr><td>get_account</td><td>GET /api/v3/brokerage/accounts/{uuid}</td><td>Yes</td></tr><tr><td>get_fees</td><td>GET /api/v3/brokerage/transaction_summary</td><td>Yes</td></tr><tr><td>get_portfolios</td><td>GET /api/v3/brokerage/portfolios</td><td>Yes</td></tr><tr><td>get_portfolio_breakdown</td><td>GET /api/v3/brokerage/portfolios/{uuid}</td><td>Yes</td></tr><tr><td>get_key_permissions</td><td>GET /api/v3/brokerage/key_permissions</td><td>Yes</td></tr></table></div>
+<table class="table table"><tr><td>Method</td><td>Endpoint</td><td>Auth</td></tr><tr><td>get_accounts</td><td>GET /api/v3/brokerage/accounts</td><td>Yes</td></tr><tr><td>get_account</td><td>GET /api/v3/brokerage/accounts/{uuid}</td><td>Yes</td></tr><tr><td>get_fees</td><td>GET /api/v3/brokerage/transaction_summary</td><td>Yes</td></tr><tr><td>get_portfolios</td><td>GET /api/v3/brokerage/portfolios</td><td>Yes</td></tr><tr><td>get_portfolio_breakdown</td><td>GET /api/v3/brokerage/portfolios/{uuid}</td><td>Yes</td></tr><tr><td>get_portfolio_summary</td><td>GET /api/v3/brokerage/portfolios/{uuid}</td><td>Yes</td></tr><tr><td>get_key_permissions</td><td>GET /api/v3/brokerage/key_permissions</td><td>Yes</td></tr></table></div>
 
     </div>
 
@@ -127,6 +129,7 @@ asynchronous execution depending on the <code>async</code> argument at construct
 <li><p><a href="#method-CoinbaseAccount-get_fees"><code>CoinbaseAccount$get_fees()</code></a></p></li>
 <li><p><a href="#method-CoinbaseAccount-get_portfolios"><code>CoinbaseAccount$get_portfolios()</code></a></p></li>
 <li><p><a href="#method-CoinbaseAccount-get_portfolio_breakdown"><code>CoinbaseAccount$get_portfolio_breakdown()</code></a></p></li>
+<li><p><a href="#method-CoinbaseAccount-get_portfolio_summary"><code>CoinbaseAccount$get_portfolio_summary()</code></a></p></li>
 <li><p><a href="#method-CoinbaseAccount-get_key_permissions"><code>CoinbaseAccount$get_key_permissions()</code></a></p></li>
 <li><p><a href="#method-CoinbaseAccount-clone"><code>CoinbaseAccount$clone()</code></a></p></li>
 </ul></div><p><details open><summary>Inherited methods</summary><ul><li><span class="pkg-link" data-pkg="coinbase" data-topic="CoinbaseBase" data-id="initialize"><a href="CoinbaseBase.html#method-initialize"><code>CoinbaseBase$initialize()</code></a></span></li>
@@ -207,12 +210,13 @@ summary. Optional.</p></dd>
 
 <p></p><hr><a id="method-CoinbaseAccount-get_portfolio_breakdown"></a><div class="section">
 <h3 id="coinbaseaccount-get-portfolio-breakdown-"><code>CoinbaseAccount$get_portfolio_breakdown()</code><a class="anchor" aria-label="anchor" href="#coinbaseaccount-get-portfolio-breakdown-"></a></h3>
-<p>Retrieve the detailed breakdown of a single portfolio: its
-spot, futures, and perpetual positions. Positions are returned as the
-<code>data.table</code> (one row per holding, with a <code>position_type</code> column); the
-portfolio's aggregate balance totals are attached as a one-row
-<a href="https://rdrr.io/pkg/data.table/man/data.table.html" class="external-link">data.table::data.table</a> in <code>attr(x, "summary")</code> (mirroring the
-<code>"failures"</code> attribute on <code><a href="coinbase_backfill_trades.html">coinbase_backfill_trades()</a></code>).</p><div class="section">
+<p>Retrieve a single portfolio's positions: its spot, futures,
+and perpetual holdings stacked into one <code>data.table</code>, one row per
+holding, tagged by a <code>position_type</code> column. The concepts shared across
+types are normalised to common columns (<code>entry_price</code>, <code>mark_price</code>,
+<code>side</code>, <code>unrealized_pnl</code>); the rest keep their API names. For the
+portfolio's aggregate balance totals, use <code>get_portfolio_summary()</code> (it
+reads the same endpoint).</p><div class="section">
 <h4 id="usage-4">Usage<a class="anchor" aria-label="anchor" href="#usage-4"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">CoinbaseAccount</span><span class="op">$</span><span class="fu">get_portfolio_breakdown</span><span class="op">(</span><span class="va">portfolio_uuid</span>, currency <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div><p></p><div class="section">
@@ -228,8 +232,34 @@ portfolio's aggregate balance totals are attached as a one-row
 </dl><p></p></div>
 </div><p></p><div class="section">
 <h4 id="returns-4">Returns<a class="anchor" aria-label="anchor" href="#returns-4"></a></h4>
-<p>A <a href="https://rdrr.io/pkg/data.table/man/data.table.html" class="external-link">data.table::data.table</a> of positions carrying a <code>"summary"</code>
-attribute, or a promise thereof.</p>
+<p>A <a href="https://rdrr.io/pkg/data.table/man/data.table.html" class="external-link">data.table::data.table</a> of positions, or a promise thereof.</p>
+</div>
+
+</div>
+
+<p></p><hr><a id="method-CoinbaseAccount-get_portfolio_summary"></a><div class="section">
+<h3 id="coinbaseaccount-get-portfolio-summary-"><code>CoinbaseAccount$get_portfolio_summary()</code><a class="anchor" aria-label="anchor" href="#coinbaseaccount-get-portfolio-summary-"></a></h3>
+<p>Retrieve a single portfolio's aggregate balance totals (total
+balance, futures/crypto/cash-equivalent balances, and futures/perp
+unrealized PnL). The positions companion is <code>get_portfolio_breakdown()</code>;
+both read the same endpoint.</p><div class="section">
+<h4 id="usage-5">Usage<a class="anchor" aria-label="anchor" href="#usage-5"></a></h4>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">CoinbaseAccount</span><span class="op">$</span><span class="fu">get_portfolio_summary</span><span class="op">(</span><span class="va">portfolio_uuid</span>, currency <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div><p></p></div>
+</div><p></p><div class="section">
+<h4 id="arguments-4">Arguments<a class="anchor" aria-label="anchor" href="#arguments-4"></a></h4>
+<p></p><div class="arguments"><dl><dt><code>portfolio_uuid</code></dt>
+<dd><p>Character; the portfolio UUID (from
+<code>get_portfolios()</code>).</p></dd>
+
+      <dt><code>currency</code></dt>
+<dd><p>Character or NULL; quote currency for fiat values. Optional.</p></dd>
+
+
+</dl><p></p></div>
+</div><p></p><div class="section">
+<h4 id="returns-5">Returns<a class="anchor" aria-label="anchor" href="#returns-5"></a></h4>
+<p>A single-row <a href="https://rdrr.io/pkg/data.table/man/data.table.html" class="external-link">data.table::data.table</a> of totals, or a promise
+thereof.</p>
 </div>
 
 </div>
@@ -237,10 +267,10 @@ attribute, or a promise thereof.</p>
 <p></p><hr><a id="method-CoinbaseAccount-get_key_permissions"></a><div class="section">
 <h3 id="coinbaseaccount-get-key-permissions-"><code>CoinbaseAccount$get_key_permissions()</code><a class="anchor" aria-label="anchor" href="#coinbaseaccount-get-key-permissions-"></a></h3>
 <p>Retrieve the calling API key's permissions.</p><div class="section">
-<h4 id="usage-5">Usage<a class="anchor" aria-label="anchor" href="#usage-5"></a></h4>
+<h4 id="usage-6">Usage<a class="anchor" aria-label="anchor" href="#usage-6"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">CoinbaseAccount</span><span class="op">$</span><span class="fu">get_key_permissions</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div><p></p><div class="section">
-<h4 id="returns-5">Returns<a class="anchor" aria-label="anchor" href="#returns-5"></a></h4>
+<h4 id="returns-6">Returns<a class="anchor" aria-label="anchor" href="#returns-6"></a></h4>
 <p>A single-row <a href="https://rdrr.io/pkg/data.table/man/data.table.html" class="external-link">data.table::data.table</a>, or a promise thereof.</p>
 </div>
 
@@ -249,10 +279,10 @@ attribute, or a promise thereof.</p>
 <p></p><hr><a id="method-CoinbaseAccount-clone"></a><div class="section">
 <h3 id="coinbaseaccount-clone-"><code>CoinbaseAccount$clone()</code><a class="anchor" aria-label="anchor" href="#coinbaseaccount-clone-"></a></h3>
 <p>The objects of this class are cloneable with this method.</p><div class="section">
-<h4 id="usage-6">Usage<a class="anchor" aria-label="anchor" href="#usage-6"></a></h4>
+<h4 id="usage-7">Usage<a class="anchor" aria-label="anchor" href="#usage-7"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">CoinbaseAccount</span><span class="op">$</span><span class="fu">clone</span><span class="op">(</span>deep <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div><p></p><div class="section">
-<h4 id="arguments-4">Arguments<a class="anchor" aria-label="anchor" href="#arguments-4"></a></h4>
+<h4 id="arguments-5">Arguments<a class="anchor" aria-label="anchor" href="#arguments-5"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>deep</code></dt>
 <dd><p>Whether to make a deep clone.</p></dd>
 

@@ -352,6 +352,8 @@ across pages.
 | `get_account(account_uuid)` | `GET /api/v3/brokerage/accounts/{uuid}` | single row |
 | `get_fees(product_type)` | `GET /api/v3/brokerage/transaction_summary` | single row |
 | `get_portfolios()` | `GET /api/v3/brokerage/portfolios` | one row per portfolio |
+| `get_portfolio_breakdown(portfolio_uuid, currency)` | `GET /api/v3/brokerage/portfolios/{uuid}` | one row per position |
+| `get_portfolio_summary(portfolio_uuid, currency)` | `GET /api/v3/brokerage/portfolios/{uuid}` | single row |
 | `get_key_permissions()` | `GET /api/v3/brokerage/key_permissions` | single row |
 
 Construct the authenticated client with your keys:
@@ -461,6 +463,46 @@ account$get_key_permissions()[]
     #>            <char>
     #> 1:        DEFAULT
 
+#### Portfolio breakdown and totals
+
+`get_portfolio_breakdown()` stacks a portfolio’s spot, futures, and
+perpetual positions into one table, tagged by a `position_type` column,
+with the concepts shared across types normalised to common columns
+(`entry_price`, `mark_price`, `side`, `unrealized_pnl`) and the rest
+kept under their API names. The aggregate totals are a separate one-row
+table from `get_portfolio_summary()` (same endpoint) — no attributes, no
+nested lists:
+
+``` r
+
+pf <- account$get_portfolios()$uuid[1L]
+cols <- c("position_type", "product_id", "asset", "side", "entry_price", "mark_price", "unrealized_pnl")
+account$get_portfolio_breakdown(pf)[, ..cols]
+account$get_portfolio_summary(pf)[]
+```
+
+    #>    position_type      product_id  asset   side entry_price mark_price
+    #>           <char>          <char> <char> <char>       <num>      <num>
+    #> 1:          spot            <NA>    BTC   <NA>       67900         NA
+    #> 2:          spot            <NA>    USD   <NA>          NA         NA
+    #> 3:       futures BIT-28FEB26-CDE   <NA>   LONG       95000      96000
+    #> 4:          perp   BTC-PERP-INTX   <NA>   LONG       94000      95500
+    #>    unrealized_pnl
+    #>             <num>
+    #> 1:           5000
+    #> 2:              0
+    #> 3:            120
+    #> 4:             45
+    #>                                    uuid   name     type total_balance
+    #>                                  <char> <char>   <char>         <num>
+    #> 1: 7d6e5f4c-2222-4b1a-8ccc-fedcba987654   Algo CONSUMER        125000
+    #>    total_futures_balance total_cash_equivalent_balance total_crypto_balance
+    #>                    <num>                         <num>                <num>
+    #> 1:                 25000                         40000                85000
+    #>    futures_unrealized_pnl perp_unrealized_pnl total_equities_balance
+    #>                     <num>               <num>                  <num>
+    #> 1:                    120                  45                      0
+
 ------------------------------------------------------------------------
 
 ### `CoinbaseTrading` — order management
@@ -481,6 +523,7 @@ flatten into scalar columns (see Treatment C below).
 | `edit_order(order_id, price, size)` | `POST /api/v3/brokerage/orders/edit` | single row |
 | `preview_edit_order(order_id, price, size)` | `POST /api/v3/brokerage/orders/edit_preview` | single row |
 | `cancel_orders(order_ids)` | `POST /api/v3/brokerage/orders/batch_cancel` | one row per order |
+| `close_position(product_id, size, client_order_id)` | `POST /api/v3/brokerage/orders/close_position` | single row |
 
 Note the recently-widened signatures: `add_order()` / `preview_order()`
 take `leverage`, `margin_type` (`"CROSS"` / `"ISOLATED"`), and
@@ -961,7 +1004,7 @@ generate_client_order_id()        # fresh RFC-4122 v4 UUID
     #> [1] TRUE
     #> [1] TRUE
     #> [1] FALSE
-    #> [1] "1aa24e1e-9ab9-4e16-9a23-6c1f9a1160c0"
+    #> [1] "4d4c802e-29f9-4963-88d8-8662970afa35"
 
 #### Async usage
 
@@ -1199,11 +1242,12 @@ and `kucoin` packages:
   rate-limit errors but does not back off on its own — that is the
   caller’s job.
 - **No reconnect / retry on transient network errors.** The single call
-  is what you asked for; wrap with
+  is what you asked for. The low-level
+  [`coinbase_build_request()`](https://dereckscompany.github.io/coinbase/reference/coinbase_build_request.md)
+  takes a `.perform` argument, so you can supply one that wraps the
+  request in
   [`httr2::req_retry()`](https://httr2.r-lib.org/reference/req_retry.html)
-  (passed through
-  [`coinbase_build_request()`](https://dereckscompany.github.io/coinbase/reference/coinbase_build_request.md))
-  if you want retries.
+  before performing it.
 
 ### Why this matters across exchanges
 

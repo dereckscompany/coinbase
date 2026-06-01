@@ -30,7 +30,7 @@
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
-<li class="nav-item dropdown">
+<li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><a class="dropdown-item" href="../articles/getting-started.html">Getting Started with coinbase</a></li>
@@ -431,12 +431,13 @@ the current maker/taker fee tier:</p>
 <div class="section level3">
 <h3 id="portfolios">Portfolios<a class="anchor" aria-label="anchor" href="#portfolios"></a>
 </h3>
-<p><code>get_portfolios()</code> lists your portfolios;
-<code>get_portfolio_breakdown()</code> returns the per-asset breakdown
-of one. The positions come back as the <code>data.table</code> (one row
-per holding, tagged with <code>position_type</code>), while the
-portfolio’s aggregate balance totals are attached as a one-row
-<code>data.table</code> in the <code>"summary"</code> attribute:</p>
+<p><code>get_portfolios()</code> lists your portfolios. For one
+portfolio, <code>get_portfolio_breakdown()</code> returns its positions
+(spot, futures, and perpetual) stacked into one <code>data.table</code>,
+tagged with <code>position_type</code>, and
+<code>get_portfolio_summary()</code> returns the portfolio’s aggregate
+totals as a separate one-row <code>data.table</code> (both read the same
+endpoint):</p>
 <div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ports</span> <span class="op">&lt;-</span> <span class="va">account</span><span class="op">$</span><span class="fu">get_portfolios</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">ports</span><span class="op">[</span><span class="op">]</span></span></code></pre></div>
@@ -446,24 +447,31 @@ portfolio’s aggregate balance totals are attached as a one-row
 <span><span class="co">#&gt; 2:    Algo 7d6e5f4c-2222-4b1a-8ccc-fedcba987654 CONSUMER</span></span></code></pre>
 <div class="sourceCode" id="cb38"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">bd</span> <span class="op">&lt;-</span> <span class="va">account</span><span class="op">$</span><span class="fu">get_portfolio_breakdown</span><span class="op">(</span><span class="va">ports</span><span class="op">$</span><span class="va">uuid</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span></span>
-<span><span class="va">bd</span><span class="op">[</span>, <span class="fu">.</span><span class="op">(</span><span class="va">position_type</span>, <span class="va">asset</span>, <span class="va">total_balance_fiat</span>, <span class="va">allocation</span>, <span class="va">cost_basis</span><span class="op">)</span><span class="op">]</span></span>
+<span><span class="va">bd</span><span class="op">[</span>, <span class="fu">.</span><span class="op">(</span><span class="va">position_type</span>, <span class="va">product_id</span>, <span class="va">asset</span>, <span class="va">side</span>, <span class="va">entry_price</span>, <span class="va">mark_price</span>, <span class="va">unrealized_pnl</span><span class="op">)</span><span class="op">]</span></span>
 <span></span>
-<span><span class="co"># Portfolio-level totals live on the "summary" attribute</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">bd</span>, <span class="st">"summary"</span><span class="op">)</span><span class="op">[</span><span class="op">]</span></span></code></pre></div>
-<pre><code><span><span class="co">#&gt;    position_type           asset total_balance_fiat allocation cost_basis</span></span>
-<span><span class="co">#&gt;           &lt;char&gt;          &lt;char&gt;              &lt;num&gt;      &lt;num&gt;      &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:          spot             BTC              60000       0.48      55000</span></span>
-<span><span class="co">#&gt; 2:          spot             USD              40000       0.32      40000</span></span>
-<span><span class="co">#&gt; 3:       futures BIT-28FEB25-CDE              25000       0.20         NA</span></span>
+<span><span class="co"># Portfolio-level totals come from a separate one-row table</span></span>
+<span><span class="va">account</span><span class="op">$</span><span class="fu">get_portfolio_summary</span><span class="op">(</span><span class="va">ports</span><span class="op">$</span><span class="va">uuid</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span><span class="op">[</span><span class="op">]</span></span></code></pre></div>
+<pre><code><span><span class="co">#&gt;    position_type      product_id  asset   side entry_price mark_price</span></span>
+<span><span class="co">#&gt;           &lt;char&gt;          &lt;char&gt; &lt;char&gt; &lt;char&gt;       &lt;num&gt;      &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1:          spot            &lt;NA&gt;    BTC   &lt;NA&gt;       67900         NA</span></span>
+<span><span class="co">#&gt; 2:          spot            &lt;NA&gt;    USD   &lt;NA&gt;          NA         NA</span></span>
+<span><span class="co">#&gt; 3:       futures BIT-28FEB26-CDE   &lt;NA&gt;   LONG       95000      96000</span></span>
+<span><span class="co">#&gt; 4:          perp   BTC-PERP-INTX   &lt;NA&gt;   LONG       94000      95500</span></span>
+<span><span class="co">#&gt;    unrealized_pnl</span></span>
+<span><span class="co">#&gt;             &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1:           5000</span></span>
+<span><span class="co">#&gt; 2:              0</span></span>
+<span><span class="co">#&gt; 3:            120</span></span>
+<span><span class="co">#&gt; 4:             45</span></span>
 <span><span class="co">#&gt;                                    uuid   name     type total_balance</span></span>
 <span><span class="co">#&gt;                                  &lt;char&gt; &lt;char&gt;   &lt;char&gt;         &lt;num&gt;</span></span>
 <span><span class="co">#&gt; 1: 7d6e5f4c-2222-4b1a-8ccc-fedcba987654   Algo CONSUMER        125000</span></span>
 <span><span class="co">#&gt;    total_futures_balance total_cash_equivalent_balance total_crypto_balance</span></span>
 <span><span class="co">#&gt;                    &lt;num&gt;                         &lt;num&gt;                &lt;num&gt;</span></span>
 <span><span class="co">#&gt; 1:                 25000                         40000                85000</span></span>
-<span><span class="co">#&gt;    total_neptune_balance</span></span>
-<span><span class="co">#&gt;                    &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:                     0</span></span></code></pre>
+<span><span class="co">#&gt;    futures_unrealized_pnl perp_unrealized_pnl total_equities_balance</span></span>
+<span><span class="co">#&gt;                     &lt;num&gt;               &lt;num&gt;                  &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1:                    120                  45                      0</span></span></code></pre>
 <hr>
 </div>
 </div>

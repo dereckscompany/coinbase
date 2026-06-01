@@ -416,11 +416,11 @@ perms[]
 
 ### Portfolios
 
-`get_portfolios()` lists your portfolios; `get_portfolio_breakdown()`
-returns the per-asset breakdown of one. The positions come back as the
-`data.table` (one row per holding, tagged with `position_type`), while
-the portfolio’s aggregate balance totals are attached as a one-row
-`data.table` in the `"summary"` attribute:
+`get_portfolios()` lists your portfolios. For one portfolio,
+`get_portfolio_breakdown()` returns its positions (spot, futures, and
+perpetual) stacked into one `data.table`, tagged with `position_type`,
+and `get_portfolio_summary()` returns the portfolio’s aggregate totals
+as a separate one-row `data.table` (both read the same endpoint):
 
 ``` r
 
@@ -436,26 +436,33 @@ ports[]
 ``` r
 
 bd <- account$get_portfolio_breakdown(ports$uuid[1])
-bd[, .(position_type, asset, total_balance_fiat, allocation, cost_basis)]
+bd[, .(position_type, product_id, asset, side, entry_price, mark_price, unrealized_pnl)]
 
-# Portfolio-level totals live on the "summary" attribute
-attr(bd, "summary")[]
+# Portfolio-level totals come from a separate one-row table
+account$get_portfolio_summary(ports$uuid[1])[]
 ```
 
-    #>    position_type           asset total_balance_fiat allocation cost_basis
-    #>           <char>          <char>              <num>      <num>      <num>
-    #> 1:          spot             BTC              60000       0.48      55000
-    #> 2:          spot             USD              40000       0.32      40000
-    #> 3:       futures BIT-28FEB25-CDE              25000       0.20         NA
+    #>    position_type      product_id  asset   side entry_price mark_price
+    #>           <char>          <char> <char> <char>       <num>      <num>
+    #> 1:          spot            <NA>    BTC   <NA>       67900         NA
+    #> 2:          spot            <NA>    USD   <NA>          NA         NA
+    #> 3:       futures BIT-28FEB26-CDE   <NA>   LONG       95000      96000
+    #> 4:          perp   BTC-PERP-INTX   <NA>   LONG       94000      95500
+    #>    unrealized_pnl
+    #>             <num>
+    #> 1:           5000
+    #> 2:              0
+    #> 3:            120
+    #> 4:             45
     #>                                    uuid   name     type total_balance
     #>                                  <char> <char>   <char>         <num>
     #> 1: 7d6e5f4c-2222-4b1a-8ccc-fedcba987654   Algo CONSUMER        125000
     #>    total_futures_balance total_cash_equivalent_balance total_crypto_balance
     #>                    <num>                         <num>                <num>
     #> 1:                 25000                         40000                85000
-    #>    total_neptune_balance
-    #>                    <num>
-    #> 1:                     0
+    #>    futures_unrealized_pnl perp_unrealized_pnl total_equities_balance
+    #>                     <num>               <num>                  <num>
+    #> 1:                    120                  45                      0
 
 ------------------------------------------------------------------------
 
