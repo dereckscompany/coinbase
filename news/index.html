@@ -48,9 +48,9 @@
 <li>
 <strong>Deep tick history</strong>: <code>CoinbaseMarketData$get_trades_history()</code> and the standalone <code><a href="../reference/coinbase_backfill_trades.html">coinbase_backfill_trades()</a></code> walk the trades endpoint back to a product’s inception, with incremental CSV writes and resume. Aggregate ticks into OHLCV at any timeframe with <code><a href="../reference/trades_to_ohlcv.html">trades_to_ohlcv()</a></code>.</li>
 <li>
-<strong>Account</strong> (<code>CoinbaseAccount</code>): accounts/balances (cursor-paginated), fee tier, portfolios, and key permissions.</li>
+<strong>Account</strong> (<code>CoinbaseAccount</code>): accounts/balances (cursor-paginated), fee tier, portfolios (with <code>get_portfolio_breakdown()</code> stacking spot/futures/perp positions and <code>get_portfolio_summary()</code> for the totals), and key permissions.</li>
 <li>
-<strong>Trading</strong> (<code>CoinbaseTrading</code>): place, preview (dry run), edit, cancel, and query orders and fills.</li>
+<strong>Trading</strong> (<code>CoinbaseTrading</code>): place, preview (dry run), edit, cancel, close (<code>close_position()</code>), and query orders and fills.</li>
 <li>
 <strong>US futures / CFM</strong> (<code>CoinbaseFutures</code>): balance summary, positions, margin settings, and cash sweeps for the short leg of pairs strategies. Futures orders are placed through the shared order endpoint with a futures product.</li>
 </ul></div>

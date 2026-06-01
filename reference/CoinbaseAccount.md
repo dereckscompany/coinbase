@@ -25,6 +25,7 @@ depending on the `async` argument at construction.
 | get_fees                | GET /api/v3/brokerage/transaction_summary | Yes  |
 | get_portfolios          | GET /api/v3/brokerage/portfolios          | Yes  |
 | get_portfolio_breakdown | GET /api/v3/brokerage/portfolios/{uuid}   | Yes  |
+| get_portfolio_summary   | GET /api/v3/brokerage/portfolios/{uuid}   | Yes  |
 | get_key_permissions     | GET /api/v3/brokerage/key_permissions     | Yes  |
 
 ## Super class
@@ -45,6 +46,8 @@ depending on the `async` argument at construction.
 - [`CoinbaseAccount$get_portfolios()`](#method-CoinbaseAccount-get_portfolios)
 
 - [`CoinbaseAccount$get_portfolio_breakdown()`](#method-CoinbaseAccount-get_portfolio_breakdown)
+
+- [`CoinbaseAccount$get_portfolio_summary()`](#method-CoinbaseAccount-get_portfolio_summary)
 
 - [`CoinbaseAccount$get_key_permissions()`](#method-CoinbaseAccount-get_key_permissions)
 
@@ -147,13 +150,13 @@ of portfolios, or a promise thereof.
 
 ### `CoinbaseAccount$get_portfolio_breakdown()`
 
-Retrieve the detailed breakdown of a single portfolio: its spot,
-futures, and perpetual positions. Positions are returned as the
-`data.table` (one row per holding, with a `position_type` column); the
-portfolio's aggregate balance totals are attached as a one-row
-[data.table::data.table](https://rdrr.io/pkg/data.table/man/data.table.html)
-in `attr(x, "summary")` (mirroring the `"failures"` attribute on
-[`coinbase_backfill_trades()`](https://dereckscompany.github.io/coinbase/reference/coinbase_backfill_trades.md)).
+Retrieve a single portfolio's positions: its spot, futures, and
+perpetual holdings stacked into one `data.table`, one row per holding,
+tagged by a `position_type` column. The concepts shared across types are
+normalised to common columns (`entry_price`, `mark_price`, `side`,
+`unrealized_pnl`); the rest keep their API names. For the portfolio's
+aggregate balance totals, use `get_portfolio_summary()` (it reads the
+same endpoint).
 
 #### Usage
 
@@ -173,7 +176,36 @@ in `attr(x, "summary")` (mirroring the `"failures"` attribute on
 
 A
 [data.table::data.table](https://rdrr.io/pkg/data.table/man/data.table.html)
-of positions carrying a `"summary"` attribute, or a promise thereof.
+of positions, or a promise thereof.
+
+------------------------------------------------------------------------
+
+### `CoinbaseAccount$get_portfolio_summary()`
+
+Retrieve a single portfolio's aggregate balance totals (total balance,
+futures/crypto/cash-equivalent balances, and futures/perp unrealized
+PnL). The positions companion is `get_portfolio_breakdown()`; both read
+the same endpoint.
+
+#### Usage
+
+    CoinbaseAccount$get_portfolio_summary(portfolio_uuid, currency = NULL)
+
+#### Arguments
+
+- `portfolio_uuid`:
+
+  Character; the portfolio UUID (from `get_portfolios()`).
+
+- `currency`:
+
+  Character or NULL; quote currency for fiat values. Optional.
+
+#### Returns
+
+A single-row
+[data.table::data.table](https://rdrr.io/pkg/data.table/man/data.table.html)
+of totals, or a promise thereof.
 
 ------------------------------------------------------------------------
 

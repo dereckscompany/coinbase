@@ -2,7 +2,8 @@
 
 Retrieves public market data from the Coinbase Exchange API: products,
 candles (OHLCV), tick trades, order books, tickers, and server time.
-None of these endpoints require authentication.
+These are unauthenticated, with one exception: `get_best_bid_ask()` hits
+the Advanced Trade host and requires credentials.
 
 Inherits from
 [CoinbaseBase](https://dereckscompany.github.io/coinbase/reference/CoinbaseBase.md).
