@@ -29,12 +29,16 @@ Imports:
     assert,
     stats
 Suggests:
-    promises,
-    coro,
-    later,
     box,
+    coro,
+    covr,
+    DT,
     knitr,
+    later,
+    lintr,
     pkgdown,
+    promises,
+    rcmdcheck,
     rmarkdown,
     testthat (>= 3.0.0)
 Remotes:
