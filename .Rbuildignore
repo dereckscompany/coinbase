@@ -10,11 +10,11 @@
 ^docs$
 ^.*\.csv$
 ^local$
-^dev$
 ^scripts$
 ^\.clang-format$
 ^\.cruft\.json$
 ^\.lintr$
+^LICENSE$
 ^air\.toml$
 ^\.Renviron$
 ^\.Renviron\.example$
