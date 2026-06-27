@@ -1,0 +1,13 @@
+{
+  "order_total": "10.06",
+  "commission_total": "0.06",
+  "errs": [],
+  "warning": [],
+  "quote_size": "10.00",
+  "base_size": "0.000135",
+  "best_bid": "74101.52",
+  "best_ask": "74101.53",
+  "is_max": false,
+  "slippage": "0.0001",
+  "preview_id": "prev-1234-5678-90ab"
+}

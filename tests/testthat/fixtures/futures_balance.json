@@ -1,0 +1,49 @@
+{
+  "balance_summary": {
+    "futures_buying_power": {
+      "value": "9500.00",
+      "currency": "USD"
+    },
+    "total_usd_balance": {
+      "value": "10000.00",
+      "currency": "USD"
+    },
+    "cbi_usd_balance": {
+      "value": "2000.00",
+      "currency": "USD"
+    },
+    "cfm_usd_balance": {
+      "value": "8000.00",
+      "currency": "USD"
+    },
+    "total_open_orders_hold_amount": {
+      "value": "0.00",
+      "currency": "USD"
+    },
+    "unrealized_pnl": {
+      "value": "-125.40",
+      "currency": "USD"
+    },
+    "daily_realized_pnl": {
+      "value": "42.10",
+      "currency": "USD"
+    },
+    "initial_margin": {
+      "value": "740.00",
+      "currency": "USD"
+    },
+    "available_margin": {
+      "value": "7260.00",
+      "currency": "USD"
+    },
+    "liquidation_threshold": {
+      "value": "370.00",
+      "currency": "USD"
+    },
+    "liquidation_buffer_amount": {
+      "value": "7630.00",
+      "currency": "USD"
+    },
+    "liquidation_buffer_percentage": "95.4"
+  }
+}

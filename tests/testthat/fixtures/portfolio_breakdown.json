@@ -1,0 +1,138 @@
+{
+  "breakdown": {
+    "portfolio": {
+      "name": "Algo",
+      "uuid": "7d6e5f4c-2222-4b1a-8ccc-fedcba987654",
+      "type": "CONSUMER"
+    },
+    "portfolio_balances": {
+      "total_balance": {
+        "value": "125000.00",
+        "currency": "USD"
+      },
+      "total_futures_balance": {
+        "value": "25000.00",
+        "currency": "USD"
+      },
+      "total_cash_equivalent_balance": {
+        "value": "40000.00",
+        "currency": "USD"
+      },
+      "total_crypto_balance": {
+        "value": "85000.00",
+        "currency": "USD"
+      },
+      "futures_unrealized_pnl": {
+        "value": "120.00",
+        "currency": "USD"
+      },
+      "perp_unrealized_pnl": {
+        "value": "45.00",
+        "currency": "USD"
+      },
+      "total_equities_balance": {
+        "value": "0.00",
+        "currency": "USD"
+      }
+    },
+    "spot_positions": [
+      {
+        "asset": "BTC",
+        "account_uuid": "a1-spot",
+        "total_balance_crypto": 0.81,
+        "total_balance_fiat": 60000,
+        "available_to_trade_crypto": 0.8,
+        "allocation": 0.48,
+        "unrealized_pnl": 5000,
+        "average_entry_price": {
+          "value": "67900.00",
+          "currency": "USD"
+        },
+        "cost_basis": {
+          "value": "55000.00",
+          "currency": "USD"
+        },
+        "is_cash": false
+      },
+      {
+        "asset": "USD",
+        "account_uuid": "a2-spot",
+        "total_balance_crypto": 40000,
+        "total_balance_fiat": 40000,
+        "available_to_trade_crypto": 40000,
+        "allocation": 0.32,
+        "unrealized_pnl": 0,
+        "cost_basis": {
+          "value": "40000.00",
+          "currency": "USD"
+        },
+        "is_cash": true
+      }
+    ],
+    "futures_positions": [
+      {
+        "product_id": "BIT-28FEB26-CDE",
+        "side": "LONG",
+        "amount": 2,
+        "contract_size": 0.01,
+        "avg_entry_price": "95000.00",
+        "current_price": "96000.00",
+        "unrealized_pnl": "120.00",
+        "notional_value": "1920.00",
+        "expiry": "2026-02-28T00:00:00Z",
+        "underlying_asset": "BTC",
+        "venue": "FCM"
+      }
+    ],
+    "perp_positions": [
+      {
+        "product_id": "BTC-PERP-INTX",
+        "symbol": "BTC-PERP",
+        "position_side": "LONG",
+        "net_size": "1.5",
+        "vwap": {
+          "userNativeCurrency": {
+            "value": "94000.00",
+            "currency": "USD"
+          },
+          "rawCurrency": {
+            "value": "94000.00",
+            "currency": "USDC"
+          }
+        },
+        "mark_price": {
+          "userNativeCurrency": {
+            "value": "95500.00",
+            "currency": "USD"
+          },
+          "rawCurrency": {
+            "value": "95500.00",
+            "currency": "USDC"
+          }
+        },
+        "unrealized_pnl": {
+          "userNativeCurrency": {
+            "value": "45.00",
+            "currency": "USD"
+          },
+          "rawCurrency": {
+            "value": "45.00",
+            "currency": "USDC"
+          }
+        },
+        "liquidation_price": {
+          "userNativeCurrency": {
+            "value": "80000.00",
+            "currency": "USD"
+          },
+          "rawCurrency": {
+            "value": "80000.00",
+            "currency": "USDC"
+          }
+        },
+        "leverage": "5",
+        "margin_type": "CROSS"
+      }
+    ]
+  }
+}
