@@ -71,11 +71,16 @@ CoinbaseMarketData <- R6::R6Class(
     #' @return (data.table | promise<data.table>) the products, or a promise
     #'   thereof.
     get_products = function() {
-      return(private$.request(
+      res <- private$.request(
         endpoint = "/products",
         auth = FALSE,
         base_url = private$.exchange_base_url,
         .parser = as_dt_list
+      )
+      return(connectcore::then_or_now(
+        res,
+        assert_return_CoinbaseMarketData__get_products,
+        is_async = private$.is_async
       ))
     },
 
@@ -86,11 +91,16 @@ CoinbaseMarketData <- R6::R6Class(
     #' @noassert product_id
     get_product = function(product_id) {
       validate_symbol(product_id)
-      return(private$.request(
+      res <- private$.request(
         endpoint = paste0("/products/", product_id),
         auth = FALSE,
         base_url = private$.exchange_base_url,
         .parser = as_dt_row
+      )
+      return(connectcore::then_or_now(
+        res,
+        assert_return_CoinbaseMarketData__get_product,
+        is_async = private$.is_async
       ))
     },
 
@@ -101,8 +111,8 @@ CoinbaseMarketData <- R6::R6Class(
     #'   the candle interval.
     #' @param start (POSIXct | NULL) range start. Optional.
     #' @param end (POSIXct | NULL) range end. Optional.
-    #' @return (data.table | promise<data.table>) columns `datetime`, `open`,
-    #'   `high`, `low`, `close`, `volume`, or a promise thereof.
+    #' @return (Ohlcv | promise<Ohlcv>) one row per candle ascending by
+    #'   `datetime`, or a promise thereof.
     #' @noassert product_id, granularity
     get_ohlcv = function(product_id, granularity = "1min", start = NULL, end = NULL) {
       validate_symbol(product_id)
@@ -120,12 +130,17 @@ CoinbaseMarketData <- R6::R6Class(
         start = datetime_to_epoch(start),
         end = datetime_to_epoch(end)
       )
-      return(private$.request(
+      res <- private$.request(
         endpoint = paste0("/products/", product_id, "/candles"),
         query = query,
         auth = FALSE,
         base_url = private$.exchange_base_url,
         .parser = parse_candles
+      )
+      return(connectcore::then_or_now(
+        res,
+        assert_return_CoinbaseMarketData__get_ohlcv,
+        is_async = private$.is_async
       ))
     },
 
@@ -136,18 +151,23 @@ CoinbaseMarketData <- R6::R6Class(
     #'   Default 1000.
     #' @param after (scalar<numeric> | NULL) return trades older than this
     #'   `trade_id`.
-    #' @return (data.table | promise<data.table>) columns `trade_id`, `side`,
-    #'   `price`, `size`, `time`, or a promise thereof.
+    #' @return (Trades | promise<Trades>) one row per tick trade, or a promise
+    #'   thereof.
     #' @noassert product_id
     get_trades = function(product_id, limit = 1000L, after = NULL) {
       validate_symbol(product_id)
       assert_args_CoinbaseMarketData__get_trades(limit, after)
-      return(private$.request(
+      res <- private$.request(
         endpoint = paste0("/products/", product_id, "/trades"),
         query = list(limit = as.integer(limit), after = after),
         auth = FALSE,
         base_url = private$.exchange_base_url,
         .parser = parse_trades
+      )
+      return(connectcore::then_or_now(
+        res,
+        assert_return_CoinbaseMarketData__get_trades,
+        is_async = private$.is_async
       ))
     },
 
@@ -162,13 +182,13 @@ CoinbaseMarketData <- R6::R6Class(
     #'   begins at the most recent trade.
     #' @param max_pages (scalar<numeric in [1, Inf]>) cap on pages fetched (each
     #'   up to 1000 trades). Default `Inf`.
-    #' @return (data.table | promise<data.table>) columns `trade_id`, `side`,
-    #'   `price`, `size`, `time` sorted ascending by `time`, or a promise thereof.
+    #' @return (Trades | promise<Trades>) one row per tick trade sorted ascending
+    #'   by `time`, or a promise thereof.
     #' @noassert product_id
     get_trades_history = function(product_id, start = NULL, end = NULL, max_pages = Inf) {
       validate_symbol(product_id)
       assert_args_CoinbaseMarketData__get_trades_history(start, end, max_pages)
-      return(coinbase_fetch_trades_history(
+      res <- coinbase_fetch_trades_history(
         product_id = product_id,
         start = start,
         end = end,
@@ -182,6 +202,11 @@ CoinbaseMarketData <- R6::R6Class(
             .parser = .parser
           ))
         },
+        is_async = private$.is_async
+      )
+      return(connectcore::then_or_now(
+        res,
+        assert_return_CoinbaseMarketData__get_trades_history,
         is_async = private$.is_async
       ))
     },
@@ -202,12 +227,17 @@ CoinbaseMarketData <- R6::R6Class(
       if (!level %in% c(1L, 2L, 3L)) {
         rlang::abort("`level` must be 1, 2, or 3.")
       }
-      return(private$.request(
+      res <- private$.request(
         endpoint = paste0("/products/", product_id, "/book"),
         query = list(level = level),
         auth = FALSE,
         base_url = private$.exchange_base_url,
         .parser = function(data) parse_orderbook(data, level = level)
+      )
+      return(connectcore::then_or_now(
+        res,
+        assert_return_CoinbaseMarketData__get_orderbook,
+        is_async = private$.is_async
       ))
     },
 
@@ -219,7 +249,7 @@ CoinbaseMarketData <- R6::R6Class(
     #' @noassert product_id
     get_ticker = function(product_id) {
       validate_symbol(product_id)
-      return(private$.request(
+      res <- private$.request(
         endpoint = paste0("/products/", product_id, "/ticker"),
         auth = FALSE,
         base_url = private$.exchange_base_url,
@@ -235,6 +265,11 @@ CoinbaseMarketData <- R6::R6Class(
           }
           return(dt[])
         }
+      )
+      return(connectcore::then_or_now(
+        res,
+        assert_return_CoinbaseMarketData__get_ticker,
+        is_async = private$.is_async
       ))
     },
 
@@ -243,31 +278,38 @@ CoinbaseMarketData <- R6::R6Class(
     #'   returned table yourself by 24h change `(last - open) / open` for top
     #'   gainers/losers, or by `volume` for the most active products. Uses the
     #'   Exchange host's bulk stats endpoint.
-    #' @return (data.table | promise<data.table>) one row per product:
-    #'   `product_id`, `open`, `high`, `low`, `last`, `volume`, `volume_30day`,
-    #'   or a promise thereof.
+    #' @return (Stats | promise<Stats>) one row per product, or a promise thereof.
     get_stats = function() {
-      return(private$.request(
+      res <- private$.request(
         endpoint = "/products/stats",
         auth = FALSE,
         base_url = private$.exchange_base_url,
         .parser = parse_stats
+      )
+      return(connectcore::then_or_now(
+        res,
+        assert_return_CoinbaseMarketData__get_stats,
+        is_async = private$.is_async
       ))
     },
 
     #' @description Retrieve 24-hour and 30-day stats for a single product.
     #' @param product_id (scalar<character>) the pair symbol, e.g. `"BTC-USD"`.
-    #' @return (data.table | promise<data.table>) a single-row table with `open`,
-    #'   `high`, `low`, `last`, `volume`, `volume_30day`, and the RFQ/conversion
-    #'   volumes, or a promise thereof.
+    #' @return (ProductStats | promise<ProductStats>) a single-row table, or a
+    #'   promise thereof.
     #' @noassert product_id
     get_product_stats = function(product_id) {
       validate_symbol(product_id)
-      return(private$.request(
+      res <- private$.request(
         endpoint = paste0("/products/", product_id, "/stats"),
         auth = FALSE,
         base_url = private$.exchange_base_url,
         .parser = parse_product_stats
+      )
+      return(connectcore::then_or_now(
+        res,
+        assert_return_CoinbaseMarketData__get_product_stats,
+        is_async = private$.is_async
       ))
     },
 
@@ -277,16 +319,20 @@ CoinbaseMarketData <- R6::R6Class(
     #'   with `keys`).
     #' @param product_ids (character | NULL) products to fetch. `NULL` returns the
     #'   best bid/ask for all products.
-    #' @return (data.table | promise<data.table>) one row per product:
-    #'   `product_id`, `bid_price`, `bid_size`, `ask_price`, `ask_size`, `time`,
-    #'   or a promise thereof.
+    #' @return (BestBidAsk | promise<BestBidAsk>) one row per product, or a promise
+    #'   thereof.
     get_best_bid_ask = function(product_ids = NULL) {
       assert_args_CoinbaseMarketData__get_best_bid_ask(product_ids)
-      return(private$.request(
+      res <- private$.request(
         endpoint = "/api/v3/brokerage/best_bid_ask",
         query = list(product_ids = product_ids),
         auth = TRUE,
         .parser = parse_best_bid_ask
+      )
+      return(connectcore::then_or_now(
+        res,
+        assert_return_CoinbaseMarketData__get_best_bid_ask,
+        is_async = private$.is_async
       ))
     },
 

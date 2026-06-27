@@ -150,8 +150,8 @@ the candle interval.}
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
-(data.table | promise<data.table>) columns \code{datetime}, \code{open},
-\code{high}, \code{low}, \code{close}, \code{volume}, or a promise thereof.
+(Ohlcv | promise<Ohlcv>) one row per candle ascending by
+\code{datetime}, or a promise thereof.
 }
 }
 \if{html}{\out{<hr>}}
@@ -178,8 +178,8 @@ Default 1000.}
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
-(data.table | promise<data.table>) columns \code{trade_id}, \code{side},
-\code{price}, \code{size}, \code{time}, or a promise thereof.
+(Trades | promise<Trades>) one row per tick trade, or a promise
+thereof.
 }
 }
 \if{html}{\out{<hr>}}
@@ -216,8 +216,8 @@ up to 1000 trades). Default \code{Inf}.}
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
-(data.table | promise<data.table>) columns \code{trade_id}, \code{side},
-\code{price}, \code{size}, \code{time} sorted ascending by \code{time}, or a promise thereof.
+(Trades | promise<Trades>) one row per tick trade sorted ascending
+by \code{time}, or a promise thereof.
 }
 }
 \if{html}{\out{<hr>}}
@@ -282,9 +282,7 @@ Exchange host's bulk stats endpoint.
 }
 
 \subsection{Returns}{
-(data.table | promise<data.table>) one row per product:
-\code{product_id}, \code{open}, \code{high}, \code{low}, \code{last}, \code{volume}, \code{volume_30day},
-or a promise thereof.
+(Stats | promise<Stats>) one row per product, or a promise thereof.
 }
 }
 \if{html}{\out{<hr>}}
@@ -304,9 +302,8 @@ Retrieve 24-hour and 30-day stats for a single product.
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
-(data.table | promise<data.table>) a single-row table with \code{open},
-\code{high}, \code{low}, \code{last}, \code{volume}, \code{volume_30day}, and the RFQ/conversion
-volumes, or a promise thereof.
+(ProductStats | promise<ProductStats>) a single-row table, or a
+promise thereof.
 }
 }
 \if{html}{\out{<hr>}}
@@ -330,9 +327,8 @@ best bid/ask for all products.}
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
-(data.table | promise<data.table>) one row per product:
-\code{product_id}, \code{bid_price}, \code{bid_size}, \code{ask_price}, \code{ask_size}, \code{time},
-or a promise thereof.
+(BestBidAsk | promise<BestBidAsk>) one row per product, or a promise
+thereof.
 }
 }
 \if{html}{\out{<hr>}}

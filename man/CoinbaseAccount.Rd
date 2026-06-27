@@ -86,8 +86,7 @@ Default \code{Inf}.}
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
-(data.table | promise<data.table>) the accounts, or a promise
-thereof.
+(Accounts | promise<Accounts>) the accounts, or a promise thereof.
 }
 }
 \if{html}{\out{<hr>}}
@@ -107,7 +106,7 @@ Retrieve a single account by its UUID.
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
-(data.table | promise<data.table>) a single-row table, or a promise
+(Accounts | promise<Accounts>) a single-row table, or a promise
 thereof.
 }
 }
@@ -130,8 +129,7 @@ scope the summary. Optional.}
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
-(data.table | promise<data.table>) a single-row table, or a promise
-thereof.
+(Fees | promise<Fees>) a single-row table, or a promise thereof.
 }
 }
 \if{html}{\out{<hr>}}
@@ -203,8 +201,8 @@ Optional.}
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
-(data.table | promise<data.table>) a single-row table of totals, or
-a promise thereof.
+(PortfolioSummary | promise<PortfolioSummary>) a single-row table of
+totals, or a promise thereof.
 }
 }
 \if{html}{\out{<hr>}}

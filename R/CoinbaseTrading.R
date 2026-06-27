@@ -64,10 +64,8 @@ CoinbaseTrading <- R6::R6Class(
     #'   Optional.
     #' @param retail_portfolio_id (scalar<character> | NULL) portfolio to route the
     #'   order to. Optional.
-    #' @return (data.table | promise<data.table>) a single-row table with
-    #'   `success`, the scalar `order_id`, `product_id`, `side`,
-    #'   `client_order_id`, `failure_reason`, and flattened order-configuration
-    #'   columns, or a promise thereof.
+    #' @return (CreateOrderAck | promise<CreateOrderAck>) a single-row
+    #'   create-order acknowledgement, or a promise thereof.
     #' @noassert product_id, side, order_configuration
     add_order = function(
       product_id,
@@ -100,12 +98,17 @@ CoinbaseTrading <- R6::R6Class(
         margin_type = margin_type,
         retail_portfolio_id = retail_portfolio_id
       )
-      return(private$.request(
+      res <- private$.request(
         endpoint = "/api/v3/brokerage/orders",
         method = "POST",
         body = body,
         auth = TRUE,
         .parser = parse_create_order
+      )
+      return(connectcore::then_or_now(
+        res,
+        assert_return_CoinbaseTrading__add_order,
+        is_async = private$.is_async
       ))
     },
 
@@ -120,8 +123,8 @@ CoinbaseTrading <- R6::R6Class(
     #'   Optional.
     #' @param retail_portfolio_id (scalar<character> | NULL) portfolio to scope the
     #'   preview to. Optional.
-    #' @return (data.table | promise<data.table>) a single-row table, or a promise
-    #'   thereof.
+    #' @return (Preview | promise<Preview>) a single-row preview estimate, or a
+    #'   promise thereof.
     #' @noassert product_id, side, order_configuration
     preview_order = function(
       product_id,
@@ -148,25 +151,35 @@ CoinbaseTrading <- R6::R6Class(
         margin_type = margin_type,
         retail_portfolio_id = retail_portfolio_id
       )
-      return(private$.request(
+      res <- private$.request(
         endpoint = "/api/v3/brokerage/orders/preview",
         method = "POST",
         body = body,
         auth = TRUE,
         .parser = parse_preview
+      )
+      return(connectcore::then_or_now(
+        res,
+        assert_return_CoinbaseTrading__preview_order,
+        is_async = private$.is_async
       ))
     },
 
     #' @description Retrieve a single order by its ID.
     #' @param order_id (scalar<character>) the order ID.
-    #' @return (data.table | promise<data.table>) a single-row table, or a promise
+    #' @return (Orders | promise<Orders>) a single-row order table, or a promise
     #'   thereof.
     get_order = function(order_id) {
       assert_args_CoinbaseTrading__get_order(order_id)
-      return(private$.request(
+      res <- private$.request(
         endpoint = paste0("/api/v3/brokerage/orders/historical/", order_id),
         auth = TRUE,
         .parser = function(b) parse_orders(list(b$order))
+      )
+      return(connectcore::then_or_now(
+        res,
+        assert_return_CoinbaseTrading__get_order,
+        is_async = private$.is_async
       ))
     },
 
@@ -193,8 +206,7 @@ CoinbaseTrading <- R6::R6Class(
     #'   `"LAST_FILL_TIME"`.
     #' @param max_pages (scalar<numeric in [1, Inf]>) cap on pages fetched.
     #'   Default `Inf`.
-    #' @return (data.table | promise<data.table>) the orders, or a promise
-    #'   thereof.
+    #' @return (Orders | promise<Orders>) the orders, or a promise thereof.
     get_orders = function(
       product_ids = NULL,
       order_status = NULL,
@@ -231,7 +243,7 @@ CoinbaseTrading <- R6::R6Class(
         sort_by,
         max_pages
       )
-      return(coinbase_paginate_cursor(
+      res <- coinbase_paginate_cursor(
         endpoint = "/api/v3/brokerage/orders/historical/batch",
         query = list(
           product_ids = product_ids,
@@ -255,6 +267,11 @@ CoinbaseTrading <- R6::R6Class(
         .parser = parse_orders,
         max_pages = max_pages,
         is_async = private$.is_async
+      )
+      return(connectcore::then_or_now(
+        res,
+        assert_return_CoinbaseTrading__get_orders,
+        is_async = private$.is_async
       ))
     },
 
@@ -271,7 +288,7 @@ CoinbaseTrading <- R6::R6Class(
     #' @param sort_by (scalar<character> | NULL) sort field, e.g. `"TRADE_TIME"`.
     #' @param max_pages (scalar<numeric in [1, Inf]>) cap on pages fetched.
     #'   Default `Inf`.
-    #' @return (data.table | promise<data.table>) the fills, or a promise thereof.
+    #' @return (Fills | promise<Fills>) the fills, or a promise thereof.
     get_fills = function(
       order_ids = NULL,
       trade_ids = NULL,
@@ -294,7 +311,7 @@ CoinbaseTrading <- R6::R6Class(
         sort_by,
         max_pages
       )
-      return(coinbase_paginate_cursor(
+      res <- coinbase_paginate_cursor(
         endpoint = "/api/v3/brokerage/orders/historical/fills",
         query = list(
           order_ids = order_ids,
@@ -311,6 +328,11 @@ CoinbaseTrading <- R6::R6Class(
         .parser = parse_fills,
         max_pages = max_pages,
         is_async = private$.is_async
+      )
+      return(connectcore::then_or_now(
+        res,
+        assert_return_CoinbaseTrading__get_fills,
+        is_async = private$.is_async
       ))
     },
 
@@ -318,8 +340,8 @@ CoinbaseTrading <- R6::R6Class(
     #' @param order_id (scalar<character>) the order ID.
     #' @param price (scalar<numeric> | scalar<character> | NULL) new limit price.
     #' @param size (scalar<numeric> | scalar<character> | NULL) new size.
-    #' @return (data.table | promise<data.table>) a single-row table, or a promise
-    #'   thereof.
+    #' @return (EditOrderAck | promise<EditOrderAck>) a single-row edit
+    #'   acknowledgement, or a promise thereof.
     #' @noassert price, size
     edit_order = function(order_id, price = NULL, size = NULL) {
       assert_args_CoinbaseTrading__edit_order(order_id)
@@ -332,12 +354,17 @@ CoinbaseTrading <- R6::R6Class(
       if (!is.null(size)) {
         size <- coerce_positive_string(size, "size")
       }
-      return(private$.request(
+      res <- private$.request(
         endpoint = "/api/v3/brokerage/orders/edit",
         method = "POST",
         body = list(order_id = order_id, price = price, size = size),
         auth = TRUE,
         .parser = parse_edit_order
+      )
+      return(connectcore::then_or_now(
+        res,
+        assert_return_CoinbaseTrading__edit_order,
+        is_async = private$.is_async
       ))
     },
 
@@ -346,8 +373,8 @@ CoinbaseTrading <- R6::R6Class(
     #' @param price (scalar<numeric> | scalar<character> | NULL) proposed limit
     #'   price.
     #' @param size (scalar<numeric> | scalar<character> | NULL) proposed size.
-    #' @return (data.table | promise<data.table>) a single-row table, or a promise
-    #'   thereof.
+    #' @return (EditPreview | promise<EditPreview>) a single-row edit-preview
+    #'   estimate, or a promise thereof.
     #' @noassert price, size
     preview_edit_order = function(order_id, price = NULL, size = NULL) {
       assert_args_CoinbaseTrading__preview_edit_order(order_id)
@@ -360,30 +387,40 @@ CoinbaseTrading <- R6::R6Class(
       if (!is.null(size)) {
         size <- coerce_positive_string(size, "size")
       }
-      return(private$.request(
+      res <- private$.request(
         endpoint = "/api/v3/brokerage/orders/edit_preview",
         method = "POST",
         body = list(order_id = order_id, price = price, size = size),
         auth = TRUE,
         .parser = parse_edit_preview
+      )
+      return(connectcore::then_or_now(
+        res,
+        assert_return_CoinbaseTrading__preview_edit_order,
+        is_async = private$.is_async
       ))
     },
 
     #' @description Cancel one or more open orders.
     #' @param order_ids (character) the order IDs to cancel.
-    #' @return (data.table | promise<data.table>) per-order cancel results, or a
-    #'   promise thereof.
+    #' @return (CancelResults | promise<CancelResults>) per-order cancel results,
+    #'   or a promise thereof.
     cancel_orders = function(order_ids) {
       assert_args_CoinbaseTrading__cancel_orders(order_ids)
       if (length(order_ids) == 0L) {
         rlang::abort("`order_ids` must contain at least one order id.")
       }
-      return(private$.request(
+      res <- private$.request(
         endpoint = "/api/v3/brokerage/orders/batch_cancel",
         method = "POST",
         body = list(order_ids = as.list(order_ids)),
         auth = TRUE,
         .parser = function(b) parse_cancel_results(b$results)
+      )
+      return(connectcore::then_or_now(
+        res,
+        assert_return_CoinbaseTrading__cancel_orders,
+        is_async = private$.is_async
       ))
     },
 
@@ -395,9 +432,8 @@ CoinbaseTrading <- R6::R6Class(
     #'   (contracts / base size) to close. `NULL` closes the entire position.
     #' @param client_order_id (scalar<character>) idempotency key. Defaults to a
     #'   fresh UUID via [generate_client_order_id()].
-    #' @return (data.table | promise<data.table>) a single-row table with
-    #'   `success`, the scalar `order_id`, and flattened order details, or a
-    #'   promise thereof.
+    #' @return (CreateOrderAck | promise<CreateOrderAck>) a single-row
+    #'   create-order acknowledgement, or a promise thereof.
     #' @noassert product_id, size
     close_position = function(product_id, size = NULL, client_order_id = generate_client_order_id()) {
       validate_symbol(product_id)
@@ -405,12 +441,17 @@ CoinbaseTrading <- R6::R6Class(
       if (!is.null(size)) {
         size <- coerce_positive_string(size, "size")
       }
-      return(private$.request(
+      res <- private$.request(
         endpoint = "/api/v3/brokerage/orders/close_position",
         method = "POST",
         body = list(client_order_id = client_order_id, product_id = product_id, size = size),
         auth = TRUE,
         .parser = parse_create_order
+      )
+      return(connectcore::then_or_now(
+        res,
+        assert_return_CoinbaseTrading__close_position,
+        is_async = private$.is_async
       ))
     }
   ),

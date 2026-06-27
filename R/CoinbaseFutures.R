@@ -54,38 +54,53 @@ CoinbaseFutures <- R6::R6Class(
   public = list(
     #' @description Retrieve the CFM futures balance summary (buying power,
     #'   margin, unrealised PnL, liquidation thresholds).
-    #' @return (data.table | promise<data.table>) a single-row table, or a promise
-    #'   thereof.
+    #' @return (FuturesBalance | promise<FuturesBalance>) a single-row table, or a
+    #'   promise thereof.
     get_balance_summary = function() {
-      return(private$.request(
+      res <- private$.request(
         endpoint = "/api/v3/brokerage/cfm/balance_summary",
         auth = TRUE,
         .parser = function(b) parse_futures_balance(b$balance_summary)
+      )
+      return(connectcore::then_or_now(
+        res,
+        assert_return_CoinbaseFutures__get_balance_summary,
+        is_async = private$.is_async
       ))
     },
 
     #' @description Retrieve all open CFM futures positions.
-    #' @return (data.table | promise<data.table>) the positions, or a promise
-    #'   thereof.
+    #' @return (FuturesPositions | promise<FuturesPositions>) the positions, or a
+    #'   promise thereof.
     get_positions = function() {
-      return(private$.request(
+      res <- private$.request(
         endpoint = "/api/v3/brokerage/cfm/positions",
         auth = TRUE,
         .parser = function(b) parse_futures_positions(b$positions)
+      )
+      return(connectcore::then_or_now(
+        res,
+        assert_return_CoinbaseFutures__get_positions,
+        is_async = private$.is_async
       ))
     },
 
     #' @description Retrieve a single CFM futures position by product.
     #' @param product_id (scalar<character>) the futures product ID.
-    #' @return (data.table | promise<data.table>) a single-row table, or a promise
-    #'   thereof.
+    #' @return (FuturesPositions | promise<FuturesPositions>) a single-row table,
+    #'   or a promise thereof.
     #' @noassert product_id
     get_position = function(product_id) {
       validate_symbol(product_id)
-      return(private$.request(
+      res <- private$.request(
         endpoint = paste0("/api/v3/brokerage/cfm/positions/", product_id),
         auth = TRUE,
         .parser = function(b) parse_futures_positions(list(b$position))
+      )
+      return(connectcore::then_or_now(
+        res,
+        assert_return_CoinbaseFutures__get_position,
+        is_async = private$.is_async
       ))
     },
 
@@ -98,23 +113,33 @@ CoinbaseFutures <- R6::R6Class(
     #' @noassert usd_amount
     schedule_sweep = function(usd_amount) {
       amount <- coerce_positive_string(usd_amount, "usd_amount")
-      return(private$.request(
+      res <- private$.request(
         endpoint = "/api/v3/brokerage/cfm/sweeps/schedule",
         method = "POST",
         body = list(usd_amount = amount),
         auth = TRUE,
         .parser = as_dt_row
+      )
+      return(connectcore::then_or_now(
+        res,
+        assert_return_CoinbaseFutures__schedule_sweep,
+        is_async = private$.is_async
       ))
     },
 
     #' @description Retrieve scheduled and pending futures sweeps.
-    #' @return (data.table | promise<data.table>) the sweeps, or a promise
+    #' @return (FuturesSweeps | promise<FuturesSweeps>) the sweeps, or a promise
     #'   thereof.
     get_sweeps = function() {
-      return(private$.request(
+      res <- private$.request(
         endpoint = "/api/v3/brokerage/cfm/sweeps",
         auth = TRUE,
         .parser = function(b) parse_futures_sweeps(b$sweeps)
+      )
+      return(connectcore::then_or_now(
+        res,
+        assert_return_CoinbaseFutures__get_sweeps,
+        is_async = private$.is_async
       ))
     },
 
@@ -122,11 +147,16 @@ CoinbaseFutures <- R6::R6Class(
     #' @return (data.table | promise<data.table>) a single-row table, or a promise
     #'   thereof.
     cancel_sweep = function() {
-      return(private$.request(
+      res <- private$.request(
         endpoint = "/api/v3/brokerage/cfm/sweeps",
         method = "DELETE",
         auth = TRUE,
         .parser = as_dt_row
+      )
+      return(connectcore::then_or_now(
+        res,
+        assert_return_CoinbaseFutures__cancel_sweep,
+        is_async = private$.is_async
       ))
     },
 
@@ -134,10 +164,15 @@ CoinbaseFutures <- R6::R6Class(
     #' @return (data.table | promise<data.table>) a single-row table, or a promise
     #'   thereof.
     get_intraday_margin_setting = function() {
-      return(private$.request(
+      res <- private$.request(
         endpoint = "/api/v3/brokerage/cfm/intraday/margin_setting",
         auth = TRUE,
         .parser = as_dt_row
+      )
+      return(connectcore::then_or_now(
+        res,
+        assert_return_CoinbaseFutures__get_intraday_margin_setting,
+        is_async = private$.is_async
       ))
     },
 
@@ -149,13 +184,18 @@ CoinbaseFutures <- R6::R6Class(
     #'   aborts), or a promise thereof.
     set_intraday_margin_setting = function(setting) {
       assert_args_CoinbaseFutures__set_intraday_margin_setting(setting)
-      return(private$.request(
+      res <- private$.request(
         endpoint = "/api/v3/brokerage/cfm/intraday/margin_setting",
         method = "POST",
         body = list(setting = setting),
         auth = TRUE,
         # The success body is empty ({}); echo the applied setting as confirmation.
         .parser = function(b) data.table::data.table(setting = setting)
+      )
+      return(connectcore::then_or_now(
+        res,
+        assert_return_CoinbaseFutures__set_intraday_margin_setting,
+        is_async = private$.is_async
       ))
     },
 
@@ -163,16 +203,20 @@ CoinbaseFutures <- R6::R6Class(
     #' @param margin_profile_type (scalar<character>) the margin profile type
     #'   (required by the API), e.g.
     #'   `"MARGIN_PROFILE_TYPE_RETAIL_INTRADAY_MARGIN_1"`.
-    #' @return (data.table | promise<data.table>) a single-row table with
-    #'   `margin_window_type`, `end_time`, and the killswitch flags, or a promise
-    #'   thereof.
+    #' @return (MarginWindow | promise<MarginWindow>) a single-row table, or a
+    #'   promise thereof.
     get_current_margin_window = function(margin_profile_type) {
       assert_args_CoinbaseFutures__get_current_margin_window(margin_profile_type)
-      return(private$.request(
+      res <- private$.request(
         endpoint = "/api/v3/brokerage/cfm/intraday/current_margin_window",
         query = list(margin_profile_type = margin_profile_type),
         auth = TRUE,
         .parser = parse_margin_window
+      )
+      return(connectcore::then_or_now(
+        res,
+        assert_return_CoinbaseFutures__get_current_margin_window,
+        is_async = private$.is_async
       ))
     }
   )

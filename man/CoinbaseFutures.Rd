@@ -93,8 +93,8 @@ margin, unrealised PnL, liquidation thresholds).
 }
 
 \subsection{Returns}{
-(data.table | promise<data.table>) a single-row table, or a promise
-thereof.
+(FuturesBalance | promise<FuturesBalance>) a single-row table, or a
+promise thereof.
 }
 }
 \if{html}{\out{<hr>}}
@@ -107,8 +107,8 @@ Retrieve all open CFM futures positions.
 }
 
 \subsection{Returns}{
-(data.table | promise<data.table>) the positions, or a promise
-thereof.
+(FuturesPositions | promise<FuturesPositions>) the positions, or a
+promise thereof.
 }
 }
 \if{html}{\out{<hr>}}
@@ -128,8 +128,8 @@ Retrieve a single CFM futures position by product.
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
-(data.table | promise<data.table>) a single-row table, or a promise
-thereof.
+(FuturesPositions | promise<FuturesPositions>) a single-row table,
+or a promise thereof.
 }
 }
 \if{html}{\out{<hr>}}
@@ -165,7 +165,7 @@ Retrieve scheduled and pending futures sweeps.
 }
 
 \subsection{Returns}{
-(data.table | promise<data.table>) the sweeps, or a promise
+(FuturesSweeps | promise<FuturesSweeps>) the sweeps, or a promise
 thereof.
 }
 }
@@ -239,9 +239,8 @@ Retrieve the current margin window.
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
-(data.table | promise<data.table>) a single-row table with
-\code{margin_window_type}, \code{end_time}, and the killswitch flags, or a promise
-thereof.
+(MarginWindow | promise<MarginWindow>) a single-row table, or a
+promise thereof.
 }
 }
 \if{html}{\out{<hr>}}

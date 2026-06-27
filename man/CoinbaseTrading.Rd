@@ -128,10 +128,8 @@ order to. Optional.}
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
-(data.table | promise<data.table>) a single-row table with
-\code{success}, the scalar \code{order_id}, \code{product_id}, \code{side},
-\code{client_order_id}, \code{failure_reason}, and flattened order-configuration
-columns, or a promise thereof.
+(CreateOrderAck | promise<CreateOrderAck>) a single-row
+create-order acknowledgement, or a promise thereof.
 }
 }
 \if{html}{\out{<hr>}}
@@ -172,8 +170,8 @@ preview to. Optional.}
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
-(data.table | promise<data.table>) a single-row table, or a promise
-thereof.
+(Preview | promise<Preview>) a single-row preview estimate, or a
+promise thereof.
 }
 }
 \if{html}{\out{<hr>}}
@@ -193,7 +191,7 @@ Retrieve a single order by its ID.
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
-(data.table | promise<data.table>) a single-row table, or a promise
+(Orders | promise<Orders>) a single-row order table, or a promise
 thereof.
 }
 }
@@ -267,8 +265,7 @@ Default \code{Inf}.}
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
-(data.table | promise<data.table>) the orders, or a promise
-thereof.
+(Orders | promise<Orders>) the orders, or a promise thereof.
 }
 }
 \if{html}{\out{<hr>}}
@@ -317,7 +314,7 @@ Default \code{Inf}.}
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
-(data.table | promise<data.table>) the fills, or a promise thereof.
+(Fills | promise<Fills>) the fills, or a promise thereof.
 }
 }
 \if{html}{\out{<hr>}}
@@ -341,8 +338,8 @@ Edit an open order's price and/or size.
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
-(data.table | promise<data.table>) a single-row table, or a promise
-thereof.
+(EditOrderAck | promise<EditOrderAck>) a single-row edit
+acknowledgement, or a promise thereof.
 }
 }
 \if{html}{\out{<hr>}}
@@ -367,8 +364,8 @@ price.}
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
-(data.table | promise<data.table>) a single-row table, or a promise
-thereof.
+(EditPreview | promise<EditPreview>) a single-row edit-preview
+estimate, or a promise thereof.
 }
 }
 \if{html}{\out{<hr>}}
@@ -388,8 +385,8 @@ Cancel one or more open orders.
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
-(data.table | promise<data.table>) per-order cancel results, or a
-promise thereof.
+(CancelResults | promise<CancelResults>) per-order cancel results,
+or a promise thereof.
 }
 }
 \if{html}{\out{<hr>}}
@@ -421,9 +418,8 @@ fresh UUID via \code{\link[=generate_client_order_id]{generate_client_order_id()
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
-(data.table | promise<data.table>) a single-row table with
-\code{success}, the scalar \code{order_id}, and flattened order details, or a
-promise thereof.
+(CreateOrderAck | promise<CreateOrderAck>) a single-row
+create-order acknowledgement, or a promise thereof.
 }
 }
 \if{html}{\out{<hr>}}

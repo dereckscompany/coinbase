@@ -13,6 +13,20 @@ assert_args_CoinbaseAccount__get_accounts <- function(limit, max_pages) {
 
 assert_return_CoinbaseAccount__get_accounts <- function(value) {
   assert_data_table(value)
+  assert_has_columns(value, c("uuid", "name", "currency", "available_balance", "hold", "active", "default", "ready", "type", "platform", "retail_portfolio_id", "created_at", "updated_at"))
+  assert_character(value[["uuid"]])
+  assert_character(value[["name"]])
+  assert_character(value[["currency"]])
+  assert_double(value[["available_balance"]])
+  assert_double(value[["hold"]])
+  assert_logical(value[["active"]])
+  assert_logical(value[["default"]])
+  assert_logical(value[["ready"]])
+  assert_character(value[["type"]])
+  assert_character(value[["platform"]])
+  assert_character(value[["retail_portfolio_id"]])
+  assert_datetime(value[["created_at"]])
+  assert_datetime(value[["updated_at"]])
   return(value)
 }
 
@@ -23,6 +37,20 @@ assert_args_CoinbaseAccount__get_account <- function(account_uuid) {
 
 assert_return_CoinbaseAccount__get_account <- function(value) {
   assert_data_table(value)
+  assert_has_columns(value, c("uuid", "name", "currency", "available_balance", "hold", "active", "default", "ready", "type", "platform", "retail_portfolio_id", "created_at", "updated_at"))
+  assert_character(value[["uuid"]])
+  assert_character(value[["name"]])
+  assert_character(value[["currency"]])
+  assert_double(value[["available_balance"]])
+  assert_double(value[["hold"]])
+  assert_logical(value[["active"]])
+  assert_logical(value[["default"]])
+  assert_logical(value[["ready"]])
+  assert_character(value[["type"]])
+  assert_character(value[["platform"]])
+  assert_character(value[["retail_portfolio_id"]])
+  assert_datetime(value[["created_at"]])
+  assert_datetime(value[["updated_at"]])
   return(value)
 }
 
@@ -35,6 +63,15 @@ assert_args_CoinbaseAccount__get_fees <- function(product_type) {
 
 assert_return_CoinbaseAccount__get_fees <- function(value) {
   assert_data_table(value)
+  assert_has_columns(value, c("pricing_tier", "maker_fee_rate", "taker_fee_rate", "usd_from", "usd_to", "total_volume", "total_fees", "total_balance"))
+  assert_character(value[["pricing_tier"]])
+  assert_double(value[["maker_fee_rate"]])
+  assert_double(value[["taker_fee_rate"]])
+  assert_double(value[["usd_from"]])
+  assert_double(value[["usd_to"]])
+  assert_double(value[["total_volume"]])
+  assert_double(value[["total_fees"]])
+  assert_double(value[["total_balance"]])
   return(value)
 }
 
@@ -66,6 +103,17 @@ assert_args_CoinbaseAccount__get_portfolio_summary <- function(portfolio_uuid, c
 
 assert_return_CoinbaseAccount__get_portfolio_summary <- function(value) {
   assert_data_table(value)
+  assert_has_columns(value, c("uuid", "name", "type", "total_balance", "total_futures_balance", "total_cash_equivalent_balance", "total_crypto_balance", "futures_unrealized_pnl", "perp_unrealized_pnl", "total_equities_balance"))
+  assert_character(value[["uuid"]])
+  assert_character(value[["name"]])
+  assert_character(value[["type"]])
+  assert_double(value[["total_balance"]])
+  assert_double(value[["total_futures_balance"]])
+  assert_double(value[["total_cash_equivalent_balance"]])
+  assert_double(value[["total_crypto_balance"]])
+  assert_double(value[["futures_unrealized_pnl"]])
+  assert_double(value[["perp_unrealized_pnl"]])
+  assert_double(value[["total_equities_balance"]])
   return(value)
 }
 
@@ -91,16 +139,47 @@ assert_return_CoinbaseBase__initialize <- function(value) {
 
 assert_return_CoinbaseFutures__get_balance_summary <- function(value) {
   assert_data_table(value)
+  assert_has_columns(value, c("futures_buying_power", "total_usd_balance", "cbi_usd_balance", "cfm_usd_balance", "total_open_orders_hold_amount", "unrealized_pnl", "daily_realized_pnl", "initial_margin", "available_margin", "liquidation_threshold", "liquidation_buffer_amount", "liquidation_buffer_percentage"))
+  assert_double(value[["futures_buying_power"]])
+  assert_double(value[["total_usd_balance"]])
+  assert_double(value[["cbi_usd_balance"]])
+  assert_double(value[["cfm_usd_balance"]])
+  assert_double(value[["total_open_orders_hold_amount"]])
+  assert_double(value[["unrealized_pnl"]])
+  assert_double(value[["daily_realized_pnl"]])
+  assert_double(value[["initial_margin"]])
+  assert_double(value[["available_margin"]])
+  assert_double(value[["liquidation_threshold"]])
+  assert_double(value[["liquidation_buffer_amount"]])
+  assert_double(value[["liquidation_buffer_percentage"]])
   return(value)
 }
 
 assert_return_CoinbaseFutures__get_positions <- function(value) {
   assert_data_table(value)
+  assert_has_columns(value, c("product_id", "side", "number_of_contracts", "current_price", "avg_entry_price", "unrealized_pnl", "daily_realized_pnl", "expiration_time"))
+  assert_character(value[["product_id"]])
+  assert_character(value[["side"]])
+  assert_double(value[["number_of_contracts"]])
+  assert_double(value[["current_price"]])
+  assert_double(value[["avg_entry_price"]])
+  assert_double(value[["unrealized_pnl"]])
+  assert_double(value[["daily_realized_pnl"]])
+  assert_datetime(value[["expiration_time"]])
   return(value)
 }
 
 assert_return_CoinbaseFutures__get_position <- function(value) {
   assert_data_table(value)
+  assert_has_columns(value, c("product_id", "side", "number_of_contracts", "current_price", "avg_entry_price", "unrealized_pnl", "daily_realized_pnl", "expiration_time"))
+  assert_character(value[["product_id"]])
+  assert_character(value[["side"]])
+  assert_double(value[["number_of_contracts"]])
+  assert_double(value[["current_price"]])
+  assert_double(value[["avg_entry_price"]])
+  assert_double(value[["unrealized_pnl"]])
+  assert_double(value[["daily_realized_pnl"]])
+  assert_datetime(value[["expiration_time"]])
   return(value)
 }
 
@@ -111,6 +190,12 @@ assert_return_CoinbaseFutures__schedule_sweep <- function(value) {
 
 assert_return_CoinbaseFutures__get_sweeps <- function(value) {
   assert_data_table(value)
+  assert_has_columns(value, c("id", "requested_amount", "should_sweep_all", "status", "schedule_time"))
+  assert_character(value[["id"]])
+  assert_double(value[["requested_amount"]])
+  assert_logical(value[["should_sweep_all"]])
+  assert_character(value[["status"]])
+  assert_datetime(value[["schedule_time"]])
   return(value)
 }
 
@@ -141,6 +226,11 @@ assert_args_CoinbaseFutures__get_current_margin_window <- function(margin_profil
 
 assert_return_CoinbaseFutures__get_current_margin_window <- function(value) {
   assert_data_table(value)
+  assert_has_columns(value, c("margin_window_type", "end_time", "is_intraday_margin_killswitch_enabled", "is_intraday_margin_enrollment_killswitch_enabled"))
+  assert_character(value[["margin_window_type"]])
+  assert_datetime(value[["end_time"]])
+  assert_logical(value[["is_intraday_margin_killswitch_enabled"]])
+  assert_logical(value[["is_intraday_margin_enrollment_killswitch_enabled"]])
   return(value)
 }
 
@@ -168,6 +258,13 @@ assert_args_CoinbaseMarketData__get_ohlcv <- function(start, end) {
 
 assert_return_CoinbaseMarketData__get_ohlcv <- function(value) {
   assert_data_table(value)
+  assert_has_columns(value, c("datetime", "open", "high", "low", "close", "volume"))
+  assert_datetime(value[["datetime"]])
+  assert_double(value[["open"]])
+  assert_double(value[["high"]])
+  assert_double(value[["low"]])
+  assert_double(value[["close"]])
+  assert_double(value[["volume"]])
   return(value)
 }
 
@@ -182,6 +279,12 @@ assert_args_CoinbaseMarketData__get_trades <- function(limit, after) {
 
 assert_return_CoinbaseMarketData__get_trades <- function(value) {
   assert_data_table(value)
+  assert_has_columns(value, c("trade_id", "side", "price", "size", "time"))
+  assert_double(value[["trade_id"]])
+  assert_character(value[["side"]])
+  assert_double(value[["price"]])
+  assert_double(value[["size"]])
+  assert_datetime(value[["time"]])
   return(value)
 }
 
@@ -201,6 +304,12 @@ assert_args_CoinbaseMarketData__get_trades_history <- function(start, end, max_p
 
 assert_return_CoinbaseMarketData__get_trades_history <- function(value) {
   assert_data_table(value)
+  assert_has_columns(value, c("trade_id", "side", "price", "size", "time"))
+  assert_double(value[["trade_id"]])
+  assert_character(value[["side"]])
+  assert_double(value[["price"]])
+  assert_double(value[["size"]])
+  assert_datetime(value[["time"]])
   return(value)
 }
 
@@ -222,11 +331,30 @@ assert_return_CoinbaseMarketData__get_ticker <- function(value) {
 
 assert_return_CoinbaseMarketData__get_stats <- function(value) {
   assert_data_table(value)
+  assert_has_columns(value, c("product_id", "open", "high", "low", "last", "volume", "volume_30day"))
+  assert_character(value[["product_id"]])
+  assert_double(value[["open"]])
+  assert_double(value[["high"]])
+  assert_double(value[["low"]])
+  assert_double(value[["last"]])
+  assert_double(value[["volume"]])
+  assert_double(value[["volume_30day"]])
   return(value)
 }
 
 assert_return_CoinbaseMarketData__get_product_stats <- function(value) {
   assert_data_table(value)
+  assert_has_columns(value, c("open", "high", "low", "last", "volume", "volume_30day", "rfq_volume_24hour", "rfq_volume_30day", "conversions_volume_24hour", "conversions_volume_30day"))
+  assert_double(value[["open"]])
+  assert_double(value[["high"]])
+  assert_double(value[["low"]])
+  assert_double(value[["last"]])
+  assert_double(value[["volume"]])
+  assert_double(value[["volume_30day"]])
+  assert_double(value[["rfq_volume_24hour"]])
+  assert_double(value[["rfq_volume_30day"]])
+  assert_double(value[["conversions_volume_24hour"]])
+  assert_double(value[["conversions_volume_30day"]])
   return(value)
 }
 
@@ -240,6 +368,13 @@ assert_args_CoinbaseMarketData__get_best_bid_ask <- function(product_ids) {
 
 assert_return_CoinbaseMarketData__get_best_bid_ask <- function(value) {
   assert_data_table(value)
+  assert_has_columns(value, c("product_id", "bid_price", "bid_size", "ask_price", "ask_size", "time"))
+  assert_character(value[["product_id"]])
+  assert_double(value[["bid_price"]])
+  assert_double(value[["bid_size"]])
+  assert_double(value[["ask_price"]])
+  assert_double(value[["ask_size"]])
+  assert_datetime(value[["time"]])
   return(value)
 }
 
@@ -267,6 +402,19 @@ assert_args_CoinbaseTrading__add_order <- function(client_order_id, self_trade_p
 
 assert_return_CoinbaseTrading__add_order <- function(value) {
   assert_data_table(value)
+  assert_has_columns(value, c("success", "order_id", "product_id", "side", "client_order_id", "failure_reason", "config_type", "base_size", "quote_size", "limit_price", "stop_price", "stop_trigger_price"))
+  assert_logical(value[["success"]])
+  assert_character(value[["order_id"]])
+  assert_character(value[["product_id"]])
+  assert_character(value[["side"]])
+  assert_character(value[["client_order_id"]])
+  assert_character(value[["failure_reason"]])
+  assert_character(value[["config_type"]])
+  assert_double(value[["base_size"]])
+  assert_double(value[["quote_size"]])
+  assert_double(value[["limit_price"]])
+  assert_double(value[["stop_price"]])
+  assert_double(value[["stop_trigger_price"]])
   return(value)
 }
 
@@ -285,6 +433,16 @@ assert_args_CoinbaseTrading__preview_order <- function(leverage, margin_type, re
 
 assert_return_CoinbaseTrading__preview_order <- function(value) {
   assert_data_table(value)
+  assert_has_columns(value, c("order_total", "commission_total", "quote_size", "base_size", "best_bid", "best_ask", "slippage", "errs", "preview_id"))
+  assert_double(value[["order_total"]])
+  assert_double(value[["commission_total"]])
+  assert_double(value[["quote_size"]])
+  assert_double(value[["base_size"]])
+  assert_double(value[["best_bid"]])
+  assert_double(value[["best_ask"]])
+  assert_double(value[["slippage"]])
+  assert_character(value[["errs"]])
+  assert_character(value[["preview_id"]])
   return(value)
 }
 
@@ -295,6 +453,30 @@ assert_args_CoinbaseTrading__get_order <- function(order_id) {
 
 assert_return_CoinbaseTrading__get_order <- function(value) {
   assert_data_table(value)
+  assert_has_columns(value, c("order_id", "client_order_id", "product_id", "side", "status", "order_type", "config_type", "time_in_force", "created_time", "completion_percentage", "filled_size", "average_filled_price", "number_of_fills", "filled_value", "total_fees", "base_size", "quote_size", "limit_price", "stop_price", "stop_trigger_price", "stop_direction", "end_time", "post_only"))
+  assert_character(value[["order_id"]])
+  assert_character(value[["client_order_id"]])
+  assert_character(value[["product_id"]])
+  assert_character(value[["side"]])
+  assert_character(value[["status"]])
+  assert_character(value[["order_type"]])
+  assert_character(value[["config_type"]])
+  assert_character(value[["time_in_force"]])
+  assert_datetime(value[["created_time"]])
+  assert_double(value[["completion_percentage"]])
+  assert_double(value[["filled_size"]])
+  assert_double(value[["average_filled_price"]])
+  assert_double(value[["number_of_fills"]])
+  assert_double(value[["filled_value"]])
+  assert_double(value[["total_fees"]])
+  assert_double(value[["base_size"]])
+  assert_double(value[["quote_size"]])
+  assert_double(value[["limit_price"]])
+  assert_double(value[["stop_price"]])
+  assert_double(value[["stop_trigger_price"]])
+  assert_character(value[["stop_direction"]])
+  assert_datetime(value[["end_time"]])
+  assert_logical(value[["post_only"]])
   return(value)
 }
 
@@ -358,6 +540,30 @@ assert_args_CoinbaseTrading__get_orders <- function(product_ids, order_status, o
 
 assert_return_CoinbaseTrading__get_orders <- function(value) {
   assert_data_table(value)
+  assert_has_columns(value, c("order_id", "client_order_id", "product_id", "side", "status", "order_type", "config_type", "time_in_force", "created_time", "completion_percentage", "filled_size", "average_filled_price", "number_of_fills", "filled_value", "total_fees", "base_size", "quote_size", "limit_price", "stop_price", "stop_trigger_price", "stop_direction", "end_time", "post_only"))
+  assert_character(value[["order_id"]])
+  assert_character(value[["client_order_id"]])
+  assert_character(value[["product_id"]])
+  assert_character(value[["side"]])
+  assert_character(value[["status"]])
+  assert_character(value[["order_type"]])
+  assert_character(value[["config_type"]])
+  assert_character(value[["time_in_force"]])
+  assert_datetime(value[["created_time"]])
+  assert_double(value[["completion_percentage"]])
+  assert_double(value[["filled_size"]])
+  assert_double(value[["average_filled_price"]])
+  assert_double(value[["number_of_fills"]])
+  assert_double(value[["filled_value"]])
+  assert_double(value[["total_fees"]])
+  assert_double(value[["base_size"]])
+  assert_double(value[["quote_size"]])
+  assert_double(value[["limit_price"]])
+  assert_double(value[["stop_price"]])
+  assert_double(value[["stop_trigger_price"]])
+  assert_character(value[["stop_direction"]])
+  assert_datetime(value[["end_time"]])
+  assert_logical(value[["post_only"]])
   return(value)
 }
 
@@ -397,6 +603,19 @@ assert_args_CoinbaseTrading__get_fills <- function(order_ids, trade_ids, product
 
 assert_return_CoinbaseTrading__get_fills <- function(value) {
   assert_data_table(value)
+  assert_has_columns(value, c("entry_id", "trade_id", "order_id", "product_id", "side", "trade_time", "trade_type", "price", "size", "commission", "size_in_quote", "liquidity_indicator"))
+  assert_character(value[["entry_id"]])
+  assert_character(value[["trade_id"]])
+  assert_character(value[["order_id"]])
+  assert_character(value[["product_id"]])
+  assert_character(value[["side"]])
+  assert_datetime(value[["trade_time"]])
+  assert_character(value[["trade_type"]])
+  assert_double(value[["price"]])
+  assert_double(value[["size"]])
+  assert_double(value[["commission"]])
+  assert_logical(value[["size_in_quote"]])
+  assert_character(value[["liquidity_indicator"]])
   return(value)
 }
 
@@ -407,6 +626,10 @@ assert_args_CoinbaseTrading__edit_order <- function(order_id) {
 
 assert_return_CoinbaseTrading__edit_order <- function(value) {
   assert_data_table(value)
+  assert_has_columns(value, c("success", "order_id", "errors"))
+  assert_logical(value[["success"]])
+  assert_character(value[["order_id"]])
+  assert_character(value[["errors"]])
   return(value)
 }
 
@@ -417,6 +640,15 @@ assert_args_CoinbaseTrading__preview_edit_order <- function(order_id) {
 
 assert_return_CoinbaseTrading__preview_edit_order <- function(value) {
   assert_data_table(value)
+  assert_has_columns(value, c("errors", "slippage", "order_total", "commission_total", "quote_size", "base_size", "best_bid", "average_filled_price"))
+  assert_character(value[["errors"]])
+  assert_double(value[["slippage"]])
+  assert_double(value[["order_total"]])
+  assert_double(value[["commission_total"]])
+  assert_double(value[["quote_size"]])
+  assert_double(value[["base_size"]])
+  assert_double(value[["best_bid"]])
+  assert_double(value[["average_filled_price"]])
   return(value)
 }
 
@@ -428,6 +660,10 @@ assert_args_CoinbaseTrading__cancel_orders <- function(order_ids) {
 
 assert_return_CoinbaseTrading__cancel_orders <- function(value) {
   assert_data_table(value)
+  assert_has_columns(value, c("order_id", "success", "failure_reason"))
+  assert_character(value[["order_id"]])
+  assert_logical(value[["success"]])
+  assert_character(value[["failure_reason"]])
   return(value)
 }
 
@@ -438,6 +674,19 @@ assert_args_CoinbaseTrading__close_position <- function(client_order_id) {
 
 assert_return_CoinbaseTrading__close_position <- function(value) {
   assert_data_table(value)
+  assert_has_columns(value, c("success", "order_id", "product_id", "side", "client_order_id", "failure_reason", "config_type", "base_size", "quote_size", "limit_price", "stop_price", "stop_trigger_price"))
+  assert_logical(value[["success"]])
+  assert_character(value[["order_id"]])
+  assert_character(value[["product_id"]])
+  assert_character(value[["side"]])
+  assert_character(value[["client_order_id"]])
+  assert_character(value[["failure_reason"]])
+  assert_character(value[["config_type"]])
+  assert_double(value[["base_size"]])
+  assert_double(value[["quote_size"]])
+  assert_double(value[["limit_price"]])
+  assert_double(value[["stop_price"]])
+  assert_double(value[["stop_trigger_price"]])
   return(value)
 }
 
@@ -1010,6 +1259,332 @@ assert_args_stringify_order_config <- function(order_configuration) {
 assert_return_stringify_order_config <- function(value) {
   assert_list(value)
   return(value)
+}
+
+assert_type_Products <- function(value) {
+  assert_data_table(value)
+  assert_has_columns(value, c("id", "base_currency", "quote_currency", "quote_increment", "base_increment", "display_name", "min_market_funds", "margin_enabled", "post_only", "limit_only", "cancel_only", "status", "status_message", "trading_disabled", "fx_stablecoin", "max_slippage_percentage", "auction_mode", "high_bid_limit_percentage"))
+  assert_character(value[["id"]])
+  assert_character(value[["base_currency"]])
+  assert_character(value[["quote_currency"]])
+  assert_character(value[["quote_increment"]])
+  assert_character(value[["base_increment"]])
+  assert_character(value[["display_name"]])
+  assert_character(value[["min_market_funds"]])
+  assert_logical(value[["margin_enabled"]])
+  assert_logical(value[["post_only"]])
+  assert_logical(value[["limit_only"]])
+  assert_logical(value[["cancel_only"]])
+  assert_character(value[["status"]])
+  assert_character(value[["status_message"]])
+  assert_logical(value[["trading_disabled"]])
+  assert_logical(value[["fx_stablecoin"]])
+  assert_character(value[["max_slippage_percentage"]])
+  assert_logical(value[["auction_mode"]])
+  assert_character(value[["high_bid_limit_percentage"]])
+  return(invisible(value))
+}
+
+assert_type_Ohlcv <- function(value) {
+  assert_data_table(value)
+  assert_has_columns(value, c("datetime", "open", "high", "low", "close", "volume"))
+  assert_datetime(value[["datetime"]])
+  assert_double(value[["open"]])
+  assert_double(value[["high"]])
+  assert_double(value[["low"]])
+  assert_double(value[["close"]])
+  assert_double(value[["volume"]])
+  return(invisible(value))
+}
+
+assert_type_Trades <- function(value) {
+  assert_data_table(value)
+  assert_has_columns(value, c("trade_id", "side", "price", "size", "time"))
+  assert_double(value[["trade_id"]])
+  assert_character(value[["side"]])
+  assert_double(value[["price"]])
+  assert_double(value[["size"]])
+  assert_datetime(value[["time"]])
+  return(invisible(value))
+}
+
+assert_type_Stats <- function(value) {
+  assert_data_table(value)
+  assert_has_columns(value, c("product_id", "open", "high", "low", "last", "volume", "volume_30day"))
+  assert_character(value[["product_id"]])
+  assert_double(value[["open"]])
+  assert_double(value[["high"]])
+  assert_double(value[["low"]])
+  assert_double(value[["last"]])
+  assert_double(value[["volume"]])
+  assert_double(value[["volume_30day"]])
+  return(invisible(value))
+}
+
+assert_type_ProductStats <- function(value) {
+  assert_data_table(value)
+  assert_has_columns(value, c("open", "high", "low", "last", "volume", "volume_30day", "rfq_volume_24hour", "rfq_volume_30day", "conversions_volume_24hour", "conversions_volume_30day"))
+  assert_double(value[["open"]])
+  assert_double(value[["high"]])
+  assert_double(value[["low"]])
+  assert_double(value[["last"]])
+  assert_double(value[["volume"]])
+  assert_double(value[["volume_30day"]])
+  assert_double(value[["rfq_volume_24hour"]])
+  assert_double(value[["rfq_volume_30day"]])
+  assert_double(value[["conversions_volume_24hour"]])
+  assert_double(value[["conversions_volume_30day"]])
+  return(invisible(value))
+}
+
+assert_type_BestBidAsk <- function(value) {
+  assert_data_table(value)
+  assert_has_columns(value, c("product_id", "bid_price", "bid_size", "ask_price", "ask_size", "time"))
+  assert_character(value[["product_id"]])
+  assert_double(value[["bid_price"]])
+  assert_double(value[["bid_size"]])
+  assert_double(value[["ask_price"]])
+  assert_double(value[["ask_size"]])
+  assert_datetime(value[["time"]])
+  return(invisible(value))
+}
+
+assert_type_Accounts <- function(value) {
+  assert_data_table(value)
+  assert_has_columns(value, c("uuid", "name", "currency", "available_balance", "hold", "active", "default", "ready", "type", "platform", "retail_portfolio_id", "created_at", "updated_at"))
+  assert_character(value[["uuid"]])
+  assert_character(value[["name"]])
+  assert_character(value[["currency"]])
+  assert_double(value[["available_balance"]])
+  assert_double(value[["hold"]])
+  assert_logical(value[["active"]])
+  assert_logical(value[["default"]])
+  assert_logical(value[["ready"]])
+  assert_character(value[["type"]])
+  assert_character(value[["platform"]])
+  assert_character(value[["retail_portfolio_id"]])
+  assert_datetime(value[["created_at"]])
+  assert_datetime(value[["updated_at"]])
+  return(invisible(value))
+}
+
+assert_type_Fees <- function(value) {
+  assert_data_table(value)
+  assert_has_columns(value, c("pricing_tier", "maker_fee_rate", "taker_fee_rate", "usd_from", "usd_to", "total_volume", "total_fees", "total_balance"))
+  assert_character(value[["pricing_tier"]])
+  assert_double(value[["maker_fee_rate"]])
+  assert_double(value[["taker_fee_rate"]])
+  assert_double(value[["usd_from"]])
+  assert_double(value[["usd_to"]])
+  assert_double(value[["total_volume"]])
+  assert_double(value[["total_fees"]])
+  assert_double(value[["total_balance"]])
+  return(invisible(value))
+}
+
+assert_type_OrderConfig <- function(value) {
+  assert_list(value)
+  assert_has_names(value, c("config_type", "base_size", "quote_size", "limit_price", "stop_price", "stop_trigger_price", "stop_direction", "end_time", "post_only"))
+  assert_character(value[["config_type"]])
+  assert_length(value[["config_type"]], 1L)
+  assert_double(value[["base_size"]])
+  assert_length(value[["base_size"]], 1L)
+  assert_double(value[["quote_size"]])
+  assert_length(value[["quote_size"]], 1L)
+  assert_double(value[["limit_price"]])
+  assert_length(value[["limit_price"]], 1L)
+  assert_double(value[["stop_price"]])
+  assert_length(value[["stop_price"]], 1L)
+  assert_double(value[["stop_trigger_price"]])
+  assert_length(value[["stop_trigger_price"]], 1L)
+  assert_character(value[["stop_direction"]])
+  assert_length(value[["stop_direction"]], 1L)
+  assert_datetime(value[["end_time"]])
+  assert_length(value[["end_time"]], 1L)
+  assert_logical(value[["post_only"]])
+  assert_length(value[["post_only"]], 1L)
+  return(invisible(value))
+}
+
+assert_type_Orders <- function(value) {
+  assert_data_table(value)
+  assert_has_columns(value, c("order_id", "client_order_id", "product_id", "side", "status", "order_type", "config_type", "time_in_force", "created_time", "completion_percentage", "filled_size", "average_filled_price", "number_of_fills", "filled_value", "total_fees", "base_size", "quote_size", "limit_price", "stop_price", "stop_trigger_price", "stop_direction", "end_time", "post_only"))
+  assert_character(value[["order_id"]])
+  assert_character(value[["client_order_id"]])
+  assert_character(value[["product_id"]])
+  assert_character(value[["side"]])
+  assert_character(value[["status"]])
+  assert_character(value[["order_type"]])
+  assert_character(value[["config_type"]])
+  assert_character(value[["time_in_force"]])
+  assert_datetime(value[["created_time"]])
+  assert_double(value[["completion_percentage"]])
+  assert_double(value[["filled_size"]])
+  assert_double(value[["average_filled_price"]])
+  assert_double(value[["number_of_fills"]])
+  assert_double(value[["filled_value"]])
+  assert_double(value[["total_fees"]])
+  assert_double(value[["base_size"]])
+  assert_double(value[["quote_size"]])
+  assert_double(value[["limit_price"]])
+  assert_double(value[["stop_price"]])
+  assert_double(value[["stop_trigger_price"]])
+  assert_character(value[["stop_direction"]])
+  assert_datetime(value[["end_time"]])
+  assert_logical(value[["post_only"]])
+  return(invisible(value))
+}
+
+assert_type_Fills <- function(value) {
+  assert_data_table(value)
+  assert_has_columns(value, c("entry_id", "trade_id", "order_id", "product_id", "side", "trade_time", "trade_type", "price", "size", "commission", "size_in_quote", "liquidity_indicator"))
+  assert_character(value[["entry_id"]])
+  assert_character(value[["trade_id"]])
+  assert_character(value[["order_id"]])
+  assert_character(value[["product_id"]])
+  assert_character(value[["side"]])
+  assert_datetime(value[["trade_time"]])
+  assert_character(value[["trade_type"]])
+  assert_double(value[["price"]])
+  assert_double(value[["size"]])
+  assert_double(value[["commission"]])
+  assert_logical(value[["size_in_quote"]])
+  assert_character(value[["liquidity_indicator"]])
+  return(invisible(value))
+}
+
+assert_type_Preview <- function(value) {
+  assert_data_table(value)
+  assert_has_columns(value, c("order_total", "commission_total", "quote_size", "base_size", "best_bid", "best_ask", "slippage", "errs", "preview_id"))
+  assert_double(value[["order_total"]])
+  assert_double(value[["commission_total"]])
+  assert_double(value[["quote_size"]])
+  assert_double(value[["base_size"]])
+  assert_double(value[["best_bid"]])
+  assert_double(value[["best_ask"]])
+  assert_double(value[["slippage"]])
+  assert_character(value[["errs"]])
+  assert_character(value[["preview_id"]])
+  return(invisible(value))
+}
+
+assert_type_CreateOrderAck <- function(value) {
+  assert_data_table(value)
+  assert_has_columns(value, c("success", "order_id", "product_id", "side", "client_order_id", "failure_reason", "config_type", "base_size", "quote_size", "limit_price", "stop_price", "stop_trigger_price"))
+  assert_logical(value[["success"]])
+  assert_character(value[["order_id"]])
+  assert_character(value[["product_id"]])
+  assert_character(value[["side"]])
+  assert_character(value[["client_order_id"]])
+  assert_character(value[["failure_reason"]])
+  assert_character(value[["config_type"]])
+  assert_double(value[["base_size"]])
+  assert_double(value[["quote_size"]])
+  assert_double(value[["limit_price"]])
+  assert_double(value[["stop_price"]])
+  assert_double(value[["stop_trigger_price"]])
+  return(invisible(value))
+}
+
+assert_type_EditOrderAck <- function(value) {
+  assert_data_table(value)
+  assert_has_columns(value, c("success", "order_id", "errors"))
+  assert_logical(value[["success"]])
+  assert_character(value[["order_id"]])
+  assert_character(value[["errors"]])
+  return(invisible(value))
+}
+
+assert_type_EditPreview <- function(value) {
+  assert_data_table(value)
+  assert_has_columns(value, c("errors", "slippage", "order_total", "commission_total", "quote_size", "base_size", "best_bid", "average_filled_price"))
+  assert_character(value[["errors"]])
+  assert_double(value[["slippage"]])
+  assert_double(value[["order_total"]])
+  assert_double(value[["commission_total"]])
+  assert_double(value[["quote_size"]])
+  assert_double(value[["base_size"]])
+  assert_double(value[["best_bid"]])
+  assert_double(value[["average_filled_price"]])
+  return(invisible(value))
+}
+
+assert_type_CancelResults <- function(value) {
+  assert_data_table(value)
+  assert_has_columns(value, c("order_id", "success", "failure_reason"))
+  assert_character(value[["order_id"]])
+  assert_logical(value[["success"]])
+  assert_character(value[["failure_reason"]])
+  return(invisible(value))
+}
+
+assert_type_MarginWindow <- function(value) {
+  assert_data_table(value)
+  assert_has_columns(value, c("margin_window_type", "end_time", "is_intraday_margin_killswitch_enabled", "is_intraday_margin_enrollment_killswitch_enabled"))
+  assert_character(value[["margin_window_type"]])
+  assert_datetime(value[["end_time"]])
+  assert_logical(value[["is_intraday_margin_killswitch_enabled"]])
+  assert_logical(value[["is_intraday_margin_enrollment_killswitch_enabled"]])
+  return(invisible(value))
+}
+
+assert_type_FuturesBalance <- function(value) {
+  assert_data_table(value)
+  assert_has_columns(value, c("futures_buying_power", "total_usd_balance", "cbi_usd_balance", "cfm_usd_balance", "total_open_orders_hold_amount", "unrealized_pnl", "daily_realized_pnl", "initial_margin", "available_margin", "liquidation_threshold", "liquidation_buffer_amount", "liquidation_buffer_percentage"))
+  assert_double(value[["futures_buying_power"]])
+  assert_double(value[["total_usd_balance"]])
+  assert_double(value[["cbi_usd_balance"]])
+  assert_double(value[["cfm_usd_balance"]])
+  assert_double(value[["total_open_orders_hold_amount"]])
+  assert_double(value[["unrealized_pnl"]])
+  assert_double(value[["daily_realized_pnl"]])
+  assert_double(value[["initial_margin"]])
+  assert_double(value[["available_margin"]])
+  assert_double(value[["liquidation_threshold"]])
+  assert_double(value[["liquidation_buffer_amount"]])
+  assert_double(value[["liquidation_buffer_percentage"]])
+  return(invisible(value))
+}
+
+assert_type_FuturesPositions <- function(value) {
+  assert_data_table(value)
+  assert_has_columns(value, c("product_id", "side", "number_of_contracts", "current_price", "avg_entry_price", "unrealized_pnl", "daily_realized_pnl", "expiration_time"))
+  assert_character(value[["product_id"]])
+  assert_character(value[["side"]])
+  assert_double(value[["number_of_contracts"]])
+  assert_double(value[["current_price"]])
+  assert_double(value[["avg_entry_price"]])
+  assert_double(value[["unrealized_pnl"]])
+  assert_double(value[["daily_realized_pnl"]])
+  assert_datetime(value[["expiration_time"]])
+  return(invisible(value))
+}
+
+assert_type_FuturesSweeps <- function(value) {
+  assert_data_table(value)
+  assert_has_columns(value, c("id", "requested_amount", "should_sweep_all", "status", "schedule_time"))
+  assert_character(value[["id"]])
+  assert_double(value[["requested_amount"]])
+  assert_logical(value[["should_sweep_all"]])
+  assert_character(value[["status"]])
+  assert_datetime(value[["schedule_time"]])
+  return(invisible(value))
+}
+
+assert_type_PortfolioSummary <- function(value) {
+  assert_data_table(value)
+  assert_has_columns(value, c("uuid", "name", "type", "total_balance", "total_futures_balance", "total_cash_equivalent_balance", "total_crypto_balance", "futures_unrealized_pnl", "perp_unrealized_pnl", "total_equities_balance"))
+  assert_character(value[["uuid"]])
+  assert_character(value[["name"]])
+  assert_character(value[["type"]])
+  assert_double(value[["total_balance"]])
+  assert_double(value[["total_futures_balance"]])
+  assert_double(value[["total_cash_equivalent_balance"]])
+  assert_double(value[["total_crypto_balance"]])
+  assert_double(value[["futures_unrealized_pnl"]])
+  assert_double(value[["perp_unrealized_pnl"]])
+  assert_double(value[["total_equities_balance"]])
+  return(invisible(value))
 }
 
 assert_args_get_base_url <- function(url) {
