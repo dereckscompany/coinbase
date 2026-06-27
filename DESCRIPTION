@@ -27,6 +27,7 @@ Imports:
     openssl,
     lubridate,
     assert,
+    connectcore,
     stats
 Suggests:
     box,
@@ -42,7 +43,8 @@ Suggests:
     rmarkdown,
     testthat (>= 3.0.0)
 Remotes:
-    dereckscompany/assert
+    dereckscompany/assert,
+    dereckscompany/connectcore@v0.0.1
 VignetteBuilder: knitr
 Config/testthat/edition: 3
 Config/roxygen2/version: 8.0.0

@@ -52,8 +52,8 @@ trading$get_orders(product_ids = "BTC-USD", limit = 10)
 }
 
 }
-\section{Super class}{
-\code{\link[coinbase:CoinbaseBase]{CoinbaseBase}} -> \code{CoinbaseTrading}
+\section{Super classes}{
+\code{\link[connectcore:RestClient]{connectcore::RestClient}} -> \code{\link[coinbase:CoinbaseBase]{CoinbaseBase}} -> \code{CoinbaseTrading}
 }
 \section{Methods}{
 \subsection{Public methods}{

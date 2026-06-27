@@ -53,8 +53,8 @@ while (!later::loop_empty()) later::run_now()
 }
 
 }
-\section{Super class}{
-\code{\link[coinbase:CoinbaseBase]{CoinbaseBase}} -> \code{CoinbaseMarketData}
+\section{Super classes}{
+\code{\link[connectcore:RestClient]{connectcore::RestClient}} -> \code{\link[coinbase:CoinbaseBase]{CoinbaseBase}} -> \code{CoinbaseMarketData}
 }
 \section{Methods}{
 \subsection{Public methods}{

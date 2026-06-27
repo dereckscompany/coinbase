@@ -52,8 +52,8 @@ futures$get_positions()
 }
 
 }
-\section{Super class}{
-\code{\link[coinbase:CoinbaseBase]{CoinbaseBase}} -> \code{CoinbaseFutures}
+\section{Super classes}{
+\code{\link[connectcore:RestClient]{connectcore::RestClient}} -> \code{\link[coinbase:CoinbaseBase]{CoinbaseBase}} -> \code{CoinbaseFutures}
 }
 \section{Methods}{
 \subsection{Public methods}{

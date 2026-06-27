@@ -1,3 +1,25 @@
+# coinbase (development version)
+
+## Transport migration to connectcore
+
+* The HTTP transport now builds on
+  [connectcore](https://github.com/dereckscompany/connectcore) (`v0.0.1`), the
+  shared transport base extracted from these connectors. `CoinbaseBase` inherits
+  `connectcore::RestClient` and overrides only the two genuinely
+  Coinbase-specific seams — `.sign()` (the ES256 / EdDSA JWT) and
+  `.parse_envelope()` (the Coinbase error envelope and tolerated empty success
+  bodies). The single `private$.request()` funnel, the sync/async branch
+  (`then_or_now()`), `NULL`-field stripping, and the optional retry/throttle now
+  come from connectcore.
+* `coinbase_build_request()` is retained, with its signature and behaviour
+  unchanged, as a thin wrapper that wires the two Coinbase seams into
+  `connectcore::build_request()`. The hand-rolled httr2 request plumbing and the
+  duplicated `then_or_now()` it used to carry are deleted.
+* The dual-host design (Advanced Trade vs. Exchange) is preserved: `.request()`
+  extends the connectcore funnel with a per-request `base_url` argument.
+* The public API (R6 classes, exported functions, and return shapes) is
+  unchanged.
+
 # coinbase 0.0.1
 
 Initial release: an R wrapper for the Coinbase Advanced Trade API, supporting

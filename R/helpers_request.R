@@ -1,27 +1,10 @@
 # File: R/helpers_request.R
-# Core HTTP request infrastructure for the coinbase package.
-# Provides then_or_now(), build_jwt(), coinbase_build_request(), and the
-# response parser.
-
-#' Apply Continuation to a Value or Promise
-#'
-#' Routes a value through `fn` either synchronously or asynchronously depending
-#' on whether the caller is in async mode. This is the package's single
-#' sync/async branching idiom; it is called from `coinbase_build_request()`,
-#' `coinbase_paginate_cursor()`, and `coinbase_fetch_trades_history()`.
-#'
-#' @param x A value or a [promises::promise].
-#' @param fn A function to apply to the resolved value of `x`.
-#' @param is_async Logical; whether the caller is in async mode.
-#' @return If `is_async`, returns `promises::then(x, fn)`. Otherwise returns `fn(x)`.
-#' @keywords internal
-#' @noRd
-then_or_now <- function(x, fn, is_async = FALSE) {
-  if (is_async) {
-    return(promises::then(x, fn))
-  }
-  return(fn(x))
-}
+# Coinbase-specific request machinery layered on connectcore's transport base.
+# The generic funnel (sync/async branch, retry, throttle), the JSON->data.table
+# toolkit, and the WebSocket base all live in connectcore; this file keeps only
+# what is genuinely Coinbase-specific: JWT (ES256 / EdDSA) request signing, the
+# Coinbase error/empty-body envelope, and a thin `coinbase_build_request()` that
+# wires those two seams into connectcore::build_request().
 
 #' Load a Coinbase Private Key (EC PEM or base64 Ed25519)
 #'
@@ -139,15 +122,53 @@ build_jwt <- function(keys, method, host, path) {
   return(jose::jwt_encode_sig(claim, key = key, header = header))
 }
 
+#' Sign a Request with a Coinbase JWT (the `.sign()` seam)
+#'
+#' The Coinbase implementation of connectcore's auth-agnostic `.sign(req, keys,
+#' ctx)` seam. Attaches a `Bearer` JWT whose `uri` claim is derived from the
+#' request as it stands; [httr2::url_parse()] splits the path from the query, so
+#' the claim correctly excludes any query string regardless of when signing runs
+#' in the funnel. `ctx` (connectcore's timestamp source) is unused: the JWT
+#' stamps its own `nbf`/`exp` from the local UTC clock.
+#'
+#' @param req (class<httr2_request>) the request to sign.
+#' @param keys (list) credentials with `api_key_name` and `api_private_key`.
+#' @return (class<httr2_request>) the signed request.
+#'
+#' @importFrom httr2 req_headers url_parse
+#' @keywords internal
+#' @noRd
+coinbase_jwt_sign <- function(req, keys) {
+  parsed <- httr2::url_parse(req$url)
+  method <- "GET"
+  if (!is.null(req$method)) {
+    method <- req$method
+  }
+  req <- httr2::req_headers(
+    req,
+    Authorization = paste0(
+      "Bearer ",
+      build_jwt(keys, method = method, host = parsed$hostname, path = parsed$path)
+    )
+  )
+  return(req)
+}
+
 #' Build and Execute a Coinbase API Request
 #'
-#' Constructs an [httr2::request], optionally attaches a signed JWT, performs it
-#' via the supplied `.perform` function, and parses the JSON response. This is
-#' the single point through which all Coinbase API calls flow.
+#' Constructs an [httr2::request], optionally JWT-signs it, performs it (sync or
+#' async), and parses the Coinbase response envelope. This is the single point
+#' through which all Coinbase API calls flow; it is a thin Coinbase-specific
+#' wrapper over [connectcore::build_request()] that injects the two seams that
+#' differ per venue — JWT signing (the internal `coinbase_jwt_sign()`) and the
+#' Coinbase error/empty-body envelope (the internal `parse_coinbase_response()`).
+#' Everything else (the
+#' sync/async branch, NULL-field stripping, the JSON body, retry, throttle) comes
+#' from connectcore.
 #'
 #' ### Sync vs Async
 #' The `.perform` argument controls execution mode:
-#' - `httr2::req_perform` (default): synchronous, returns an [httr2::response].
+#' - `httr2::req_perform` (default): synchronous, returns the parsed data.
 #' - `httr2::req_perform_promise`: asynchronous, returns a [promises::promise].
 #'
 #' @param base_url Character; the API base URL (scheme + host).
@@ -164,9 +185,7 @@ build_jwt <- function(keys, method, host, path) {
 #' @param timeout Numeric; request timeout in seconds. Default `30`.
 #' @return Parsed and post-processed API response data, or a promise thereof.
 #'
-#' @importFrom httr2 request req_method req_url_path_append req_url_query req_body_raw req_timeout
-#' @importFrom httr2 req_perform req_user_agent req_error req_headers url_parse
-#' @importFrom jsonlite toJSON
+#' @importFrom httr2 req_perform
 #' @export
 coinbase_build_request <- function(
   base_url,
@@ -180,59 +199,32 @@ coinbase_build_request <- function(
   is_async = FALSE,
   timeout = 30
 ) {
-  req <- httr2::request(base_url)
-  req <- httr2::req_url_path_append(req, endpoint)
-  req <- httr2::req_method(req, method)
-  req <- httr2::req_timeout(req, timeout)
-  req <- httr2::req_user_agent(req, "dereckscompany/coinbase")
-  # Surface the API's own error body rather than httr2's generic message.
-  req <- httr2::req_error(req, is_error = function(resp) FALSE)
-
-  # JSON body. Strip top-level NULL fields (e.g. an unspecified price or size on
-  # a single-field edit) so they are omitted rather than sent as JSON null, matching
-  # the reference SDK. Nested objects (order_configuration) are left untouched.
-  if (!is.null(body)) {
-    body <- body[!vapply(body, is.null, logical(1))]
-    body_json <- jsonlite::toJSON(body, auto_unbox = TRUE, null = "null")
-    req <- httr2::req_body_raw(req, body_json, type = "application/json")
-  }
-
-  # Sign before query params are appended: the JWT `uri` claim excludes the
-  # query string, so we derive the signing path from the URL as it stands now.
-  if (!is.null(keys)) {
-    parsed <- httr2::url_parse(req$url)
-    req <- httr2::req_headers(
-      req,
-      Authorization = paste0(
-        "Bearer ",
-        build_jwt(keys, method = method, host = parsed$hostname, path = parsed$path)
-      )
-    )
-  }
-
-  # Query parameters (drop NULLs) appended after signing.
-  query <- query[!vapply(query, is.null, logical(1))]
-  if (length(query) > 0) {
-    req <- httr2::req_url_query(req, !!!query, .multi = "explode")
-  }
-
-  result <- .perform(req)
-
-  return(then_or_now(
-    result,
-    function(resp) {
-      return(.parser(parse_coinbase_response(resp)))
-    },
-    is_async = is_async
+  return(connectcore::build_request(
+    base_url = base_url,
+    endpoint = endpoint,
+    method = method,
+    query = query,
+    body = body,
+    keys = keys,
+    sign = function(req, keys, ctx) coinbase_jwt_sign(req, keys),
+    parse_envelope = parse_coinbase_response,
+    body_format = "json",
+    .perform = .perform,
+    .parser = .parser,
+    is_async = is_async,
+    timeout = timeout,
+    user_agent = "dereckscompany/coinbase"
   ))
 }
 
-#' Parse and Validate a Coinbase API Response
+#' Parse and Validate a Coinbase API Response (the `.parse_envelope()` seam)
 #'
+#' The Coinbase implementation of connectcore's `.parse_envelope(resp)` seam.
 #' Extracts JSON from an [httr2::response], validates the HTTP status, and
 #' returns the parsed body. Coinbase signals failure with HTTP status codes and
 #' an error body containing `error`/`message` (Advanced Trade) or `message`
-#' (Exchange).
+#' (Exchange); some success responses carry an empty body, which must not be fed
+#' to the JSON parser.
 #'
 #' @param resp An [httr2::response] object.
 #' @return The parsed JSON response body.
