@@ -1,0 +1,12 @@
+{
+  "position": {
+    "product_id": "BIT-31OCT26-CDE",
+    "expiration_time": "2026-10-31T16:00:00Z",
+    "side": "SHORT",
+    "number_of_contracts": "3",
+    "current_price": "74101.53",
+    "avg_entry_price": "74500.00",
+    "unrealized_pnl": "-125.40",
+    "daily_realized_pnl": "42.10"
+  }
+}

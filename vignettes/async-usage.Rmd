@@ -23,9 +23,12 @@ box::use(
   promises[then, catch, promise_all]
 )
 
-box::use(../tests/testthat/mock_router[mock_router])
+box::use(
+  connectcore[local_mock_api],
+  ../tests/testthat/mock_router[.mock_routes]
+)
 
-options(httr2_mock = mock_router)
+local_mock_api(.mock_routes)
 
 # Throwaway, ephemeral EC P-256 key for the authenticated examples. It signs the
 # JWT before the request is sent (so the key must be loadable), but the mock

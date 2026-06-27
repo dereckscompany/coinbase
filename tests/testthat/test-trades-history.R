@@ -72,15 +72,10 @@ test_that("empty universe through get_trades_history() yields a typed empty Trad
   # Drive the PUBLIC method, not the bare impl: an empty fetch must still satisfy
   # the 5-column Trades contract its assert_return enforces, so route an empty
   # trades page (`[]`) for the product and assert the columns and their types.
-  empty_trades_mock <- function(req) {
-    return(httr2::response(
-      status_code = 200L,
-      headers = list(`Content-Type` = "application/json"),
-      body = charToRaw("[]")
-    ))
-  }
-  old <- options(httr2_mock = empty_trades_mock)
-  on.exit(options(old), add = TRUE)
+  # connectcore::mock_response serves the empty-array body verbatim.
+  connectcore::local_mock_api(list(
+    list(pattern = "/products/BTC-USD/trades", fixture = "[]")
+  ))
 
   # A throwaway EC P-256 key so the pre-request JWT signing succeeds; the mock
   # ignores the Authorization header entirely.

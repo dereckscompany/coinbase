@@ -26,10 +26,11 @@ box::use(
   ],
   coro,
   later,
-  ../tests/testthat/mock_router[mock_router]
+  connectcore[local_mock_api],
+  ../tests/testthat/mock_router[.mock_routes]
 )
 
-options(httr2_mock = mock_router)
+local_mock_api(.mock_routes)
 
 # coinbase signs a JWT with the private key BEFORE the request is performed, so
 # a loadable key must exist even though the mock ignores the Authorization

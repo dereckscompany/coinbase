@@ -1,0 +1,14 @@
+{
+  "success": true,
+  "success_response": {
+    "order_id": "4444dddd-5555-eeee-6666-ffffffffffff",
+    "product_id": "BIT-28FEB25-CDE",
+    "side": "BUY",
+    "client_order_id": "client-close-001"
+  },
+  "order_configuration": {
+    "market_market_ioc": {
+      "base_size": "1"
+    }
+  }
+}

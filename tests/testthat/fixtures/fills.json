@@ -1,0 +1,33 @@
+{
+  "fills": [
+    {
+      "entry_id": "entry-0001",
+      "trade_id": "trade-0001",
+      "order_id": "4444dddd-5555-eeee-6666-ffffffffffff",
+      "product_id": "ETH-USD",
+      "side": "SELL",
+      "trade_time": "2026-05-30T18:31:02Z",
+      "trade_type": "FILL",
+      "price": "3850.20",
+      "size": "0.3",
+      "commission": "4.62",
+      "size_in_quote": false,
+      "liquidity_indicator": "TAKER"
+    },
+    {
+      "entry_id": "entry-0002",
+      "trade_id": "trade-0002",
+      "order_id": "4444dddd-5555-eeee-6666-ffffffffffff",
+      "product_id": "ETH-USD",
+      "side": "SELL",
+      "trade_time": "2026-05-30T18:31:03Z",
+      "trade_type": "FILL",
+      "price": "3850.20",
+      "size": "0.2",
+      "commission": "3.08",
+      "size_in_quote": false,
+      "liquidity_indicator": "TAKER"
+    }
+  ],
+  "cursor": ""
+}

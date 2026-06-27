@@ -1,0 +1,9 @@
+{
+  "results": [
+    {
+      "order_id": "1111aaaa-2222-bbbb-3333-cccccccccccc",
+      "success": true,
+      "failure_reason": "UNKNOWN_CANCEL_FAILURE_REASON"
+    }
+  ]
+}
