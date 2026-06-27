@@ -57,32 +57,19 @@ get_exchange_base_url <- function(url = Sys.getenv("COINBASE_EXCHANGE_API_ENDPOI
 #' Generate a Client Order ID
 #'
 #' Produces a random RFC 4122 version-4 UUID string for use as the
-#' `client_order_id` idempotency key when placing orders.
+#' `client_order_id` idempotency key when placing orders. Delegates to
+#' [uuid::UUIDgenerate()], whose output is the standard 36-character hyphenated
+#' UUID that Coinbase accepts.
 #'
 #' @return (scalar<character>) a UUID, e.g. `"11299b2b-61e3-43e7-b9f7-dee77210bb29"`.
 #'
 #' @examples
 #' generate_client_order_id()
 #'
-#' @importFrom openssl rand_bytes
+#' @importFrom uuid UUIDgenerate
 #' @export
 generate_client_order_id <- function() {
-  b <- as.integer(openssl::rand_bytes(16))
-  # Set the version (4) and variant (10xx) bits per RFC 4122.
-  b[7] <- bitwOr(bitwAnd(b[7], 0x0f), 0x40)
-  b[9] <- bitwOr(bitwAnd(b[9], 0x3f), 0x80)
-  hex <- sprintf("%02x", b)
-  return(assert_return_generate_client_order_id(paste0(
-    paste(hex[1:4], collapse = ""),
-    "-",
-    paste(hex[5:6], collapse = ""),
-    "-",
-    paste(hex[7:8], collapse = ""),
-    "-",
-    paste(hex[9:10], collapse = ""),
-    "-",
-    paste(hex[11:16], collapse = "")
-  )))
+  return(assert_return_generate_client_order_id(uuid::UUIDgenerate()))
 }
 
 #' Retrieve Coinbase API Credentials
