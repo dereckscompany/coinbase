@@ -1,1 +1,419 @@
-{"BTC-USD":{"stats_30day":{"volume":"294050.41341451","rfq_volume":"2620.291470"},"stats_24hour":{"open":"59929","high":"60838.92","low":"59448.68","last":"60502.01","volume":"5973.72870565","rfq_volume":"67.013321"}},"ETH-USD":{"stats_30day":{"volume":"4351823.47754857","rfq_volume":"40830.038665"},"stats_24hour":{"open":"1579.59","high":"1608.27","low":"1565.28","last":"1591.47","volume":"51651.79170574","rfq_volume":"447.543602"}},"SOL-USD":{"stats_30day":{"volume":"29306454.93587856","rfq_volume":"806445.937952"},"stats_24hour":{"open":"72.47","high":"73.82","low":"71.25","last":"72.11","volume":"692750.17766221","rfq_volume":"24646.927392"}},"00-USD":{"stats_30day":{"volume":"85754698.59","rfq_volume":"4713351.546836"},"stats_24hour":{"open":"0.0034","high":"0.0036","low":"0.0034","last":"0.0034","volume":"1155121.69","rfq_volume":"291616.477469"}},"1INCH-EUR":{"stats_30day":{"volume":"1693178.81","rfq_volume":"5473.605667"},"stats_24hour":{"open":"0.061","high":"0.061","low":"0.059","last":"0.061","volume":"2564.28","rfq_volume":"331.945474"}},"1INCH-GBP":{"stats_30day":{"volume":"830755.04","rfq_volume":"37129.066758"},"stats_24hour":{"open":"0.052","high":"0.053","low":"0.052","last":"0.053","volume":"6574.01"}},"1INCH-USD":{"stats_30day":{"volume":"8116260.28","rfq_volume":"149631.657328"},"stats_24hour":{"open":"0.069","high":"0.071","low":"0.068","last":"0.069","volume":"94653.42","rfq_volume":"3665.273086"}},"2Z-USD":{"stats_30day":{"volume":"22724058.58","rfq_volume":"227775.729455"},"stats_24hour":{"open":"0.0662","high":"0.06624","low":"0.0642","last":"0.06436","volume":"96715.58"}},"A8-USD":{"stats_30day":{"volume":"171785545.71","rfq_volume":"8461910.550930"},"stats_24hour":{"open":"0.0052","high":"0.0053","low":"0.0052","last":"0.0053","volume":"356898.23","rfq_volume":"63937.422260"}},"AAVE-BTC":{"stats_30day":{"volume":"13175.052","rfq_volume":"2555.769618"},"stats_24hour":{"open":"0.0015929","high":"0.0016368","low":"0.0015419","last":"0.0015658","volume":"763.221","rfq_volume":"41.584958"}},"AAVE-EUR":{"stats_30day":{"volume":"67627.976","rfq_volume":"5457.394127"},"stats_24hour":{"open":"84.96","high":"86.82","low":"81.12","last":"83.69","volume":"4469.218","rfq_volume":"162.687158"}},"AAVE-GBP":{"stats_30day":{"volume":"316126.935","rfq_volume":"966.084429"},"stats_24hour":{"open":"73.21","high":"75.03","low":"69.9","last":"72.2","volume":"20145.096","rfq_volume":"164.955087"}},"AAVE-USD":{"stats_30day":{"volume":"1200596.819","rfq_volume":"89540.847479"},"stats_24hour":{"open":"96.57","high":"99.09","low":"92.2","last":"95.23","volume":"113920.149","rfq_volume":"4107.393052"}},"ABT-USD":{"stats_30day":{"volume":"7484548.7","rfq_volume":"1847890.172306"},"stats_24hour":{"open":"0.1982","high":"0.2185","low":"0.1967","last":"0.2027","volume":"296372.4","rfq_volume":"35580.739329"}},"ACH-USD":{"stats_30day":{"volume":"775255314.3","rfq_volume":"148643412.203685"},"stats_24hour":{"open":"0.004493","high":"0.004514","low":"0.004356","last":"0.004443","volume":"8928341.4","rfq_volume":"3870895.810779"}},"ACS-USD":{"stats_30day":{"volume":"7098703559","rfq_volume":"517879553.228339"},"stats_24hour":{"open":"0.0001301","high":"0.0001326","low":"0.0001279","last":"0.0001301","volume":"88776224"}},"ACX-USD":{"stats_30day":{"volume":"20780018.7","rfq_volume":"706559.432878"},"stats_24hour":{"open":"0.0421","high":"0.0431","low":"0.0419","last":"0.0427","volume":"782180.1","rfq_volume":"46257.440886"}},"ADA-BTC":{"stats_30day":{"volume":"5860139.25","rfq_volume":"3399421.232678"},"stats_24hour":{"open":"0.00000247","high":"0.00000248","low":"0.00000243","last":"0.00000243","volume":"25869.53","rfq_volume":"35716.170040"}},"ADA-ETH":{"stats_30day":{"volume":"4210600.14","rfq_volume":"1222288.829487"},"stats_24hour":{"open":"0.000094","high":"0.000094","low":"0.000093","last":"0.000093","volume":"3371","rfq_volume":"42058.251496"}},"ADA-EUR":{"stats_30day":{"volume":"141745627.05","rfq_volume":"13213131.531536"},"stats_24hour":{"open":"0.13","high":"0.1314","low":"0.1284","last":"0.1291","volume":"1733497.78","rfq_volume":"196911.619584"}},"ADA-GBP":{"stats_30day":{"volume":"58615487.82","rfq_volume":"6118890.643711"},"stats_24hour":{"open":"0.1122","high":"0.1133","low":"0.1109","last":"0.1114","volume":"1602449.35","rfq_volume":"134841.696393"}},"ADA-USD":{"stats_30day":{"volume":"2645295188.24928097","rfq_volume":"68023696.282957"},"stats_24hour":{"open":"0.1479","high":"0.1495","low":"0.1462","last":"0.147","volume":"33304644.3877482","rfq_volume":"1567860.140232"}},"ADA-USDT":{"stats_30day":{"volume":"40220745.11","rfq_volume":"414280.120984"},"stats_24hour":{"open":"0.1483","high":"0.1498","low":"0.1464","last":"0.1472","volume":"1155182.09","rfq_volume":"1114.819354"}},"AERGO-USD":{"stats_30day":{"volume":"242530457.6","rfq_volume":"4751249.442042"},"stats_24hour":{"open":"0.0252","high":"0.0253","low":"0.0236","last":"0.024","volume":"3688347.8","rfq_volume":"140987.568992"}},"AERO-USD":{"stats_30day":{"volume":"324013616.1","rfq_volume":"10218951.448673"},"stats_24hour":{"open":"0.47852","high":"0.48552","low":"0.46606","last":"0.47164","volume":"4733990.5","rfq_volume":"199198.788697"}},"AGLD-USD":{"stats_30day":{"volume":"35805427.35","rfq_volume":"1154041.890751"},"stats_24hour":{"open":"0.2024","high":"0.2693","low":"0.19","last":"0.213","volume":"16906533.53","rfq_volume":"737924.545758"}},"AI-USD":{"stats_30day":{"volume":"431298570","rfq_volume":"8099052.918306"},"stats_24hour":{"open":"0.02222","high":"0.02252","low":"0.02141","last":"0.02168","volume":"3782329","rfq_volume":"157177.471409"}},"AIOZ-USD":{"stats_30day":{"volume":"69270633.3","rfq_volume":"18115620.470453"},"stats_24hour":{"open":"0.0536","high":"0.0541","low":"0.0531","last":"0.054","volume":"386399.5","rfq_volume":"159586.991441"}},"AKT-USD":{"stats_30day":{"volume":"61476033.83","rfq_volume":"1514155.333056"},"stats_24hour":{"open":"0.655","high":"0.688","low":"0.64","last":"0.671","volume":"766898.25","rfq_volume":"31162.519423"}},"ALCX-USD":{"stats_30day":{"volume":"443510.7649","rfq_volume":"62778.234982"},"stats_24hour":{"open":"2.81","high":"2.94","low":"2.55","last":"2.63","volume":"58330.6714","rfq_volume":"27437.594171"}}}
+{
+  "BTC-USD": {
+    "stats_30day": {
+      "volume": "294050.41341451",
+      "rfq_volume": "2620.291470"
+    },
+    "stats_24hour": {
+      "open": "59929",
+      "high": "60838.92",
+      "low": "59448.68",
+      "last": "60502.01",
+      "volume": "5973.72870565",
+      "rfq_volume": "67.013321"
+    }
+  },
+  "ETH-USD": {
+    "stats_30day": {
+      "volume": "4351823.47754857",
+      "rfq_volume": "40830.038665"
+    },
+    "stats_24hour": {
+      "open": "1579.59",
+      "high": "1608.27",
+      "low": "1565.28",
+      "last": "1591.47",
+      "volume": "51651.79170574",
+      "rfq_volume": "447.543602"
+    }
+  },
+  "SOL-USD": {
+    "stats_30day": {
+      "volume": "29306454.93587856",
+      "rfq_volume": "806445.937952"
+    },
+    "stats_24hour": {
+      "open": "72.47",
+      "high": "73.82",
+      "low": "71.25",
+      "last": "72.11",
+      "volume": "692750.17766221",
+      "rfq_volume": "24646.927392"
+    }
+  },
+  "00-USD": {
+    "stats_30day": {
+      "volume": "85754698.59",
+      "rfq_volume": "4713351.546836"
+    },
+    "stats_24hour": {
+      "open": "0.0034",
+      "high": "0.0036",
+      "low": "0.0034",
+      "last": "0.0034",
+      "volume": "1155121.69",
+      "rfq_volume": "291616.477469"
+    }
+  },
+  "1INCH-EUR": {
+    "stats_30day": {
+      "volume": "1693178.81",
+      "rfq_volume": "5473.605667"
+    },
+    "stats_24hour": {
+      "open": "0.061",
+      "high": "0.061",
+      "low": "0.059",
+      "last": "0.061",
+      "volume": "2564.28",
+      "rfq_volume": "331.945474"
+    }
+  },
+  "1INCH-GBP": {
+    "stats_30day": {
+      "volume": "830755.04",
+      "rfq_volume": "37129.066758"
+    },
+    "stats_24hour": {
+      "open": "0.052",
+      "high": "0.053",
+      "low": "0.052",
+      "last": "0.053",
+      "volume": "6574.01"
+    }
+  },
+  "1INCH-USD": {
+    "stats_30day": {
+      "volume": "8116260.28",
+      "rfq_volume": "149631.657328"
+    },
+    "stats_24hour": {
+      "open": "0.069",
+      "high": "0.071",
+      "low": "0.068",
+      "last": "0.069",
+      "volume": "94653.42",
+      "rfq_volume": "3665.273086"
+    }
+  },
+  "2Z-USD": {
+    "stats_30day": {
+      "volume": "22724058.58",
+      "rfq_volume": "227775.729455"
+    },
+    "stats_24hour": {
+      "open": "0.0662",
+      "high": "0.06624",
+      "low": "0.0642",
+      "last": "0.06436",
+      "volume": "96715.58"
+    }
+  },
+  "A8-USD": {
+    "stats_30day": {
+      "volume": "171785545.71",
+      "rfq_volume": "8461910.550930"
+    },
+    "stats_24hour": {
+      "open": "0.0052",
+      "high": "0.0053",
+      "low": "0.0052",
+      "last": "0.0053",
+      "volume": "356898.23",
+      "rfq_volume": "63937.422260"
+    }
+  },
+  "AAVE-BTC": {
+    "stats_30day": {
+      "volume": "13175.052",
+      "rfq_volume": "2555.769618"
+    },
+    "stats_24hour": {
+      "open": "0.0015929",
+      "high": "0.0016368",
+      "low": "0.0015419",
+      "last": "0.0015658",
+      "volume": "763.221",
+      "rfq_volume": "41.584958"
+    }
+  },
+  "AAVE-EUR": {
+    "stats_30day": {
+      "volume": "67627.976",
+      "rfq_volume": "5457.394127"
+    },
+    "stats_24hour": {
+      "open": "84.96",
+      "high": "86.82",
+      "low": "81.12",
+      "last": "83.69",
+      "volume": "4469.218",
+      "rfq_volume": "162.687158"
+    }
+  },
+  "AAVE-GBP": {
+    "stats_30day": {
+      "volume": "316126.935",
+      "rfq_volume": "966.084429"
+    },
+    "stats_24hour": {
+      "open": "73.21",
+      "high": "75.03",
+      "low": "69.9",
+      "last": "72.2",
+      "volume": "20145.096",
+      "rfq_volume": "164.955087"
+    }
+  },
+  "AAVE-USD": {
+    "stats_30day": {
+      "volume": "1200596.819",
+      "rfq_volume": "89540.847479"
+    },
+    "stats_24hour": {
+      "open": "96.57",
+      "high": "99.09",
+      "low": "92.2",
+      "last": "95.23",
+      "volume": "113920.149",
+      "rfq_volume": "4107.393052"
+    }
+  },
+  "ABT-USD": {
+    "stats_30day": {
+      "volume": "7484548.7",
+      "rfq_volume": "1847890.172306"
+    },
+    "stats_24hour": {
+      "open": "0.1982",
+      "high": "0.2185",
+      "low": "0.1967",
+      "last": "0.2027",
+      "volume": "296372.4",
+      "rfq_volume": "35580.739329"
+    }
+  },
+  "ACH-USD": {
+    "stats_30day": {
+      "volume": "775255314.3",
+      "rfq_volume": "148643412.203685"
+    },
+    "stats_24hour": {
+      "open": "0.004493",
+      "high": "0.004514",
+      "low": "0.004356",
+      "last": "0.004443",
+      "volume": "8928341.4",
+      "rfq_volume": "3870895.810779"
+    }
+  },
+  "ACS-USD": {
+    "stats_30day": {
+      "volume": "7098703559",
+      "rfq_volume": "517879553.228339"
+    },
+    "stats_24hour": {
+      "open": "0.0001301",
+      "high": "0.0001326",
+      "low": "0.0001279",
+      "last": "0.0001301",
+      "volume": "88776224"
+    }
+  },
+  "ACX-USD": {
+    "stats_30day": {
+      "volume": "20780018.7",
+      "rfq_volume": "706559.432878"
+    },
+    "stats_24hour": {
+      "open": "0.0421",
+      "high": "0.0431",
+      "low": "0.0419",
+      "last": "0.0427",
+      "volume": "782180.1",
+      "rfq_volume": "46257.440886"
+    }
+  },
+  "ADA-BTC": {
+    "stats_30day": {
+      "volume": "5860139.25",
+      "rfq_volume": "3399421.232678"
+    },
+    "stats_24hour": {
+      "open": "0.00000247",
+      "high": "0.00000248",
+      "low": "0.00000243",
+      "last": "0.00000243",
+      "volume": "25869.53",
+      "rfq_volume": "35716.170040"
+    }
+  },
+  "ADA-ETH": {
+    "stats_30day": {
+      "volume": "4210600.14",
+      "rfq_volume": "1222288.829487"
+    },
+    "stats_24hour": {
+      "open": "0.000094",
+      "high": "0.000094",
+      "low": "0.000093",
+      "last": "0.000093",
+      "volume": "3371",
+      "rfq_volume": "42058.251496"
+    }
+  },
+  "ADA-EUR": {
+    "stats_30day": {
+      "volume": "141745627.05",
+      "rfq_volume": "13213131.531536"
+    },
+    "stats_24hour": {
+      "open": "0.13",
+      "high": "0.1314",
+      "low": "0.1284",
+      "last": "0.1291",
+      "volume": "1733497.78",
+      "rfq_volume": "196911.619584"
+    }
+  },
+  "ADA-GBP": {
+    "stats_30day": {
+      "volume": "58615487.82",
+      "rfq_volume": "6118890.643711"
+    },
+    "stats_24hour": {
+      "open": "0.1122",
+      "high": "0.1133",
+      "low": "0.1109",
+      "last": "0.1114",
+      "volume": "1602449.35",
+      "rfq_volume": "134841.696393"
+    }
+  },
+  "ADA-USD": {
+    "stats_30day": {
+      "volume": "2645295188.24928097",
+      "rfq_volume": "68023696.282957"
+    },
+    "stats_24hour": {
+      "open": "0.1479",
+      "high": "0.1495",
+      "low": "0.1462",
+      "last": "0.147",
+      "volume": "33304644.3877482",
+      "rfq_volume": "1567860.140232"
+    }
+  },
+  "ADA-USDT": {
+    "stats_30day": {
+      "volume": "40220745.11",
+      "rfq_volume": "414280.120984"
+    },
+    "stats_24hour": {
+      "open": "0.1483",
+      "high": "0.1498",
+      "low": "0.1464",
+      "last": "0.1472",
+      "volume": "1155182.09",
+      "rfq_volume": "1114.819354"
+    }
+  },
+  "AERGO-USD": {
+    "stats_30day": {
+      "volume": "242530457.6",
+      "rfq_volume": "4751249.442042"
+    },
+    "stats_24hour": {
+      "open": "0.0252",
+      "high": "0.0253",
+      "low": "0.0236",
+      "last": "0.024",
+      "volume": "3688347.8",
+      "rfq_volume": "140987.568992"
+    }
+  },
+  "AERO-USD": {
+    "stats_30day": {
+      "volume": "324013616.1",
+      "rfq_volume": "10218951.448673"
+    },
+    "stats_24hour": {
+      "open": "0.47852",
+      "high": "0.48552",
+      "low": "0.46606",
+      "last": "0.47164",
+      "volume": "4733990.5",
+      "rfq_volume": "199198.788697"
+    }
+  },
+  "AGLD-USD": {
+    "stats_30day": {
+      "volume": "35805427.35",
+      "rfq_volume": "1154041.890751"
+    },
+    "stats_24hour": {
+      "open": "0.2024",
+      "high": "0.2693",
+      "low": "0.19",
+      "last": "0.213",
+      "volume": "16906533.53",
+      "rfq_volume": "737924.545758"
+    }
+  },
+  "AI-USD": {
+    "stats_30day": {
+      "volume": "431298570",
+      "rfq_volume": "8099052.918306"
+    },
+    "stats_24hour": {
+      "open": "0.02222",
+      "high": "0.02252",
+      "low": "0.02141",
+      "last": "0.02168",
+      "volume": "3782329",
+      "rfq_volume": "157177.471409"
+    }
+  },
+  "AIOZ-USD": {
+    "stats_30day": {
+      "volume": "69270633.3",
+      "rfq_volume": "18115620.470453"
+    },
+    "stats_24hour": {
+      "open": "0.0536",
+      "high": "0.0541",
+      "low": "0.0531",
+      "last": "0.054",
+      "volume": "386399.5",
+      "rfq_volume": "159586.991441"
+    }
+  },
+  "AKT-USD": {
+    "stats_30day": {
+      "volume": "61476033.83",
+      "rfq_volume": "1514155.333056"
+    },
+    "stats_24hour": {
+      "open": "0.655",
+      "high": "0.688",
+      "low": "0.64",
+      "last": "0.671",
+      "volume": "766898.25",
+      "rfq_volume": "31162.519423"
+    }
+  },
+  "ALCX-USD": {
+    "stats_30day": {
+      "volume": "443510.7649",
+      "rfq_volume": "62778.234982"
+    },
+    "stats_24hour": {
+      "open": "2.81",
+      "high": "2.94",
+      "low": "2.55",
+      "last": "2.63",
+      "volume": "58330.6714",
+      "rfq_volume": "27437.594171"
+    }
+  }
+}
