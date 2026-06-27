@@ -27,7 +27,7 @@ Imports:
     openssl,
     lubridate,
     assert,
-    connectcore,
+    connectcore (>= 0.1.0),
     stats,
     uuid
 Suggests:
@@ -42,12 +42,12 @@ Suggests:
     promises,
     rcmdcheck,
     rmarkdown,
-    roxyassert,
+    roxyassert (>= 0.9.1),
     testthat (>= 3.0.0)
 Remotes:
     dereckscompany/assert,
-    dereckscompany/connectcore@v0.1.0,
-    dereckscompany/roxyassert@v0.9.1
+    dereckscompany/connectcore,
+    dereckscompany/roxyassert
 VignetteBuilder: knitr
 Config/testthat/edition: 3
 Config/roxygen2/version: 8.0.0
