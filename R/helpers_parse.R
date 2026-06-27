@@ -25,7 +25,8 @@ coalesce_null <- function(x, default) {
 
 #' Coerce a Possibly-NULL Scalar to Numeric
 #'
-#' @param x (any | NULL) a scalar or NULL.
+#' @param x (any | NULL) a numeric-coercible scalar (the raw JSON value, whose R
+#'   type is unconstrained: integer, double, character, or logical), or NULL.
 #' @return (scalar<numeric | NA>) `as.numeric(x)`, or `NA_real_` if `x` is NULL.
 #'
 #' @keywords internal
@@ -44,7 +45,8 @@ num_or_na <- function(x) {
 #' Some Coinbase fields are plain numeric strings, others are nested
 #' `{value, currency}` objects. This returns the numeric value either way.
 #'
-#' @param x (any | NULL) a scalar, a `{value, ...}` list, or NULL.
+#' @param x (any | NULL) a numeric-coercible scalar (raw JSON value, R type
+#'   unconstrained), a `{value, ...}` list, or NULL.
 #' @return (scalar<numeric | NA>) the numeric value, or `NA_real_` if NULL.
 #'
 #' @keywords internal
@@ -88,7 +90,8 @@ amount_value <- function(x) {
 #' currency for a `BalancePair`. Used by the portfolio-breakdown parsers, where
 #' spot uses `Amount` and perp uses `BalancePair`.
 #'
-#' @param x (any | NULL) a scalar, an `Amount`, a `BalancePair`, or NULL.
+#' @param x (any | NULL) a numeric-coercible scalar (raw JSON value, R type
+#'   unconstrained), an `Amount`, a `BalancePair`, or NULL.
 #' @return (scalar<numeric | NA>) the numeric value, or `NA_real_` when absent.
 #'
 #' @keywords internal
@@ -116,7 +119,7 @@ money_value <- function(x) {
 #' or partial array would make `x[[i]]` raise a subscript error; this returns
 #' `NA_real_` instead when the element is missing or NULL.
 #'
-#' @param x (any | NULL) a list/vector, or NULL.
+#' @param x (list | vector<any, 0..> | NULL) a list/vector, or NULL.
 #' @param i (scalar<count in [1, Inf[>) the element index.
 #' @return (scalar<numeric | NA>) `as.numeric(x[[i]])`, or `NA_real_` when absent.
 #'
@@ -133,7 +136,7 @@ nth_num <- function(x, i) {
 
 #' Safely Read the i-th Element of a Positional Array as Character
 #'
-#' @param x (any | NULL) a list/vector, or NULL.
+#' @param x (list | vector<any, 0..> | NULL) a list/vector, or NULL.
 #' @param i (scalar<count in [1, Inf[>) the element index.
 #' @return (scalar<character | NA>) `as.character(x[[i]])`, or `NA_character_`
 #'   when absent.
