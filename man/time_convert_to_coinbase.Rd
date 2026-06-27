@@ -21,6 +21,11 @@ Formats a POSIXct as the timestamp form Coinbase expects: an ISO 8601 string
 (\code{"iso"}, default) or whole-number epoch seconds (\code{"s"}, used for the Exchange
 candle bounds).
 }
+\details{
+For \code{unit = "s"} the value is \strong{floored} to the whole second (sub-second
+precision is truncated towards the past, not rounded); the \code{"iso"} form is
+likewise formatted to whole-second resolution (\verb{\%S} drops fractional seconds).
+}
 \examples{
 \dontrun{
 dt <- lubridate::as_datetime("2026-05-31 18:40:29", tz = "UTC")

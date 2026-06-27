@@ -28,6 +28,9 @@ verify_symbol <- function(product_id) {
 #' arbitrary interval. This is the deep-history path: Coinbase's candle endpoint
 #' is shallow, so complete OHLCV at any timeframe is built from ticks.
 #'
+#' Each trade is assigned to a bar by **flooring** its timestamp to the nearest
+#' lower multiple of `interval` seconds, so a bar's `datetime` is its inclusive
+#' start (left-closed, right-open) and sub-`interval` precision is discarded.
 #' Open/close are the first/last trade price within each bar (by time, with
 #' `trade_id` as a tiebreaker when present); high/low are the extremes; volume is
 #' the summed trade size. Empty intervals produce no row.
