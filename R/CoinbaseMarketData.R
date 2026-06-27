@@ -68,7 +68,8 @@ CoinbaseMarketData <- R6::R6Class(
   inherit = CoinbaseBase,
   public = list(
     #' @description Retrieve all available trading products (currency pairs).
-    #' @return A [data.table::data.table] of products, or a promise thereof.
+    #' @return (data.table | promise<data.table>) the products, or a promise
+    #'   thereof.
     get_products = function() {
       return(private$.request(
         endpoint = "/products",
@@ -79,8 +80,10 @@ CoinbaseMarketData <- R6::R6Class(
     },
 
     #' @description Retrieve metadata for a single product.
-    #' @param product_id Character; the pair symbol, e.g. `"BTC-USD"`.
-    #' @return A single-row [data.table::data.table], or a promise thereof.
+    #' @param product_id (scalar<character>) the pair symbol, e.g. `"BTC-USD"`.
+    #' @return (data.table | promise<data.table>) a single-row table, or a promise
+    #'   thereof.
+    #' @noassert product_id
     get_product = function(product_id) {
       validate_symbol(product_id)
       return(private$.request(
@@ -93,15 +96,17 @@ CoinbaseMarketData <- R6::R6Class(
 
     #' @description Retrieve OHLCV candles for a product. Returns roughly 300
     #'   bars per call; for deep history aggregate ticks with [trades_to_ohlcv()].
-    #' @param product_id Character; the pair symbol, e.g. `"BTC-USD"`.
-    #' @param granularity Character; one of `"1min"`, `"5min"`, `"15min"`,
-    #'   `"1hour"`, `"6hour"`, `"1day"`.
-    #' @param start POSIXct or NULL; range start. Optional.
-    #' @param end POSIXct or NULL; range end. Optional.
-    #' @return A [data.table::data.table] with columns `datetime`, `open`,
+    #' @param product_id (scalar<character>) the pair symbol, e.g. `"BTC-USD"`.
+    #' @param granularity (scalar<character in c("1min", "5min", "15min", "1hour", "6hour", "1day")>)
+    #'   the candle interval.
+    #' @param start (POSIXct | NULL) range start. Optional.
+    #' @param end (POSIXct | NULL) range end. Optional.
+    #' @return (data.table | promise<data.table>) columns `datetime`, `open`,
     #'   `high`, `low`, `close`, `volume`, or a promise thereof.
+    #' @noassert product_id, granularity
     get_ohlcv = function(product_id, granularity = "1min", start = NULL, end = NULL) {
       validate_symbol(product_id)
+      assert_args_CoinbaseMarketData__get_ohlcv(start, end)
       if (!granularity %in% names(.COINBASE_GRANULARITY_MAP)) {
         rlang::abort(paste0(
           "Invalid granularity '",
@@ -126,14 +131,17 @@ CoinbaseMarketData <- R6::R6Class(
 
     #' @description Retrieve recent tick trades for a product. To page further
     #'   back, pass the smallest `trade_id` seen as `after`.
-    #' @param product_id Character; the pair symbol, e.g. `"BTC-USD"`.
-    #' @param limit Integer; trades to return (max 1000). Default 1000.
-    #' @param after Numeric or NULL; return trades older than this `trade_id`.
-    #' @return A [data.table::data.table] with columns `trade_id`, `side`,
+    #' @param product_id (scalar<character>) the pair symbol, e.g. `"BTC-USD"`.
+    #' @param limit (scalar<count in [1, Inf[>) trades to return (max 1000).
+    #'   Default 1000.
+    #' @param after (scalar<numeric> | NULL) return trades older than this
+    #'   `trade_id`.
+    #' @return (data.table | promise<data.table>) columns `trade_id`, `side`,
     #'   `price`, `size`, `time`, or a promise thereof.
+    #' @noassert product_id
     get_trades = function(product_id, limit = 1000L, after = NULL) {
       validate_symbol(product_id)
-      assert::assert_scalar_positive_integer(as.integer(limit))
+      assert_args_CoinbaseMarketData__get_trades(limit, after)
       return(private$.request(
         endpoint = paste0("/products/", product_id, "/trades"),
         query = list(limit = as.integer(limit), after = after),
@@ -148,16 +156,18 @@ CoinbaseMarketData <- R6::R6Class(
     #'   trade toward `start` (or the product's first-ever trade if `start` is
     #'   NULL), then deduplicates and sorts ascending. Aggregate the result with
     #'   [trades_to_ohlcv()] for deep OHLCV at any timeframe.
-    #' @param product_id Character; the pair symbol, e.g. `"BTC-USD"`.
-    #' @param start POSIXct or NULL; stop once trades older than this are reached.
-    #' @param end POSIXct or NULL; drop trades newer than this. Paging always
+    #' @param product_id (scalar<character>) the pair symbol, e.g. `"BTC-USD"`.
+    #' @param start (POSIXct | NULL) stop once trades older than this are reached.
+    #' @param end (POSIXct | NULL) drop trades newer than this. Paging always
     #'   begins at the most recent trade.
-    #' @param max_pages Numeric; cap on pages fetched (each up to 1000 trades).
-    #'   Default `Inf`.
-    #' @return A [data.table::data.table] with columns `trade_id`, `side`,
+    #' @param max_pages (scalar<numeric in [1, Inf]>) cap on pages fetched (each
+    #'   up to 1000 trades). Default `Inf`.
+    #' @return (data.table | promise<data.table>) columns `trade_id`, `side`,
     #'   `price`, `size`, `time` sorted ascending by `time`, or a promise thereof.
+    #' @noassert product_id
     get_trades_history = function(product_id, start = NULL, end = NULL, max_pages = Inf) {
       validate_symbol(product_id)
+      assert_args_CoinbaseMarketData__get_trades_history(start, end, max_pages)
       return(coinbase_fetch_trades_history(
         product_id = product_id,
         start = start,
@@ -177,14 +187,17 @@ CoinbaseMarketData <- R6::R6Class(
     },
 
     #' @description Retrieve an order book snapshot for a product.
-    #' @param product_id Character; the pair symbol, e.g. `"BTC-USD"`.
-    #' @param level Integer; `1` (best bid/ask), `2` (top 50 aggregated), or
-    #'   `3` (full, non-aggregated). Default 2.
-    #' @return A long [data.table::data.table] with columns `side`, `price`,
-    #'   `size`, and a third column that is `num_orders` (numeric) at levels 1-2
-    #'   or `order_id` (character) at level 3, or a promise thereof.
+    #' @param product_id (scalar<character>) the pair symbol, e.g. `"BTC-USD"`.
+    #' @param level (scalar<count in [1, 3]>) `1` (best bid/ask), `2` (top 50
+    #'   aggregated), or `3` (full, non-aggregated). Default 2.
+    #' @return (data.table | promise<data.table>) a long table with columns
+    #'   `side`, `price`, `size`, and a third column that is `num_orders`
+    #'   (numeric) at levels 1-2 or `order_id` (character) at level 3, or a
+    #'   promise thereof.
+    #' @noassert product_id
     get_orderbook = function(product_id, level = 2L) {
       validate_symbol(product_id)
+      assert_args_CoinbaseMarketData__get_orderbook(level)
       level <- as.integer(level)
       if (!level %in% c(1L, 2L, 3L)) {
         rlang::abort("`level` must be 1, 2, or 3.")
@@ -200,8 +213,10 @@ CoinbaseMarketData <- R6::R6Class(
 
     #' @description Retrieve the latest ticker (best bid/ask, last trade) for a
     #'   product.
-    #' @param product_id Character; the pair symbol, e.g. `"BTC-USD"`.
-    #' @return A single-row [data.table::data.table], or a promise thereof.
+    #' @param product_id (scalar<character>) the pair symbol, e.g. `"BTC-USD"`.
+    #' @return (data.table | promise<data.table>) a single-row table, or a promise
+    #'   thereof.
+    #' @noassert product_id
     get_ticker = function(product_id) {
       validate_symbol(product_id)
       return(private$.request(
@@ -228,9 +243,9 @@ CoinbaseMarketData <- R6::R6Class(
     #'   returned table yourself by 24h change `(last - open) / open` for top
     #'   gainers/losers, or by `volume` for the most active products. Uses the
     #'   Exchange host's bulk stats endpoint.
-    #' @return A [data.table::data.table] with one row per product: `product_id`,
-    #'   `open`, `high`, `low`, `last`, `volume`, `volume_30day`, or a promise
-    #'   thereof.
+    #' @return (data.table | promise<data.table>) one row per product:
+    #'   `product_id`, `open`, `high`, `low`, `last`, `volume`, `volume_30day`,
+    #'   or a promise thereof.
     get_stats = function() {
       return(private$.request(
         endpoint = "/products/stats",
@@ -241,10 +256,11 @@ CoinbaseMarketData <- R6::R6Class(
     },
 
     #' @description Retrieve 24-hour and 30-day stats for a single product.
-    #' @param product_id Character; the pair symbol, e.g. `"BTC-USD"`.
-    #' @return A single-row [data.table::data.table] with `open`, `high`, `low`,
-    #'   `last`, `volume`, `volume_30day`, and the RFQ/conversion volumes, or a
-    #'   promise thereof.
+    #' @param product_id (scalar<character>) the pair symbol, e.g. `"BTC-USD"`.
+    #' @return (data.table | promise<data.table>) a single-row table with `open`,
+    #'   `high`, `low`, `last`, `volume`, `volume_30day`, and the RFQ/conversion
+    #'   volumes, or a promise thereof.
+    #' @noassert product_id
     get_product_stats = function(product_id) {
       validate_symbol(product_id)
       return(private$.request(
@@ -259,12 +275,13 @@ CoinbaseMarketData <- R6::R6Class(
     #'   Unlike the other `CoinbaseMarketData` methods, this hits the **Advanced
     #'   Trade** host and therefore **requires credentials** (construct the client
     #'   with `keys`).
-    #' @param product_ids Character vector or NULL; products to fetch. `NULL`
-    #'   returns the best bid/ask for all products.
-    #' @return A [data.table::data.table] with one row per product: `product_id`,
-    #'   `bid_price`, `bid_size`, `ask_price`, `ask_size`, `time`, or a promise
-    #'   thereof.
+    #' @param product_ids (character | NULL) products to fetch. `NULL` returns the
+    #'   best bid/ask for all products.
+    #' @return (data.table | promise<data.table>) one row per product:
+    #'   `product_id`, `bid_price`, `bid_size`, `ask_price`, `ask_size`, `time`,
+    #'   or a promise thereof.
     get_best_bid_ask = function(product_ids = NULL) {
+      assert_args_CoinbaseMarketData__get_best_bid_ask(product_ids)
       return(private$.request(
         endpoint = "/api/v3/brokerage/best_bid_ask",
         query = list(product_ids = product_ids),
@@ -274,8 +291,8 @@ CoinbaseMarketData <- R6::R6Class(
     },
 
     #' @description Retrieve the Coinbase Exchange server time.
-    #' @return A single-row [data.table::data.table] with `iso` and `epoch`, or
-    #'   a promise thereof.
+    #' @return (data.table | promise<data.table>) a single-row table with `iso`
+    #'   and `epoch`, or a promise thereof.
     get_server_time = function() {
       return(private$.request(
         endpoint = "/time",

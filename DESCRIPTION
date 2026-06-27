@@ -1,7 +1,7 @@
 Package: coinbase
 Type: Package
 Title: API Wrapper to Coinbase Advanced Trade
-Version: 0.1.0
+Version: 0.2.0
 URL: https://dereckscompany.github.io/coinbase,
     https://github.com/dereckscompany/coinbase
 BugReports: https://github.com/dereckscompany/coinbase/issues
@@ -15,7 +15,7 @@ Description: R API wrapper to the Coinbase Advanced Trade API supporting both sy
 License: MIT
 Encoding: UTF-8
 LazyData: true
-Roxygen: list(markdown = TRUE)
+Roxygen: list(markdown = TRUE, roclets = c("namespace", "rd", "roxyassert::contract_roclet"))
 Depends: R (>= 4.1.0)
 Imports:
     R6,
@@ -41,10 +41,13 @@ Suggests:
     promises,
     rcmdcheck,
     rmarkdown,
+    roxyassert,
     testthat (>= 3.0.0)
 Remotes:
     dereckscompany/assert,
-    dereckscompany/connectcore@v0.1.0
+    dereckscompany/connectcore@v0.1.0,
+    dereckscompany/roxyassert@v0.9.1
 VignetteBuilder: knitr
 Config/testthat/edition: 3
 Config/roxygen2/version: 8.0.0
+RoxygenNote: 7.3.3

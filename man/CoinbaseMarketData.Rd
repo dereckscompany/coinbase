@@ -4,6 +4,11 @@
 \alias{CoinbaseMarketData}
 \title{CoinbaseMarketData: Public Market Data Retrieval}
 \description{
+CoinbaseMarketData: Public Market Data Retrieval
+
+CoinbaseMarketData: Public Market Data Retrieval
+}
+\details{
 Retrieves public market data from the Coinbase Exchange API: products,
 candles (OHLCV), tick trades, order books, tickers, and server time. These
 are unauthenticated, with one exception: \code{get_best_bid_ask()} hits the
@@ -54,318 +59,311 @@ while (!later::loop_empty()) later::run_now()
 
 }
 \section{Super classes}{
-\code{\link[connectcore:RestClient]{connectcore::RestClient}} -> \code{\link[coinbase:CoinbaseBase]{CoinbaseBase}} -> \code{CoinbaseMarketData}
+\code{\link[connectcore:RestClient]{connectcore::RestClient}} -> \code{\link[coinbase:CoinbaseBase]{coinbase::CoinbaseBase}} -> \code{CoinbaseMarketData}
 }
 \section{Methods}{
 \subsection{Public methods}{
-  \itemize{
-    \item \href{#method-CoinbaseMarketData-get_products}{\code{CoinbaseMarketData$get_products()}}
-    \item \href{#method-CoinbaseMarketData-get_product}{\code{CoinbaseMarketData$get_product()}}
-    \item \href{#method-CoinbaseMarketData-get_ohlcv}{\code{CoinbaseMarketData$get_ohlcv()}}
-    \item \href{#method-CoinbaseMarketData-get_trades}{\code{CoinbaseMarketData$get_trades()}}
-    \item \href{#method-CoinbaseMarketData-get_trades_history}{\code{CoinbaseMarketData$get_trades_history()}}
-    \item \href{#method-CoinbaseMarketData-get_orderbook}{\code{CoinbaseMarketData$get_orderbook()}}
-    \item \href{#method-CoinbaseMarketData-get_ticker}{\code{CoinbaseMarketData$get_ticker()}}
-    \item \href{#method-CoinbaseMarketData-get_stats}{\code{CoinbaseMarketData$get_stats()}}
-    \item \href{#method-CoinbaseMarketData-get_product_stats}{\code{CoinbaseMarketData$get_product_stats()}}
-    \item \href{#method-CoinbaseMarketData-get_best_bid_ask}{\code{CoinbaseMarketData$get_best_bid_ask()}}
-    \item \href{#method-CoinbaseMarketData-get_server_time}{\code{CoinbaseMarketData$get_server_time()}}
-    \item \href{#method-CoinbaseMarketData-clone}{\code{CoinbaseMarketData$clone()}}
-  }
+\itemize{
+\item \href{#method-CoinbaseMarketData-get_products}{\code{CoinbaseMarketData$get_products()}}
+\item \href{#method-CoinbaseMarketData-get_product}{\code{CoinbaseMarketData$get_product()}}
+\item \href{#method-CoinbaseMarketData-get_ohlcv}{\code{CoinbaseMarketData$get_ohlcv()}}
+\item \href{#method-CoinbaseMarketData-get_trades}{\code{CoinbaseMarketData$get_trades()}}
+\item \href{#method-CoinbaseMarketData-get_trades_history}{\code{CoinbaseMarketData$get_trades_history()}}
+\item \href{#method-CoinbaseMarketData-get_orderbook}{\code{CoinbaseMarketData$get_orderbook()}}
+\item \href{#method-CoinbaseMarketData-get_ticker}{\code{CoinbaseMarketData$get_ticker()}}
+\item \href{#method-CoinbaseMarketData-get_stats}{\code{CoinbaseMarketData$get_stats()}}
+\item \href{#method-CoinbaseMarketData-get_product_stats}{\code{CoinbaseMarketData$get_product_stats()}}
+\item \href{#method-CoinbaseMarketData-get_best_bid_ask}{\code{CoinbaseMarketData$get_best_bid_ask()}}
+\item \href{#method-CoinbaseMarketData-get_server_time}{\code{CoinbaseMarketData$get_server_time()}}
+\item \href{#method-CoinbaseMarketData-clone}{\code{CoinbaseMarketData$clone()}}
 }
-\if{html}{\out{<details open><summary>Inherited methods</summary>
+}
+\if{html}{\out{
+<details open><summary>Inherited methods</summary>
 <ul>
-  <li><span class="pkg-link" data-pkg="coinbase" data-topic="CoinbaseBase" data-id="initialize"><a href='../../coinbase/html/CoinbaseBase.html#method-CoinbaseBase-initialize'><code>CoinbaseBase$initialize()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="coinbase" data-topic="CoinbaseBase" data-id="initialize"><a href='../../coinbase/html/CoinbaseBase.html#method-CoinbaseBase-initialize'><code>coinbase::CoinbaseBase$initialize()</code></a></span></li>
 </ul>
-</details>}}
+</details>
+}}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-CoinbaseMarketData-get_products"></a>}}
 \if{latex}{\out{\hypertarget{method-CoinbaseMarketData-get_products}{}}}
-\subsection{\code{CoinbaseMarketData$get_products()}}{
-  Retrieve all available trading products (currency pairs).
-  \subsection{Usage}{
-    \if{html}{\out{<div class="r">}}
-    \preformatted{CoinbaseMarketData$get_products()}
-    \if{html}{\out{</div>}}
-  }
-  \subsection{Returns}{
-    A \link[data.table:data.table]{data.table::data.table} of products, or a promise thereof.
-  }
+\subsection{Method \code{get_products()}}{
+Retrieve all available trading products (currency pairs).
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{CoinbaseMarketData$get_products()}\if{html}{\out{</div>}}
 }
 
+\subsection{Returns}{
+(data.table | promise<data.table>) the products, or a promise
+thereof.
+}
+}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-CoinbaseMarketData-get_product"></a>}}
 \if{latex}{\out{\hypertarget{method-CoinbaseMarketData-get_product}{}}}
-\subsection{\code{CoinbaseMarketData$get_product()}}{
-  Retrieve metadata for a single product.
-  \subsection{Usage}{
-    \if{html}{\out{<div class="r">}}
-    \preformatted{CoinbaseMarketData$get_product(product_id)}
-    \if{html}{\out{</div>}}
-  }
-  \subsection{Arguments}{
-    \if{html}{\out{<div class="arguments">}}
-    \describe{
-      \item{\code{product_id}}{Character; the pair symbol, e.g. \code{"BTC-USD"}.}
-    }
-    \if{html}{\out{</div>}}
-  }
-  \subsection{Returns}{
-    A single-row \link[data.table:data.table]{data.table::data.table}, or a promise thereof.
-  }
+\subsection{Method \code{get_product()}}{
+Retrieve metadata for a single product.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{CoinbaseMarketData$get_product(product_id)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{product_id}}{(scalar<character>) the pair symbol, e.g. \code{"BTC-USD"}.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+(data.table | promise<data.table>) a single-row table, or a promise
+thereof.
+}
+}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-CoinbaseMarketData-get_ohlcv"></a>}}
 \if{latex}{\out{\hypertarget{method-CoinbaseMarketData-get_ohlcv}{}}}
-\subsection{\code{CoinbaseMarketData$get_ohlcv()}}{
-  Retrieve OHLCV candles for a product. Returns roughly 300
+\subsection{Method \code{get_ohlcv()}}{
+Retrieve OHLCV candles for a product. Returns roughly 300
 bars per call; for deep history aggregate ticks with \code{\link[=trades_to_ohlcv]{trades_to_ohlcv()}}.
-  \subsection{Usage}{
-    \if{html}{\out{<div class="r">}}
-    \preformatted{CoinbaseMarketData$get_ohlcv(
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{CoinbaseMarketData$get_ohlcv(
   product_id,
   granularity = "1min",
   start = NULL,
   end = NULL
-)}
-    \if{html}{\out{</div>}}
-  }
-  \subsection{Arguments}{
-    \if{html}{\out{<div class="arguments">}}
-    \describe{
-      \item{\code{product_id}}{Character; the pair symbol, e.g. \code{"BTC-USD"}.}
-      \item{\code{granularity}}{Character; one of \code{"1min"}, \code{"5min"}, \code{"15min"},
-\code{"1hour"}, \code{"6hour"}, \code{"1day"}.}
-      \item{\code{start}}{POSIXct or NULL; range start. Optional.}
-      \item{\code{end}}{POSIXct or NULL; range end. Optional.}
-    }
-    \if{html}{\out{</div>}}
-  }
-  \subsection{Returns}{
-    A \link[data.table:data.table]{data.table::data.table} with columns \code{datetime}, \code{open},
-\code{high}, \code{low}, \code{close}, \code{volume}, or a promise thereof.
-  }
+)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{product_id}}{(scalar<character>) the pair symbol, e.g. \code{"BTC-USD"}.}
+
+\item{\code{granularity}}{(scalar<character in c("1min", "5min", "15min", "1hour", "6hour", "1day")>)
+the candle interval.}
+
+\item{\code{start}}{(POSIXct | NULL) range start. Optional.}
+
+\item{\code{end}}{(POSIXct | NULL) range end. Optional.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+(data.table | promise<data.table>) columns \code{datetime}, \code{open},
+\code{high}, \code{low}, \code{close}, \code{volume}, or a promise thereof.
+}
+}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-CoinbaseMarketData-get_trades"></a>}}
 \if{latex}{\out{\hypertarget{method-CoinbaseMarketData-get_trades}{}}}
-\subsection{\code{CoinbaseMarketData$get_trades()}}{
-  Retrieve recent tick trades for a product. To page further
+\subsection{Method \code{get_trades()}}{
+Retrieve recent tick trades for a product. To page further
 back, pass the smallest \code{trade_id} seen as \code{after}.
-  \subsection{Usage}{
-    \if{html}{\out{<div class="r">}}
-    \preformatted{CoinbaseMarketData$get_trades(product_id, limit = 1000L, after = NULL)}
-    \if{html}{\out{</div>}}
-  }
-  \subsection{Arguments}{
-    \if{html}{\out{<div class="arguments">}}
-    \describe{
-      \item{\code{product_id}}{Character; the pair symbol, e.g. \code{"BTC-USD"}.}
-      \item{\code{limit}}{Integer; trades to return (max 1000). Default 1000.}
-      \item{\code{after}}{Numeric or NULL; return trades older than this \code{trade_id}.}
-    }
-    \if{html}{\out{</div>}}
-  }
-  \subsection{Returns}{
-    A \link[data.table:data.table]{data.table::data.table} with columns \code{trade_id}, \code{side},
-\code{price}, \code{size}, \code{time}, or a promise thereof.
-  }
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{CoinbaseMarketData$get_trades(product_id, limit = 1000L, after = NULL)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{product_id}}{(scalar<character>) the pair symbol, e.g. \code{"BTC-USD"}.}
+
+\item{\code{limit}}{(scalar<count in [1, Inf[>) trades to return (max 1000).
+Default 1000.}
+
+\item{\code{after}}{(scalar<numeric> | NULL) return trades older than this
+\code{trade_id}.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+(data.table | promise<data.table>) columns \code{trade_id}, \code{side},
+\code{price}, \code{size}, \code{time}, or a promise thereof.
+}
+}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-CoinbaseMarketData-get_trades_history"></a>}}
 \if{latex}{\out{\hypertarget{method-CoinbaseMarketData-get_trades_history}{}}}
-\subsection{\code{CoinbaseMarketData$get_trades_history()}}{
-  Retrieve deep tick history by paging the trades endpoint
+\subsection{Method \code{get_trades_history()}}{
+Retrieve deep tick history by paging the trades endpoint
 backwards in time. This is the backfill path: pages from the most recent
 trade toward \code{start} (or the product's first-ever trade if \code{start} is
 NULL), then deduplicates and sorts ascending. Aggregate the result with
 \code{\link[=trades_to_ohlcv]{trades_to_ohlcv()}} for deep OHLCV at any timeframe.
-  \subsection{Usage}{
-    \if{html}{\out{<div class="r">}}
-    \preformatted{CoinbaseMarketData$get_trades_history(
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{CoinbaseMarketData$get_trades_history(
   product_id,
   start = NULL,
   end = NULL,
   max_pages = Inf
-)}
-    \if{html}{\out{</div>}}
-  }
-  \subsection{Arguments}{
-    \if{html}{\out{<div class="arguments">}}
-    \describe{
-      \item{\code{product_id}}{Character; the pair symbol, e.g. \code{"BTC-USD"}.}
-      \item{\code{start}}{POSIXct or NULL; stop once trades older than this are reached.}
-      \item{\code{end}}{POSIXct or NULL; drop trades newer than this. Paging always
-begins at the most recent trade.}
-      \item{\code{max_pages}}{Numeric; cap on pages fetched (each up to 1000 trades).
-Default \code{Inf}.}
-    }
-    \if{html}{\out{</div>}}
-  }
-  \subsection{Returns}{
-    A \link[data.table:data.table]{data.table::data.table} with columns \code{trade_id}, \code{side},
-\code{price}, \code{size}, \code{time} sorted ascending by \code{time}, or a promise thereof.
-  }
+)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{product_id}}{(scalar<character>) the pair symbol, e.g. \code{"BTC-USD"}.}
+
+\item{\code{start}}{(POSIXct | NULL) stop once trades older than this are reached.}
+
+\item{\code{end}}{(POSIXct | NULL) drop trades newer than this. Paging always
+begins at the most recent trade.}
+
+\item{\code{max_pages}}{(scalar<numeric in [1, Inf]>) cap on pages fetched (each
+up to 1000 trades). Default \code{Inf}.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+(data.table | promise<data.table>) columns \code{trade_id}, \code{side},
+\code{price}, \code{size}, \code{time} sorted ascending by \code{time}, or a promise thereof.
+}
+}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-CoinbaseMarketData-get_orderbook"></a>}}
 \if{latex}{\out{\hypertarget{method-CoinbaseMarketData-get_orderbook}{}}}
-\subsection{\code{CoinbaseMarketData$get_orderbook()}}{
-  Retrieve an order book snapshot for a product.
-  \subsection{Usage}{
-    \if{html}{\out{<div class="r">}}
-    \preformatted{CoinbaseMarketData$get_orderbook(product_id, level = 2L)}
-    \if{html}{\out{</div>}}
-  }
-  \subsection{Arguments}{
-    \if{html}{\out{<div class="arguments">}}
-    \describe{
-      \item{\code{product_id}}{Character; the pair symbol, e.g. \code{"BTC-USD"}.}
-      \item{\code{level}}{Integer; \code{1} (best bid/ask), \code{2} (top 50 aggregated), or
-\code{3} (full, non-aggregated). Default 2.}
-    }
-    \if{html}{\out{</div>}}
-  }
-  \subsection{Returns}{
-    A long \link[data.table:data.table]{data.table::data.table} with columns \code{side}, \code{price},
-\code{size}, and a third column that is \code{num_orders} (numeric) at levels 1-2
-or \code{order_id} (character) at level 3, or a promise thereof.
-  }
+\subsection{Method \code{get_orderbook()}}{
+Retrieve an order book snapshot for a product.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{CoinbaseMarketData$get_orderbook(product_id, level = 2L)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{product_id}}{(scalar<character>) the pair symbol, e.g. \code{"BTC-USD"}.}
+
+\item{\code{level}}{(scalar<count in [1, 3]>) \code{1} (best bid/ask), \code{2} (top 50
+aggregated), or \code{3} (full, non-aggregated). Default 2.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+(data.table | promise<data.table>) a long table with columns
+\code{side}, \code{price}, \code{size}, and a third column that is \code{num_orders}
+(numeric) at levels 1-2 or \code{order_id} (character) at level 3, or a
+promise thereof.
+}
+}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-CoinbaseMarketData-get_ticker"></a>}}
 \if{latex}{\out{\hypertarget{method-CoinbaseMarketData-get_ticker}{}}}
-\subsection{\code{CoinbaseMarketData$get_ticker()}}{
-  Retrieve the latest ticker (best bid/ask, last trade) for a
+\subsection{Method \code{get_ticker()}}{
+Retrieve the latest ticker (best bid/ask, last trade) for a
 product.
-  \subsection{Usage}{
-    \if{html}{\out{<div class="r">}}
-    \preformatted{CoinbaseMarketData$get_ticker(product_id)}
-    \if{html}{\out{</div>}}
-  }
-  \subsection{Arguments}{
-    \if{html}{\out{<div class="arguments">}}
-    \describe{
-      \item{\code{product_id}}{Character; the pair symbol, e.g. \code{"BTC-USD"}.}
-    }
-    \if{html}{\out{</div>}}
-  }
-  \subsection{Returns}{
-    A single-row \link[data.table:data.table]{data.table::data.table}, or a promise thereof.
-  }
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{CoinbaseMarketData$get_ticker(product_id)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{product_id}}{(scalar<character>) the pair symbol, e.g. \code{"BTC-USD"}.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+(data.table | promise<data.table>) a single-row table, or a promise
+thereof.
+}
+}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-CoinbaseMarketData-get_stats"></a>}}
 \if{latex}{\out{\hypertarget{method-CoinbaseMarketData-get_stats}{}}}
-\subsection{\code{CoinbaseMarketData$get_stats()}}{
-  Retrieve 24-hour and 30-day stats for \emph{every} product in a
+\subsection{Method \code{get_stats()}}{
+Retrieve 24-hour and 30-day stats for \emph{every} product in a
 single call -- the basis for a market scanner / movers screener. Rank the
 returned table yourself by 24h change \code{(last - open) / open} for top
 gainers/losers, or by \code{volume} for the most active products. Uses the
 Exchange host's bulk stats endpoint.
-  \subsection{Usage}{
-    \if{html}{\out{<div class="r">}}
-    \preformatted{CoinbaseMarketData$get_stats()}
-    \if{html}{\out{</div>}}
-  }
-  \subsection{Returns}{
-    A \link[data.table:data.table]{data.table::data.table} with one row per product: \code{product_id},
-\code{open}, \code{high}, \code{low}, \code{last}, \code{volume}, \code{volume_30day}, or a promise
-thereof.
-  }
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{CoinbaseMarketData$get_stats()}\if{html}{\out{</div>}}
 }
 
+\subsection{Returns}{
+(data.table | promise<data.table>) one row per product:
+\code{product_id}, \code{open}, \code{high}, \code{low}, \code{last}, \code{volume}, \code{volume_30day},
+or a promise thereof.
+}
+}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-CoinbaseMarketData-get_product_stats"></a>}}
 \if{latex}{\out{\hypertarget{method-CoinbaseMarketData-get_product_stats}{}}}
-\subsection{\code{CoinbaseMarketData$get_product_stats()}}{
-  Retrieve 24-hour and 30-day stats for a single product.
-  \subsection{Usage}{
-    \if{html}{\out{<div class="r">}}
-    \preformatted{CoinbaseMarketData$get_product_stats(product_id)}
-    \if{html}{\out{</div>}}
-  }
-  \subsection{Arguments}{
-    \if{html}{\out{<div class="arguments">}}
-    \describe{
-      \item{\code{product_id}}{Character; the pair symbol, e.g. \code{"BTC-USD"}.}
-    }
-    \if{html}{\out{</div>}}
-  }
-  \subsection{Returns}{
-    A single-row \link[data.table:data.table]{data.table::data.table} with \code{open}, \code{high}, \code{low},
-\code{last}, \code{volume}, \code{volume_30day}, and the RFQ/conversion volumes, or a
-promise thereof.
-  }
+\subsection{Method \code{get_product_stats()}}{
+Retrieve 24-hour and 30-day stats for a single product.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{CoinbaseMarketData$get_product_stats(product_id)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{product_id}}{(scalar<character>) the pair symbol, e.g. \code{"BTC-USD"}.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+(data.table | promise<data.table>) a single-row table with \code{open},
+\code{high}, \code{low}, \code{last}, \code{volume}, \code{volume_30day}, and the RFQ/conversion
+volumes, or a promise thereof.
+}
+}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-CoinbaseMarketData-get_best_bid_ask"></a>}}
 \if{latex}{\out{\hypertarget{method-CoinbaseMarketData-get_best_bid_ask}{}}}
-\subsection{\code{CoinbaseMarketData$get_best_bid_ask()}}{
-  Retrieve the best bid/ask for many products in one call.
+\subsection{Method \code{get_best_bid_ask()}}{
+Retrieve the best bid/ask for many products in one call.
 Unlike the other \code{CoinbaseMarketData} methods, this hits the \strong{Advanced
 Trade} host and therefore \strong{requires credentials} (construct the client
 with \code{keys}).
-  \subsection{Usage}{
-    \if{html}{\out{<div class="r">}}
-    \preformatted{CoinbaseMarketData$get_best_bid_ask(product_ids = NULL)}
-    \if{html}{\out{</div>}}
-  }
-  \subsection{Arguments}{
-    \if{html}{\out{<div class="arguments">}}
-    \describe{
-      \item{\code{product_ids}}{Character vector or NULL; products to fetch. \code{NULL}
-returns the best bid/ask for all products.}
-    }
-    \if{html}{\out{</div>}}
-  }
-  \subsection{Returns}{
-    A \link[data.table:data.table]{data.table::data.table} with one row per product: \code{product_id},
-\code{bid_price}, \code{bid_size}, \code{ask_price}, \code{ask_size}, \code{time}, or a promise
-thereof.
-  }
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{CoinbaseMarketData$get_best_bid_ask(product_ids = NULL)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{product_ids}}{(character | NULL) products to fetch. \code{NULL} returns the
+best bid/ask for all products.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+(data.table | promise<data.table>) one row per product:
+\code{product_id}, \code{bid_price}, \code{bid_size}, \code{ask_price}, \code{ask_size}, \code{time},
+or a promise thereof.
+}
+}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-CoinbaseMarketData-get_server_time"></a>}}
 \if{latex}{\out{\hypertarget{method-CoinbaseMarketData-get_server_time}{}}}
-\subsection{\code{CoinbaseMarketData$get_server_time()}}{
-  Retrieve the Coinbase Exchange server time.
-  \subsection{Usage}{
-    \if{html}{\out{<div class="r">}}
-    \preformatted{CoinbaseMarketData$get_server_time()}
-    \if{html}{\out{</div>}}
-  }
-  \subsection{Returns}{
-    A single-row \link[data.table:data.table]{data.table::data.table} with \code{iso} and \code{epoch}, or
-a promise thereof.
-  }
+\subsection{Method \code{get_server_time()}}{
+Retrieve the Coinbase Exchange server time.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{CoinbaseMarketData$get_server_time()}\if{html}{\out{</div>}}
 }
 
+\subsection{Returns}{
+(data.table | promise<data.table>) a single-row table with \code{iso}
+and \code{epoch}, or a promise thereof.
+}
+}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-CoinbaseMarketData-clone"></a>}}
 \if{latex}{\out{\hypertarget{method-CoinbaseMarketData-clone}{}}}
-\subsection{\code{CoinbaseMarketData$clone()}}{
-  The objects of this class are cloneable with this method.
-  \subsection{Usage}{
-    \if{html}{\out{<div class="r">}}
-    \preformatted{CoinbaseMarketData$clone(deep = FALSE)}
-    \if{html}{\out{</div>}}
-  }
-  \subsection{Arguments}{
-    \if{html}{\out{<div class="arguments">}}
-    \describe{
-      \item{\code{deep}}{Whether to make a deep clone.}
-    }
-    \if{html}{\out{</div>}}
-  }
+\subsection{Method \code{clone()}}{
+The objects of this class are cloneable with this method.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{CoinbaseMarketData$clone(deep = FALSE)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{deep}}{Whether to make a deep clone.}
+}
+\if{html}{\out{</div>}}
+}
+}
 }

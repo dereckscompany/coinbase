@@ -4,6 +4,11 @@
 \alias{CoinbaseBase}
 \title{CoinbaseBase: Abstract Base Class for Coinbase API Clients}
 \description{
+CoinbaseBase: Abstract Base Class for Coinbase API Clients
+
+CoinbaseBase: Abstract Base Class for Coinbase API Clients
+}
+\details{
 Provides shared infrastructure for all Coinbase R6 classes by extending
 \link[connectcore:RestClient]{connectcore::RestClient}. It inherits the single \code{private$.request()} funnel
 (mode-transparent sync/async, NULL-field stripping, retry/throttle) and
@@ -63,61 +68,61 @@ base, credentials, async flag, and perform function are held by the
 }
 \section{Methods}{
 \subsection{Public methods}{
-  \itemize{
-    \item \href{#method-CoinbaseBase-initialize}{\code{CoinbaseBase$new()}}
-    \item \href{#method-CoinbaseBase-clone}{\code{CoinbaseBase$clone()}}
-  }
+\itemize{
+\item \href{#method-CoinbaseBase-new}{\code{CoinbaseBase$new()}}
+\item \href{#method-CoinbaseBase-clone}{\code{CoinbaseBase$clone()}}
+}
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-CoinbaseBase-initialize"></a>}}
-\if{latex}{\out{\hypertarget{method-CoinbaseBase-initialize}{}}}
-\subsection{\code{CoinbaseBase$new()}}{
-  Initialise a CoinbaseBase object.
-  \subsection{Usage}{
-    \if{html}{\out{<div class="r">}}
-    \preformatted{CoinbaseBase$new(
+\if{html}{\out{<a id="method-CoinbaseBase-new"></a>}}
+\if{latex}{\out{\hypertarget{method-CoinbaseBase-new}{}}}
+\subsection{Method \code{new()}}{
+Initialise a CoinbaseBase object.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{CoinbaseBase$new(
   keys = get_api_keys(),
   base_url = get_base_url(),
   exchange_base_url = get_exchange_base_url(),
   async = FALSE
-)}
-    \if{html}{\out{</div>}}
-  }
-  \subsection{Arguments}{
-    \if{html}{\out{<div class="arguments">}}
-    \describe{
-      \item{\code{keys}}{List; API credentials from \code{\link[=get_api_keys]{get_api_keys()}}. Defaults to
-\code{get_api_keys()}.}
-      \item{\code{base_url}}{Character; Advanced Trade API base URL. Defaults to
-\code{get_base_url()}.}
-      \item{\code{exchange_base_url}}{Character; Exchange API base URL. Defaults to
-\code{get_exchange_base_url()}.}
-      \item{\code{async}}{Logical; if \code{TRUE}, methods return promises. Default \code{FALSE}.}
-    }
-    \if{html}{\out{</div>}}
-  }
-  \subsection{Returns}{
-    Invisible self.
-  }
+)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{keys}}{(list | NULL) API credentials from \code{\link[=get_api_keys]{get_api_keys()}}. Defaults
+to \code{get_api_keys()}.}
+
+\item{\code{base_url}}{(scalar<character>) Advanced Trade API base URL. Defaults
+to \code{get_base_url()}.}
+
+\item{\code{exchange_base_url}}{(scalar<character>) Exchange API base URL.
+Defaults to \code{get_exchange_base_url()}.}
+
+\item{\code{async}}{(scalar<logical>) if \code{TRUE}, methods return promises. Default
+\code{FALSE}.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+(class<CoinbaseBase>) invisibly, self.
+}
+}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-CoinbaseBase-clone"></a>}}
 \if{latex}{\out{\hypertarget{method-CoinbaseBase-clone}{}}}
-\subsection{\code{CoinbaseBase$clone()}}{
-  The objects of this class are cloneable with this method.
-  \subsection{Usage}{
-    \if{html}{\out{<div class="r">}}
-    \preformatted{CoinbaseBase$clone(deep = FALSE)}
-    \if{html}{\out{</div>}}
-  }
-  \subsection{Arguments}{
-    \if{html}{\out{<div class="arguments">}}
-    \describe{
-      \item{\code{deep}}{Whether to make a deep clone.}
-    }
-    \if{html}{\out{</div>}}
-  }
+\subsection{Method \code{clone()}}{
+The objects of this class are cloneable with this method.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{CoinbaseBase$clone(deep = FALSE)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{deep}}{Whether to make a deep clone.}
+}
+\if{html}{\out{</div>}}
+}
+}
 }

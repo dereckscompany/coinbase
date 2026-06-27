@@ -10,16 +10,19 @@ get_api_keys(
 )
 }
 \arguments{
-\item{api_key_name}{Character string; the credential \code{name}, e.g.
+\item{api_key_name}{(scalar<character>) the credential \code{name}, e.g.
 \code{"organizations/<org-uuid>/apiKeys/<key-uuid>"}. Defaults to
 \code{Sys.getenv("COINBASE_API_KEY_NAME")}.}
 
-\item{api_private_key}{Character string; the credential \code{privateKey}.
+\item{api_private_key}{(scalar<character>) the credential \code{privateKey}.
 Defaults to \code{Sys.getenv("COINBASE_API_PRIVATE_KEY")}.}
 }
 \value{
-Named list with \code{api_key_name} and \code{api_private_key} (newlines
-unescaped).
+(list) named credentials, with newlines unescaped:
+\itemize{
+\item api_key_name (scalar<character>) the credential \code{name}.
+\item api_private_key (scalar<character>) the credential \code{privateKey}.
+}
 }
 \description{
 Fetches Coinbase Advanced Trade (CDP) API credentials from environment

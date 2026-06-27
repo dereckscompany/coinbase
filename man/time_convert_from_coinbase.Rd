@@ -7,13 +7,14 @@
 time_convert_from_coinbase(time_value, unit = c("iso", "s"))
 }
 \arguments{
-\item{time_value}{Character ISO 8601 timestamp(s), or numeric epoch seconds.}
+\item{time_value}{(character | numeric) ISO 8601 timestamp(s), or numeric
+epoch seconds.}
 
-\item{unit}{Character; the input form: \code{"iso"} (ISO 8601 string, default) or
-\code{"s"} (epoch seconds).}
+\item{unit}{(scalar<character in c("iso", "s")>) the input form: \code{"iso"} (ISO
+8601 string, default) or \code{"s"} (epoch seconds).}
 }
 \value{
-POSIXct vector in UTC.
+(POSIXct | NA) vector in UTC.
 }
 \description{
 Coinbase returns times in two forms: ISO 8601 strings (most endpoints) and

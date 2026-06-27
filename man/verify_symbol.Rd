@@ -7,10 +7,10 @@
 verify_symbol(product_id)
 }
 \arguments{
-\item{product_id}{Character string; the symbol to verify.}
+\item{product_id}{(scalar<character>) the symbol to verify.}
 }
 \value{
-Logical; \code{TRUE} if valid, \code{FALSE} otherwise.
+(scalar<logical>) \code{TRUE} if valid, \code{FALSE} otherwise.
 }
 \description{
 Checks whether a symbol is a dash-separated alphanumeric product ID. This

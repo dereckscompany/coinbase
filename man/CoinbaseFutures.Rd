@@ -4,6 +4,11 @@
 \alias{CoinbaseFutures}
 \title{CoinbaseFutures: US Futures (CFM) Account, Positions, and Margin}
 \description{
+CoinbaseFutures: US Futures (CFM) Account, Positions, and Margin
+
+CoinbaseFutures: US Futures (CFM) Account, Positions, and Margin
+}
+\details{
 Manages the Coinbase Financial Markets (CFM) US futures account: balance
 summary, open positions, cash sweeps between the spot (CBI) and futures (CFM)
 accounts, and intraday margin settings. All endpoints require credentials and
@@ -53,215 +58,207 @@ futures$get_positions()
 
 }
 \section{Super classes}{
-\code{\link[connectcore:RestClient]{connectcore::RestClient}} -> \code{\link[coinbase:CoinbaseBase]{CoinbaseBase}} -> \code{CoinbaseFutures}
+\code{\link[connectcore:RestClient]{connectcore::RestClient}} -> \code{\link[coinbase:CoinbaseBase]{coinbase::CoinbaseBase}} -> \code{CoinbaseFutures}
 }
 \section{Methods}{
 \subsection{Public methods}{
-  \itemize{
-    \item \href{#method-CoinbaseFutures-get_balance_summary}{\code{CoinbaseFutures$get_balance_summary()}}
-    \item \href{#method-CoinbaseFutures-get_positions}{\code{CoinbaseFutures$get_positions()}}
-    \item \href{#method-CoinbaseFutures-get_position}{\code{CoinbaseFutures$get_position()}}
-    \item \href{#method-CoinbaseFutures-schedule_sweep}{\code{CoinbaseFutures$schedule_sweep()}}
-    \item \href{#method-CoinbaseFutures-get_sweeps}{\code{CoinbaseFutures$get_sweeps()}}
-    \item \href{#method-CoinbaseFutures-cancel_sweep}{\code{CoinbaseFutures$cancel_sweep()}}
-    \item \href{#method-CoinbaseFutures-get_intraday_margin_setting}{\code{CoinbaseFutures$get_intraday_margin_setting()}}
-    \item \href{#method-CoinbaseFutures-set_intraday_margin_setting}{\code{CoinbaseFutures$set_intraday_margin_setting()}}
-    \item \href{#method-CoinbaseFutures-get_current_margin_window}{\code{CoinbaseFutures$get_current_margin_window()}}
-    \item \href{#method-CoinbaseFutures-clone}{\code{CoinbaseFutures$clone()}}
-  }
+\itemize{
+\item \href{#method-CoinbaseFutures-get_balance_summary}{\code{CoinbaseFutures$get_balance_summary()}}
+\item \href{#method-CoinbaseFutures-get_positions}{\code{CoinbaseFutures$get_positions()}}
+\item \href{#method-CoinbaseFutures-get_position}{\code{CoinbaseFutures$get_position()}}
+\item \href{#method-CoinbaseFutures-schedule_sweep}{\code{CoinbaseFutures$schedule_sweep()}}
+\item \href{#method-CoinbaseFutures-get_sweeps}{\code{CoinbaseFutures$get_sweeps()}}
+\item \href{#method-CoinbaseFutures-cancel_sweep}{\code{CoinbaseFutures$cancel_sweep()}}
+\item \href{#method-CoinbaseFutures-get_intraday_margin_setting}{\code{CoinbaseFutures$get_intraday_margin_setting()}}
+\item \href{#method-CoinbaseFutures-set_intraday_margin_setting}{\code{CoinbaseFutures$set_intraday_margin_setting()}}
+\item \href{#method-CoinbaseFutures-get_current_margin_window}{\code{CoinbaseFutures$get_current_margin_window()}}
+\item \href{#method-CoinbaseFutures-clone}{\code{CoinbaseFutures$clone()}}
 }
-\if{html}{\out{<details open><summary>Inherited methods</summary>
+}
+\if{html}{\out{
+<details open><summary>Inherited methods</summary>
 <ul>
-  <li><span class="pkg-link" data-pkg="coinbase" data-topic="CoinbaseBase" data-id="initialize"><a href='../../coinbase/html/CoinbaseBase.html#method-CoinbaseBase-initialize'><code>CoinbaseBase$initialize()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="coinbase" data-topic="CoinbaseBase" data-id="initialize"><a href='../../coinbase/html/CoinbaseBase.html#method-CoinbaseBase-initialize'><code>coinbase::CoinbaseBase$initialize()</code></a></span></li>
 </ul>
-</details>}}
+</details>
+}}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-CoinbaseFutures-get_balance_summary"></a>}}
 \if{latex}{\out{\hypertarget{method-CoinbaseFutures-get_balance_summary}{}}}
-\subsection{\code{CoinbaseFutures$get_balance_summary()}}{
-  Retrieve the CFM futures balance summary (buying power,
+\subsection{Method \code{get_balance_summary()}}{
+Retrieve the CFM futures balance summary (buying power,
 margin, unrealised PnL, liquidation thresholds).
-  \subsection{Usage}{
-    \if{html}{\out{<div class="r">}}
-    \preformatted{CoinbaseFutures$get_balance_summary()}
-    \if{html}{\out{</div>}}
-  }
-  \subsection{Returns}{
-    A single-row \link[data.table:data.table]{data.table::data.table}, or a promise thereof.
-  }
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{CoinbaseFutures$get_balance_summary()}\if{html}{\out{</div>}}
 }
 
+\subsection{Returns}{
+(data.table | promise<data.table>) a single-row table, or a promise
+thereof.
+}
+}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-CoinbaseFutures-get_positions"></a>}}
 \if{latex}{\out{\hypertarget{method-CoinbaseFutures-get_positions}{}}}
-\subsection{\code{CoinbaseFutures$get_positions()}}{
-  Retrieve all open CFM futures positions.
-  \subsection{Usage}{
-    \if{html}{\out{<div class="r">}}
-    \preformatted{CoinbaseFutures$get_positions()}
-    \if{html}{\out{</div>}}
-  }
-  \subsection{Returns}{
-    A \link[data.table:data.table]{data.table::data.table} of positions, or a promise thereof.
-  }
+\subsection{Method \code{get_positions()}}{
+Retrieve all open CFM futures positions.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{CoinbaseFutures$get_positions()}\if{html}{\out{</div>}}
 }
 
+\subsection{Returns}{
+(data.table | promise<data.table>) the positions, or a promise
+thereof.
+}
+}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-CoinbaseFutures-get_position"></a>}}
 \if{latex}{\out{\hypertarget{method-CoinbaseFutures-get_position}{}}}
-\subsection{\code{CoinbaseFutures$get_position()}}{
-  Retrieve a single CFM futures position by product.
-  \subsection{Usage}{
-    \if{html}{\out{<div class="r">}}
-    \preformatted{CoinbaseFutures$get_position(product_id)}
-    \if{html}{\out{</div>}}
-  }
-  \subsection{Arguments}{
-    \if{html}{\out{<div class="arguments">}}
-    \describe{
-      \item{\code{product_id}}{Character; the futures product ID.}
-    }
-    \if{html}{\out{</div>}}
-  }
-  \subsection{Returns}{
-    A single-row \link[data.table:data.table]{data.table::data.table}, or a promise thereof.
-  }
+\subsection{Method \code{get_position()}}{
+Retrieve a single CFM futures position by product.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{CoinbaseFutures$get_position(product_id)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{product_id}}{(scalar<character>) the futures product ID.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+(data.table | promise<data.table>) a single-row table, or a promise
+thereof.
+}
+}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-CoinbaseFutures-schedule_sweep"></a>}}
 \if{latex}{\out{\hypertarget{method-CoinbaseFutures-schedule_sweep}{}}}
-\subsection{\code{CoinbaseFutures$schedule_sweep()}}{
-  Schedule a cash sweep from the CFM futures account to the
+\subsection{Method \code{schedule_sweep()}}{
+Schedule a cash sweep from the CFM futures account to the
 spot (CBI) USD wallet.
-  \subsection{Usage}{
-    \if{html}{\out{<div class="r">}}
-    \preformatted{CoinbaseFutures$schedule_sweep(usd_amount)}
-    \if{html}{\out{</div>}}
-  }
-  \subsection{Arguments}{
-    \if{html}{\out{<div class="arguments">}}
-    \describe{
-      \item{\code{usd_amount}}{Character/numeric; positive amount in USD to sweep.}
-    }
-    \if{html}{\out{</div>}}
-  }
-  \subsection{Returns}{
-    A single-row \link[data.table:data.table]{data.table::data.table}, or a promise thereof.
-  }
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{CoinbaseFutures$schedule_sweep(usd_amount)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{usd_amount}}{(scalar<numeric> | scalar<character>) positive amount in
+USD to sweep.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+(data.table | promise<data.table>) a single-row table, or a promise
+thereof.
+}
+}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-CoinbaseFutures-get_sweeps"></a>}}
 \if{latex}{\out{\hypertarget{method-CoinbaseFutures-get_sweeps}{}}}
-\subsection{\code{CoinbaseFutures$get_sweeps()}}{
-  Retrieve scheduled and pending futures sweeps.
-  \subsection{Usage}{
-    \if{html}{\out{<div class="r">}}
-    \preformatted{CoinbaseFutures$get_sweeps()}
-    \if{html}{\out{</div>}}
-  }
-  \subsection{Returns}{
-    A \link[data.table:data.table]{data.table::data.table} of sweeps, or a promise thereof.
-  }
+\subsection{Method \code{get_sweeps()}}{
+Retrieve scheduled and pending futures sweeps.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{CoinbaseFutures$get_sweeps()}\if{html}{\out{</div>}}
 }
 
+\subsection{Returns}{
+(data.table | promise<data.table>) the sweeps, or a promise
+thereof.
+}
+}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-CoinbaseFutures-cancel_sweep"></a>}}
 \if{latex}{\out{\hypertarget{method-CoinbaseFutures-cancel_sweep}{}}}
-\subsection{\code{CoinbaseFutures$cancel_sweep()}}{
-  Cancel the pending futures sweep.
-  \subsection{Usage}{
-    \if{html}{\out{<div class="r">}}
-    \preformatted{CoinbaseFutures$cancel_sweep()}
-    \if{html}{\out{</div>}}
-  }
-  \subsection{Returns}{
-    A single-row \link[data.table:data.table]{data.table::data.table}, or a promise thereof.
-  }
+\subsection{Method \code{cancel_sweep()}}{
+Cancel the pending futures sweep.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{CoinbaseFutures$cancel_sweep()}\if{html}{\out{</div>}}
 }
 
+\subsection{Returns}{
+(data.table | promise<data.table>) a single-row table, or a promise
+thereof.
+}
+}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-CoinbaseFutures-get_intraday_margin_setting"></a>}}
 \if{latex}{\out{\hypertarget{method-CoinbaseFutures-get_intraday_margin_setting}{}}}
-\subsection{\code{CoinbaseFutures$get_intraday_margin_setting()}}{
-  Retrieve the current intraday margin setting.
-  \subsection{Usage}{
-    \if{html}{\out{<div class="r">}}
-    \preformatted{CoinbaseFutures$get_intraday_margin_setting()}
-    \if{html}{\out{</div>}}
-  }
-  \subsection{Returns}{
-    A single-row \link[data.table:data.table]{data.table::data.table}, or a promise thereof.
-  }
+\subsection{Method \code{get_intraday_margin_setting()}}{
+Retrieve the current intraday margin setting.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{CoinbaseFutures$get_intraday_margin_setting()}\if{html}{\out{</div>}}
 }
 
+\subsection{Returns}{
+(data.table | promise<data.table>) a single-row table, or a promise
+thereof.
+}
+}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-CoinbaseFutures-set_intraday_margin_setting"></a>}}
 \if{latex}{\out{\hypertarget{method-CoinbaseFutures-set_intraday_margin_setting}{}}}
-\subsection{\code{CoinbaseFutures$set_intraday_margin_setting()}}{
-  Set the intraday margin setting.
-  \subsection{Usage}{
-    \if{html}{\out{<div class="r">}}
-    \preformatted{CoinbaseFutures$set_intraday_margin_setting(setting)}
-    \if{html}{\out{</div>}}
-  }
-  \subsection{Arguments}{
-    \if{html}{\out{<div class="arguments">}}
-    \describe{
-      \item{\code{setting}}{Character; e.g. \code{"INTRADAY_MARGIN_SETTING_STANDARD"} or
-\code{"INTRADAY_MARGIN_SETTING_INTRADAY"}.}
-    }
-    \if{html}{\out{</div>}}
-  }
-  \subsection{Returns}{
-    A single-row \link[data.table:data.table]{data.table::data.table} echoing the applied
-\code{setting} (the API returns an empty body on success; a non-200 aborts),
-or a promise thereof.
-  }
+\subsection{Method \code{set_intraday_margin_setting()}}{
+Set the intraday margin setting.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{CoinbaseFutures$set_intraday_margin_setting(setting)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{setting}}{(scalar<character>) e.g. \code{"INTRADAY_MARGIN_SETTING_STANDARD"}
+or \code{"INTRADAY_MARGIN_SETTING_INTRADAY"}.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+(data.table | promise<data.table>) a single-row table echoing the
+applied \code{setting} (the API returns an empty body on success; a non-200
+aborts), or a promise thereof.
+}
+}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-CoinbaseFutures-get_current_margin_window"></a>}}
 \if{latex}{\out{\hypertarget{method-CoinbaseFutures-get_current_margin_window}{}}}
-\subsection{\code{CoinbaseFutures$get_current_margin_window()}}{
-  Retrieve the current margin window.
-  \subsection{Usage}{
-    \if{html}{\out{<div class="r">}}
-    \preformatted{CoinbaseFutures$get_current_margin_window(margin_profile_type)}
-    \if{html}{\out{</div>}}
-  }
-  \subsection{Arguments}{
-    \if{html}{\out{<div class="arguments">}}
-    \describe{
-      \item{\code{margin_profile_type}}{Character; the margin profile type (required by
-the API), e.g. \code{"MARGIN_PROFILE_TYPE_RETAIL_INTRADAY_MARGIN_1"}.}
-    }
-    \if{html}{\out{</div>}}
-  }
-  \subsection{Returns}{
-    A single-row \link[data.table:data.table]{data.table::data.table} with \code{margin_window_type},
-\code{end_time}, and the killswitch flags, or a promise thereof.
-  }
+\subsection{Method \code{get_current_margin_window()}}{
+Retrieve the current margin window.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{CoinbaseFutures$get_current_margin_window(margin_profile_type)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{margin_profile_type}}{(scalar<character>) the margin profile type
+(required by the API), e.g.
+\code{"MARGIN_PROFILE_TYPE_RETAIL_INTRADAY_MARGIN_1"}.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+(data.table | promise<data.table>) a single-row table with
+\code{margin_window_type}, \code{end_time}, and the killswitch flags, or a promise
+thereof.
+}
+}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-CoinbaseFutures-clone"></a>}}
 \if{latex}{\out{\hypertarget{method-CoinbaseFutures-clone}{}}}
-\subsection{\code{CoinbaseFutures$clone()}}{
-  The objects of this class are cloneable with this method.
-  \subsection{Usage}{
-    \if{html}{\out{<div class="r">}}
-    \preformatted{CoinbaseFutures$clone(deep = FALSE)}
-    \if{html}{\out{</div>}}
-  }
-  \subsection{Arguments}{
-    \if{html}{\out{<div class="arguments">}}
-    \describe{
-      \item{\code{deep}}{Whether to make a deep clone.}
-    }
-    \if{html}{\out{</div>}}
-  }
+\subsection{Method \code{clone()}}{
+The objects of this class are cloneable with this method.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{CoinbaseFutures$clone(deep = FALSE)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{deep}}{Whether to make a deep clone.}
+}
+\if{html}{\out{</div>}}
+}
+}
 }

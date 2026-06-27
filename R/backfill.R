@@ -14,22 +14,26 @@
 #' `from`; for a fresh (non-resumed) run, leaving `from` as the default pulls a
 #' bounded recent window rather than the product's entire history.
 #'
-#' @param symbols Character vector of product symbols (e.g.
-#'   `c("BTC-USD", "ETH-USD")`). Must not be NULL or empty.
-#' @param from POSIXct or numeric; start of the backfill window. Defaults to one
+#' @param symbols (character) product symbols (e.g. `c("BTC-USD", "ETH-USD")`).
+#'   Must not be NULL or empty.
+#' @param from (POSIXct | numeric) start of the backfill window. Defaults to one
 #'   week ago. Tick volume is large, so widen this deliberately.
-#' @param to POSIXct or numeric; end of the window. Defaults to the current time.
-#' @param file Character; path to the output CSV. Data is appended incrementally
-#'   so progress survives interruption.
-#' @param base_url Character; Advanced Trade API base URL.
-#' @param exchange_base_url Character; Exchange API base URL.
-#' @param max_pages Numeric; per-symbol cap on pages fetched. Default `Inf`.
-#' @param sleep Numeric; seconds to sleep between symbols to respect rate limits.
-#' @param verbose Logical; if `TRUE`, prints progress via [rlang::inform()].
+#' @param to (POSIXct | numeric) end of the window. Defaults to the current time.
+#' @param file (scalar<character>) path to the output CSV. Data is appended
+#'   incrementally so progress survives interruption.
+#' @param base_url (scalar<character>) Advanced Trade API base URL.
+#' @param exchange_base_url (scalar<character>) Exchange API base URL.
+#' @param max_pages (scalar<numeric in [1, Inf]>) per-symbol cap on pages
+#'   fetched. Default `Inf`.
+#' @param sleep (scalar<numeric in [0, Inf[>) seconds to sleep between symbols to
+#'   respect rate limits.
+#' @param verbose (scalar<logical>) if `TRUE`, prints progress via
+#'   [rlang::inform()].
+#' @noassert file
 #'
-#' @return The file path (invisibly). If any symbols failed, a `"failures"`
-#'   attribute is attached: a [data.table::data.table] with columns `symbol`
-#'   and `error`.
+#' @return (scalar<character>) the file path (invisibly). If any symbols failed, a
+#'   `"failures"` attribute is attached: a [data.table::data.table] with columns
+#'   `symbol` and `error`.
 #'
 #' @importFrom lubridate as_datetime now dweeks
 #' @importFrom rlang inform warn
@@ -63,6 +67,16 @@ coinbase_backfill_trades <- function(
   if (missing(file) || !is.character(file) || length(file) != 1L) {
     rlang::abort("`file` must be a single path string.")
   }
+  assert_args_coinbase_backfill_trades(
+    symbols,
+    from,
+    to,
+    base_url,
+    exchange_base_url,
+    max_pages,
+    sleep,
+    verbose
+  )
 
   from <- lubridate::as_datetime(from, tz = "UTC")
   to <- lubridate::as_datetime(to, tz = "UTC")
@@ -179,5 +193,5 @@ coinbase_backfill_trades <- function(
     rlang::warn(sprintf("%d symbol(s) failed; see the 'failures' attribute.", nrow(fail_dt)))
   }
 
-  return(invisible(file))
+  return(invisible(assert_return_coinbase_backfill_trades(file)))
 }

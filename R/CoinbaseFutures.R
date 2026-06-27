@@ -54,7 +54,8 @@ CoinbaseFutures <- R6::R6Class(
   public = list(
     #' @description Retrieve the CFM futures balance summary (buying power,
     #'   margin, unrealised PnL, liquidation thresholds).
-    #' @return A single-row [data.table::data.table], or a promise thereof.
+    #' @return (data.table | promise<data.table>) a single-row table, or a promise
+    #'   thereof.
     get_balance_summary = function() {
       return(private$.request(
         endpoint = "/api/v3/brokerage/cfm/balance_summary",
@@ -64,7 +65,8 @@ CoinbaseFutures <- R6::R6Class(
     },
 
     #' @description Retrieve all open CFM futures positions.
-    #' @return A [data.table::data.table] of positions, or a promise thereof.
+    #' @return (data.table | promise<data.table>) the positions, or a promise
+    #'   thereof.
     get_positions = function() {
       return(private$.request(
         endpoint = "/api/v3/brokerage/cfm/positions",
@@ -74,8 +76,10 @@ CoinbaseFutures <- R6::R6Class(
     },
 
     #' @description Retrieve a single CFM futures position by product.
-    #' @param product_id Character; the futures product ID.
-    #' @return A single-row [data.table::data.table], or a promise thereof.
+    #' @param product_id (scalar<character>) the futures product ID.
+    #' @return (data.table | promise<data.table>) a single-row table, or a promise
+    #'   thereof.
+    #' @noassert product_id
     get_position = function(product_id) {
       validate_symbol(product_id)
       return(private$.request(
@@ -87,8 +91,11 @@ CoinbaseFutures <- R6::R6Class(
 
     #' @description Schedule a cash sweep from the CFM futures account to the
     #'   spot (CBI) USD wallet.
-    #' @param usd_amount Character/numeric; positive amount in USD to sweep.
-    #' @return A single-row [data.table::data.table], or a promise thereof.
+    #' @param usd_amount (scalar<numeric> | scalar<character>) positive amount in
+    #'   USD to sweep.
+    #' @return (data.table | promise<data.table>) a single-row table, or a promise
+    #'   thereof.
+    #' @noassert usd_amount
     schedule_sweep = function(usd_amount) {
       amount <- coerce_positive_string(usd_amount, "usd_amount")
       return(private$.request(
@@ -101,7 +108,8 @@ CoinbaseFutures <- R6::R6Class(
     },
 
     #' @description Retrieve scheduled and pending futures sweeps.
-    #' @return A [data.table::data.table] of sweeps, or a promise thereof.
+    #' @return (data.table | promise<data.table>) the sweeps, or a promise
+    #'   thereof.
     get_sweeps = function() {
       return(private$.request(
         endpoint = "/api/v3/brokerage/cfm/sweeps",
@@ -111,7 +119,8 @@ CoinbaseFutures <- R6::R6Class(
     },
 
     #' @description Cancel the pending futures sweep.
-    #' @return A single-row [data.table::data.table], or a promise thereof.
+    #' @return (data.table | promise<data.table>) a single-row table, or a promise
+    #'   thereof.
     cancel_sweep = function() {
       return(private$.request(
         endpoint = "/api/v3/brokerage/cfm/sweeps",
@@ -122,7 +131,8 @@ CoinbaseFutures <- R6::R6Class(
     },
 
     #' @description Retrieve the current intraday margin setting.
-    #' @return A single-row [data.table::data.table], or a promise thereof.
+    #' @return (data.table | promise<data.table>) a single-row table, or a promise
+    #'   thereof.
     get_intraday_margin_setting = function() {
       return(private$.request(
         endpoint = "/api/v3/brokerage/cfm/intraday/margin_setting",
@@ -132,13 +142,13 @@ CoinbaseFutures <- R6::R6Class(
     },
 
     #' @description Set the intraday margin setting.
-    #' @param setting Character; e.g. `"INTRADAY_MARGIN_SETTING_STANDARD"` or
-    #'   `"INTRADAY_MARGIN_SETTING_INTRADAY"`.
-    #' @return A single-row [data.table::data.table] echoing the applied
-    #'   `setting` (the API returns an empty body on success; a non-200 aborts),
-    #'   or a promise thereof.
+    #' @param setting (scalar<character>) e.g. `"INTRADAY_MARGIN_SETTING_STANDARD"`
+    #'   or `"INTRADAY_MARGIN_SETTING_INTRADAY"`.
+    #' @return (data.table | promise<data.table>) a single-row table echoing the
+    #'   applied `setting` (the API returns an empty body on success; a non-200
+    #'   aborts), or a promise thereof.
     set_intraday_margin_setting = function(setting) {
-      assert::assert_scalar_character(setting)
+      assert_args_CoinbaseFutures__set_intraday_margin_setting(setting)
       return(private$.request(
         endpoint = "/api/v3/brokerage/cfm/intraday/margin_setting",
         method = "POST",
@@ -150,12 +160,14 @@ CoinbaseFutures <- R6::R6Class(
     },
 
     #' @description Retrieve the current margin window.
-    #' @param margin_profile_type Character; the margin profile type (required by
-    #'   the API), e.g. `"MARGIN_PROFILE_TYPE_RETAIL_INTRADAY_MARGIN_1"`.
-    #' @return A single-row [data.table::data.table] with `margin_window_type`,
-    #'   `end_time`, and the killswitch flags, or a promise thereof.
+    #' @param margin_profile_type (scalar<character>) the margin profile type
+    #'   (required by the API), e.g.
+    #'   `"MARGIN_PROFILE_TYPE_RETAIL_INTRADAY_MARGIN_1"`.
+    #' @return (data.table | promise<data.table>) a single-row table with
+    #'   `margin_window_type`, `end_time`, and the killswitch flags, or a promise
+    #'   thereof.
     get_current_margin_window = function(margin_profile_type) {
-      assert::assert_scalar_character(margin_profile_type)
+      assert_args_CoinbaseFutures__get_current_margin_window(margin_profile_type)
       return(private$.request(
         endpoint = "/api/v3/brokerage/cfm/intraday/current_margin_window",
         query = list(margin_profile_type = margin_profile_type),

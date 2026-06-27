@@ -7,12 +7,14 @@
 time_convert_to_coinbase(datetime, unit = c("iso", "s"))
 }
 \arguments{
-\item{datetime}{POSIXct object(s) to convert.}
+\item{datetime}{(POSIXct) object(s) to convert.}
 
-\item{unit}{Character; the output form: \code{"iso"} (default) or \code{"s"}.}
+\item{unit}{(scalar<character in c("iso", "s")>) the output form: \code{"iso"}
+(default) or \code{"s"}.}
 }
 \value{
-A character ISO 8601 timestamp (\code{"iso"}) or numeric epoch seconds (\code{"s"}).
+(character | numeric) an ISO 8601 timestamp (\code{"iso"}) or numeric epoch
+seconds (\code{"s"}).
 }
 \description{
 Formats a POSIXct as the timestamp form Coinbase expects: an ISO 8601 string

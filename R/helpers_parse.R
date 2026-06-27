@@ -8,33 +8,35 @@
 #' defaults where an init-then-update statement cannot be written (i.e. inside a
 #' `data.table()` call).
 #'
-#' @param x A value or NULL.
-#' @param default The value to use when `x` is NULL.
-#' @return `x` when it is non-NULL, otherwise `default`.
+#' @param x (any | NULL) a value or NULL.
+#' @param default (any) the value to use when `x` is NULL.
+#' @return (any) `x` when it is non-NULL, otherwise `default`.
 #'
 #' @keywords internal
 #' @noRd
 coalesce_null <- function(x, default) {
+  assert_args_coalesce_null(x, default)
   result <- default
   if (!is.null(x)) {
     result <- x
   }
-  return(result)
+  return(assert_return_coalesce_null(result))
 }
 
 #' Coerce a Possibly-NULL Scalar to Numeric
 #'
-#' @param x A scalar or NULL.
-#' @return `as.numeric(x)`, or `NA_real_` if `x` is NULL.
+#' @param x (any | NULL) a scalar or NULL.
+#' @return (scalar<numeric | NA>) `as.numeric(x)`, or `NA_real_` if `x` is NULL.
 #'
 #' @keywords internal
 #' @noRd
 num_or_na <- function(x) {
+  assert_args_num_or_na(x)
   result <- NA_real_
   if (!is.null(x)) {
     result <- as.numeric(x)
   }
-  return(result)
+  return(assert_return_num_or_na(result))
 }
 
 #' Coerce a Scalar or `{value, currency}` Object to Numeric
@@ -42,19 +44,20 @@ num_or_na <- function(x) {
 #' Some Coinbase fields are plain numeric strings, others are nested
 #' `{value, currency}` objects. This returns the numeric value either way.
 #'
-#' @param x A scalar, a `{value, ...}` list, or NULL.
-#' @return Numeric scalar, or `NA_real_` if NULL.
+#' @param x (any | NULL) a scalar, a `{value, ...}` list, or NULL.
+#' @return (scalar<numeric | NA>) the numeric value, or `NA_real_` if NULL.
 #'
 #' @keywords internal
 #' @noRd
 flex_num <- function(x) {
+  assert_args_flex_num(x)
   result <- NA_real_
   if (is.list(x)) {
     result <- amount_value(x)
   } else if (!is.null(x)) {
     result <- as.numeric(x)
   }
-  return(result)
+  return(assert_return_flex_num(result))
 }
 
 #' Extract the Numeric `value` from a Coinbase `{value, currency}` Object
@@ -62,17 +65,18 @@ flex_num <- function(x) {
 #' Coinbase represents monetary amounts as nested `{value, currency}` objects.
 #' This flattens one to its numeric `value`, avoiding list columns downstream.
 #'
-#' @param x A list with a `value` field, or NULL.
-#' @return Numeric scalar, or `NA_real_` if `x` is NULL.
+#' @param x (list | NULL) a list with a `value` field, or NULL.
+#' @return (scalar<numeric | NA>) the numeric value, or `NA_real_` if `x` is NULL.
 #'
 #' @keywords internal
 #' @noRd
 amount_value <- function(x) {
+  assert_args_amount_value(x)
   result <- NA_real_
   if (!is.null(x) && !is.null(x$value)) {
     result <- as.numeric(x$value)
   }
-  return(result)
+  return(assert_return_amount_value(result))
 }
 
 #' Coerce a Money Field (number, Amount, or BalancePair) to Numeric
@@ -84,12 +88,13 @@ amount_value <- function(x) {
 #' currency for a `BalancePair`. Used by the portfolio-breakdown parsers, where
 #' spot uses `Amount` and perp uses `BalancePair`.
 #'
-#' @param x A scalar, an `Amount`, a `BalancePair`, or NULL.
-#' @return Numeric scalar, or `NA_real_` when absent.
+#' @param x (any | NULL) a scalar, an `Amount`, a `BalancePair`, or NULL.
+#' @return (scalar<numeric | NA>) the numeric value, or `NA_real_` when absent.
 #'
 #' @keywords internal
 #' @noRd
 money_value <- function(x) {
+  assert_args_money_value(x)
   result <- NA_real_
   if (is.list(x)) {
     if (!is.null(x$value)) {
@@ -102,7 +107,7 @@ money_value <- function(x) {
   } else if (!is.null(x)) {
     result <- as.numeric(x)
   }
-  return(result)
+  return(assert_return_money_value(result))
 }
 
 #' Safely Read the i-th Element of a Positional Array as Numeric
@@ -111,34 +116,37 @@ money_value <- function(x) {
 #' or partial array would make `x[[i]]` raise a subscript error; this returns
 #' `NA_real_` instead when the element is missing or NULL.
 #'
-#' @param x A list/vector, or NULL.
-#' @param i Integer; the element index.
-#' @return `as.numeric(x[[i]])`, or `NA_real_` when absent.
+#' @param x (any | NULL) a list/vector, or NULL.
+#' @param i (scalar<count in [1, Inf[>) the element index.
+#' @return (scalar<numeric | NA>) `as.numeric(x[[i]])`, or `NA_real_` when absent.
 #'
 #' @keywords internal
 #' @noRd
 nth_num <- function(x, i) {
+  assert_args_nth_num(x, i)
   result <- NA_real_
   if (length(x) >= i && !is.null(x[[i]])) {
     result <- as.numeric(x[[i]])
   }
-  return(result)
+  return(assert_return_nth_num(result))
 }
 
 #' Safely Read the i-th Element of a Positional Array as Character
 #'
-#' @param x A list/vector, or NULL.
-#' @param i Integer; the element index.
-#' @return `as.character(x[[i]])`, or `NA_character_` when absent.
+#' @param x (any | NULL) a list/vector, or NULL.
+#' @param i (scalar<count in [1, Inf[>) the element index.
+#' @return (scalar<character | NA>) `as.character(x[[i]])`, or `NA_character_`
+#'   when absent.
 #'
 #' @keywords internal
 #' @noRd
 nth_chr <- function(x, i) {
+  assert_args_nth_chr(x, i)
   result <- NA_character_
   if (length(x) >= i && !is.null(x[[i]])) {
     result <- as.character(x[[i]])
   }
-  return(result)
+  return(assert_return_nth_chr(result))
 }
 
 #' Collapse a Coinbase Errors Array to a Single String
@@ -152,14 +160,16 @@ nth_chr <- function(x, i) {
 #' the array to one human-readable string so it can live in a scalar column
 #' rather than a list column.
 #'
-#' @param errs A list of error objects/strings, or NULL.
-#' @return A single character string, or `NA_character_` if there are no errors.
+#' @param errs (list | NULL) a list of error objects/strings, or NULL.
+#' @return (scalar<character | NA>) a single character string, or `NA_character_`
+#'   if there are no errors.
 #'
 #' @keywords internal
 #' @noRd
 collapse_errors <- function(errs) {
+  assert_args_collapse_errors(errs)
   if (is.null(errs) || length(errs) == 0) {
-    return(NA_character_)
+    return(assert_return_collapse_errors(NA_character_))
   }
   # The reason may live under any of these keys depending on the endpoint;
   # take the first non-empty one. Empty strings count as missing.
@@ -193,9 +203,9 @@ collapse_errors <- function(errs) {
   )
   parts <- parts[!is.na(parts) & nzchar(parts)]
   if (length(parts) == 0) {
-    return(NA_character_)
+    return(assert_return_collapse_errors(NA_character_))
   }
-  return(paste(parts, collapse = "; "))
+  return(assert_return_collapse_errors(paste(parts, collapse = "; ")))
 }
 
 #' Convert camelCase Names to snake_case
@@ -204,16 +214,17 @@ collapse_errors <- function(errs) {
 #' are predominantly snake_case already, so this is largely a pass-through; it
 #' exists to guarantee the convention holds for any camelCase outliers.
 #'
-#' @param names Character vector; names to convert.
-#' @return Character vector; converted snake_case names.
+#' @param names (character) names to convert.
+#' @return (character) converted snake_case names.
 #'
 #' @keywords internal
 #' @noRd
 to_snake_case <- function(names) {
+  assert_args_to_snake_case(names)
   out <- gsub("([a-z0-9])([A-Z])", "\\1_\\2", names)
   out <- gsub("([A-Z])([A-Z][a-z])", "\\1_\\2", out)
   out <- tolower(out)
-  return(out)
+  return(assert_return_to_snake_case(out))
 }
 
 #' Convert a Named List to a Single-Row data.table
@@ -224,14 +235,16 @@ to_snake_case <- function(names) {
 #' the result is guaranteed to contain no list columns (and never row-recycles)
 #' even if the API returns an unexpectedly nested field.
 #'
-#' @param x A named list.
-#' @return A single-row [data.table::data.table] with snake_case column names.
+#' @param x (list | NULL) a named list.
+#' @return (class<data.table>) a single-row [data.table::data.table] with
+#'   snake_case column names.
 #'
 #' @keywords internal
 #' @noRd
 as_dt_row <- function(x) {
+  assert_args_as_dt_row(x)
   if (is.null(x) || length(x) == 0) {
-    return(data.table::data.table()[])
+    return(assert_return_as_dt_row(data.table::data.table()[]))
   }
   x <- lapply(x, function(val) {
     if (is.null(val)) {
@@ -249,7 +262,7 @@ as_dt_row <- function(x) {
   })
   dt <- data.table::as.data.table(x)
   data.table::setnames(dt, to_snake_case(names(dt)))
-  return(dt[])
+  return(assert_return_as_dt_row(dt[]))
 }
 
 #' Convert a List of Named Lists to a data.table
@@ -257,17 +270,19 @@ as_dt_row <- function(x) {
 #' Row-binds a list whose elements are named lists (a JSON array of objects)
 #' into a [data.table::data.table] with snake_case columns.
 #'
-#' @param items A list of named lists, or NULL.
-#' @return A [data.table::data.table]; empty if `items` is NULL or empty.
+#' @param items (list | NULL) a list of named lists, or NULL.
+#' @return (class<data.table>) the row-bound table; empty if `items` is NULL or
+#'   empty.
 #'
 #' @keywords internal
 #' @noRd
 as_dt_list <- function(items) {
+  assert_args_as_dt_list(items)
   if (is.null(items) || length(items) == 0) {
-    return(data.table::data.table()[])
+    return(assert_return_as_dt_list(data.table::data.table()[]))
   }
   dt <- data.table::rbindlist(lapply(items, as_dt_row), fill = TRUE)
-  return(dt[])
+  return(assert_return_as_dt_list(dt[]))
 }
 
 #' Parse Coinbase Exchange Candles into an OHLCV data.table
@@ -276,15 +291,16 @@ as_dt_list <- function(items) {
 #' `[time, low, high, open, close, volume]` (time in epoch seconds), newest
 #' first. This reorders to the canonical OHLCV layout and sorts ascending.
 #'
-#' @param data A list of candle arrays, or NULL.
-#' @return A [data.table::data.table] with columns `datetime`, `open`, `high`,
-#'   `low`, `close`, `volume`. Empty if `data` is NULL or empty.
+#' @param data (list | NULL) a list of candle arrays, or NULL.
+#' @return (class<data.table>) columns `datetime`, `open`, `high`, `low`,
+#'   `close`, `volume`. Empty if `data` is NULL or empty.
 #'
 #' @keywords internal
 #' @noRd
 parse_candles <- function(data) {
+  assert_args_parse_candles(data)
   if (is.null(data) || length(data) == 0) {
-    return(data.table::data.table()[])
+    return(assert_return_parse_candles(data.table::data.table()[]))
   }
   dt <- data.table::data.table(
     datetime = s_to_datetime(vapply(data, function(c) nth_num(c, 1L), numeric(1))),
@@ -295,21 +311,22 @@ parse_candles <- function(data) {
     volume = vapply(data, function(c) nth_num(c, 6L), numeric(1))
   )
   data.table::setorder(dt, datetime)
-  return(dt[])
+  return(assert_return_parse_candles(dt[]))
 }
 
 #' Parse Coinbase Exchange Trades into a data.table
 #'
-#' @param data A list of trade objects (`trade_id`, `side`, `size`, `price`,
-#'   `time`), or NULL.
-#' @return A [data.table::data.table] with columns `trade_id`, `side`, `price`,
-#'   `size`, `time`. Empty if `data` is NULL or empty.
+#' @param data (list | NULL) a list of trade objects (`trade_id`, `side`,
+#'   `size`, `price`, `time`), or NULL.
+#' @return (class<data.table>) columns `trade_id`, `side`, `price`, `size`,
+#'   `time`. Empty if `data` is NULL or empty.
 #'
 #' @keywords internal
 #' @noRd
 parse_trades <- function(data) {
+  assert_args_parse_trades(data)
   if (is.null(data) || length(data) == 0) {
-    return(data.table::data.table()[])
+    return(assert_return_parse_trades(data.table::data.table()[]))
   }
   dt <- data.table::data.table(
     trade_id = vapply(data, function(t) num_or_na(t$trade_id), numeric(1)),
@@ -318,7 +335,7 @@ parse_trades <- function(data) {
     size = vapply(data, function(t) num_or_na(t$size), numeric(1)),
     time = iso_to_datetime(vapply(data, function(t) coalesce_null(t$time, NA_character_), character(1)))
   )
-  return(dt[])
+  return(assert_return_parse_trades(dt[]))
 }
 
 #' Parse Coinbase Trading Accounts into a data.table
@@ -326,16 +343,17 @@ parse_trades <- function(data) {
 #' Flattens the nested `available_balance`/`hold` `{value, currency}` objects to
 #' numeric columns and parses timestamps, yielding a list-column-free table.
 #'
-#' @param items A list of account objects, or NULL.
-#' @return A [data.table::data.table] with one row per account. Empty if `items`
-#'   is NULL or empty.
+#' @param items (list | NULL) a list of account objects, or NULL.
+#' @return (class<data.table>) one row per account. Empty if `items` is NULL or
+#'   empty.
 #'
 #' @keywords internal
 #' @noRd
 parse_accounts <- function(items) {
+  assert_args_parse_accounts(items)
   items <- Filter(Negate(is.null), coalesce_null(items, list()))
   if (length(items) == 0L) {
-    return(data.table::data.table()[])
+    return(assert_return_parse_accounts(data.table::data.table()[]))
   }
   rows <- lapply(items, function(a) {
     return(data.table::data.table(
@@ -354,7 +372,7 @@ parse_accounts <- function(items) {
       updated_at = iso_to_datetime(coalesce_null(a$updated_at, NA_character_))
     ))
   })
-  return(data.table::rbindlist(rows, fill = TRUE)[])
+  return(assert_return_parse_accounts(data.table::rbindlist(rows, fill = TRUE)[]))
 }
 
 #' Parse a Coinbase Transaction Summary into a one-row data.table
@@ -362,17 +380,18 @@ parse_accounts <- function(items) {
 #' Flattens the nested `fee_tier` object into scalar columns alongside the
 #' top-level volume and fee fields.
 #'
-#' @param data A transaction summary object, or NULL.
-#' @return A single-row [data.table::data.table]. Empty if `data` is NULL.
+#' @param data (list | NULL) a transaction summary object, or NULL.
+#' @return (class<data.table>) a single-row table. Empty if `data` is NULL.
 #'
 #' @keywords internal
 #' @noRd
 parse_fees <- function(data) {
+  assert_args_parse_fees(data)
   if (is.null(data) || length(data) == 0) {
-    return(data.table::data.table()[])
+    return(assert_return_parse_fees(data.table::data.table()[]))
   }
   ft <- coalesce_null(data$fee_tier, list())
-  return(data.table::data.table(
+  return(assert_return_parse_fees(data.table::data.table(
     pricing_tier = coalesce_null(ft$pricing_tier, NA_character_),
     maker_fee_rate = as.numeric(coalesce_null(ft$maker_fee_rate, NA)),
     taker_fee_rate = as.numeric(coalesce_null(ft$taker_fee_rate, NA)),
@@ -381,7 +400,7 @@ parse_fees <- function(data) {
     total_volume = as.numeric(coalesce_null(data$total_volume, NA)),
     total_fees = as.numeric(coalesce_null(data$total_fees, NA)),
     total_balance = as.numeric(coalesce_null(data$total_balance, NA))
-  )[])
+  )[]))
 }
 
 #' Flatten a Coinbase `order_configuration` Object
@@ -391,21 +410,29 @@ parse_fees <- function(data) {
 #' returns the inner type key plus the union of recognised sub-fields, so an
 #' order row carries scalar config columns rather than a nested list.
 #'
-#' @param cfg A one-key `order_configuration` list, or NULL.
-#' @return Named list: `config_type`, `base_size`, `quote_size`, `limit_price`,
-#'   `stop_price`, `stop_trigger_price`, `stop_direction`, `end_time`,
-#'   `post_only`.
+#' @param cfg (list | NULL) a one-key `order_configuration` list, or NULL.
+#' @return (list) the flattened config:
+#' - config_type (scalar<character | NA>) the inner order-type key.
+#' - base_size (scalar<numeric | NA>) base size.
+#' - quote_size (scalar<numeric | NA>) quote size.
+#' - limit_price (scalar<numeric | NA>) limit price.
+#' - stop_price (scalar<numeric | NA>) stop price.
+#' - stop_trigger_price (scalar<numeric | NA>) bracket trigger price.
+#' - stop_direction (scalar<character | NA>) stop direction.
+#' - end_time (scalar<POSIXct | NA>) good-till time.
+#' - post_only (scalar<logical | NA>) post-only flag.
 #'
 #' @keywords internal
 #' @noRd
 flatten_order_config <- function(cfg) {
+  assert_args_flatten_order_config(cfg)
   inner <- list()
   config_type <- NA_character_
   if (!is.null(cfg) && length(cfg) > 0) {
     config_type <- names(cfg)[1]
     inner <- cfg[[1]]
   }
-  return(list(
+  return(assert_return_flatten_order_config(list(
     config_type = config_type,
     base_size = num_or_na(inner$base_size),
     quote_size = num_or_na(inner$quote_size),
@@ -416,7 +443,7 @@ flatten_order_config <- function(cfg) {
     stop_direction = coalesce_null(inner$stop_direction, NA_character_),
     end_time = iso_to_datetime(coalesce_null(inner$end_time, NA_character_)),
     post_only = coalesce_null(inner$post_only, NA)
-  ))
+  )))
 }
 
 #' Parse Coinbase Orders into a data.table
@@ -424,15 +451,16 @@ flatten_order_config <- function(cfg) {
 #' Flattens each order's scalar fields and its nested `order_configuration` into
 #' columns, yielding a list-column-free table.
 #'
-#' @param items A list of order objects, or NULL.
-#' @return A [data.table::data.table], one row per order. Empty if NULL/empty.
+#' @param items (list | NULL) a list of order objects, or NULL.
+#' @return (class<data.table>) one row per order. Empty if NULL/empty.
 #'
 #' @keywords internal
 #' @noRd
 parse_orders <- function(items) {
+  assert_args_parse_orders(items)
   items <- Filter(Negate(is.null), coalesce_null(items, list()))
   if (length(items) == 0L) {
-    return(data.table::data.table()[])
+    return(assert_return_parse_orders(data.table::data.table()[]))
   }
   rows <- lapply(items, function(o) {
     cfg <- flatten_order_config(o$order_configuration)
@@ -463,20 +491,21 @@ parse_orders <- function(items) {
       post_only = cfg$post_only
     ))
   })
-  return(data.table::rbindlist(rows, fill = TRUE)[])
+  return(assert_return_parse_orders(data.table::rbindlist(rows, fill = TRUE)[]))
 }
 
 #' Parse Coinbase Fills into a data.table
 #'
-#' @param items A list of fill objects, or NULL.
-#' @return A [data.table::data.table], one row per fill. Empty if NULL/empty.
+#' @param items (list | NULL) a list of fill objects, or NULL.
+#' @return (class<data.table>) one row per fill. Empty if NULL/empty.
 #'
 #' @keywords internal
 #' @noRd
 parse_fills <- function(items) {
+  assert_args_parse_fills(items)
   items <- Filter(Negate(is.null), coalesce_null(items, list()))
   if (length(items) == 0L) {
-    return(data.table::data.table()[])
+    return(assert_return_parse_fills(data.table::data.table()[]))
   }
   rows <- lapply(items, function(f) {
     return(data.table::data.table(
@@ -494,21 +523,22 @@ parse_fills <- function(items) {
       liquidity_indicator = coalesce_null(f$liquidity_indicator, NA_character_)
     ))
   })
-  return(data.table::rbindlist(rows, fill = TRUE)[])
+  return(assert_return_parse_fills(data.table::rbindlist(rows, fill = TRUE)[]))
 }
 
 #' Parse a Coinbase Order Preview into a one-row data.table
 #'
-#' @param data A preview response object, or NULL.
-#' @return A single-row [data.table::data.table]. Empty if NULL.
+#' @param data (list | NULL) a preview response object, or NULL.
+#' @return (class<data.table>) a single-row table. Empty if NULL.
 #'
 #' @keywords internal
 #' @noRd
 parse_preview <- function(data) {
+  assert_args_parse_preview(data)
   if (is.null(data) || length(data) == 0) {
-    return(data.table::data.table()[])
+    return(assert_return_parse_preview(data.table::data.table()[]))
   }
-  return(data.table::data.table(
+  return(assert_return_parse_preview(data.table::data.table(
     order_total = num_or_na(data$order_total),
     commission_total = num_or_na(data$commission_total),
     quote_size = num_or_na(data$quote_size),
@@ -518,7 +548,7 @@ parse_preview <- function(data) {
     slippage = num_or_na(data$slippage),
     errs = collapse_errors(data$errs),
     preview_id = coalesce_null(data$preview_id, NA_character_)
-  )[])
+  )[]))
 }
 
 #' Parse a Coinbase Create-Order Response into a one-row data.table
@@ -527,19 +557,20 @@ parse_preview <- function(data) {
 #' failure/error objects to a string, and flattens `order_configuration` — so
 #' the result has no list columns and a usable order id.
 #'
-#' @param data A `CreateOrderResponse` object, or NULL.
-#' @return A single-row [data.table::data.table]. Empty if NULL.
+#' @param data (list | NULL) a `CreateOrderResponse` object, or NULL.
+#' @return (class<data.table>) a single-row table. Empty if NULL.
 #'
 #' @keywords internal
 #' @noRd
 parse_create_order <- function(data) {
+  assert_args_parse_create_order(data)
   if (is.null(data) || length(data) == 0) {
-    return(data.table::data.table()[])
+    return(assert_return_parse_create_order(data.table::data.table()[]))
   }
   sr <- coalesce_null(data$success_response, list())
   cfg <- flatten_order_config(data$order_configuration)
   errs <- collapse_errors(Filter(Negate(is.null), list(data$failure_reason, data$error_response)))
-  return(data.table::data.table(
+  return(assert_return_parse_create_order(data.table::data.table(
     success = coalesce_null(data$success, NA),
     order_id = coalesce_null(sr$order_id, coalesce_null(data$order_id, NA_character_)),
     product_id = coalesce_null(sr$product_id, NA_character_),
@@ -552,41 +583,43 @@ parse_create_order <- function(data) {
     limit_price = cfg$limit_price,
     stop_price = cfg$stop_price,
     stop_trigger_price = cfg$stop_trigger_price
-  )[])
+  )[]))
 }
 
 #' Parse a Coinbase Edit-Order Response into a one-row data.table
 #'
-#' @param data An `EditOrderResponse` object, or NULL.
-#' @return A single-row [data.table::data.table]. Empty if NULL.
+#' @param data (list | NULL) an `EditOrderResponse` object, or NULL.
+#' @return (class<data.table>) a single-row table. Empty if NULL.
 #'
 #' @keywords internal
 #' @noRd
 parse_edit_order <- function(data) {
+  assert_args_parse_edit_order(data)
   if (is.null(data) || length(data) == 0) {
-    return(data.table::data.table()[])
+    return(assert_return_parse_edit_order(data.table::data.table()[]))
   }
   sr <- coalesce_null(data$success_response, list())
   err_items <- c(coalesce_null(data$errors, list()), Filter(Negate(is.null), list(data$error_response)))
-  return(data.table::data.table(
+  return(assert_return_parse_edit_order(data.table::data.table(
     success = coalesce_null(data$success, NA),
     order_id = coalesce_null(sr$order_id, NA_character_),
     errors = collapse_errors(err_items)
-  )[])
+  )[]))
 }
 
 #' Parse a Coinbase Edit-Order Preview into a one-row data.table
 #'
-#' @param data An `EditOrderPreviewResponse` object, or NULL.
-#' @return A single-row [data.table::data.table]. Empty if NULL.
+#' @param data (list | NULL) an `EditOrderPreviewResponse` object, or NULL.
+#' @return (class<data.table>) a single-row table. Empty if NULL.
 #'
 #' @keywords internal
 #' @noRd
 parse_edit_preview <- function(data) {
+  assert_args_parse_edit_preview(data)
   if (is.null(data) || length(data) == 0) {
-    return(data.table::data.table()[])
+    return(assert_return_parse_edit_preview(data.table::data.table()[]))
   }
-  return(data.table::data.table(
+  return(assert_return_parse_edit_preview(data.table::data.table(
     errors = collapse_errors(data$errors),
     slippage = num_or_na(data$slippage),
     order_total = num_or_na(data$order_total),
@@ -595,20 +628,21 @@ parse_edit_preview <- function(data) {
     base_size = num_or_na(data$base_size),
     best_bid = num_or_na(data$best_bid),
     average_filled_price = num_or_na(data$average_filled_price)
-  )[])
+  )[]))
 }
 
 #' Parse Coinbase Batch-Cancel Results into a data.table
 #'
-#' @param items A list of per-order cancel results, or NULL.
-#' @return A [data.table::data.table], one row per order. Empty if NULL/empty.
+#' @param items (list | NULL) a list of per-order cancel results, or NULL.
+#' @return (class<data.table>) one row per order. Empty if NULL/empty.
 #'
 #' @keywords internal
 #' @noRd
 parse_cancel_results <- function(items) {
+  assert_args_parse_cancel_results(items)
   items <- Filter(Negate(is.null), coalesce_null(items, list()))
   if (length(items) == 0L) {
-    return(data.table::data.table()[])
+    return(assert_return_parse_cancel_results(data.table::data.table()[]))
   }
   rows <- lapply(items, function(r) {
     fr <- r$failure_reason
@@ -622,24 +656,25 @@ parse_cancel_results <- function(items) {
       failure_reason = fr_str
     ))
   })
-  return(data.table::rbindlist(rows, fill = TRUE)[])
+  return(assert_return_parse_cancel_results(data.table::rbindlist(rows, fill = TRUE)[]))
 }
 
 #' Parse a Coinbase Current-Margin-Window Response into a one-row data.table
 #'
 #' Flattens the nested `margin_window` object into scalar columns.
 #'
-#' @param data A `GetCurrentMarginWindowResponse` object, or NULL.
-#' @return A single-row [data.table::data.table]. Empty if NULL.
+#' @param data (list | NULL) a `GetCurrentMarginWindowResponse` object, or NULL.
+#' @return (class<data.table>) a single-row table. Empty if NULL.
 #'
 #' @keywords internal
 #' @noRd
 parse_margin_window <- function(data) {
+  assert_args_parse_margin_window(data)
   if (is.null(data) || length(data) == 0) {
-    return(data.table::data.table()[])
+    return(assert_return_parse_margin_window(data.table::data.table()[]))
   }
   mw <- coalesce_null(data$margin_window, list())
-  return(data.table::data.table(
+  return(assert_return_parse_margin_window(data.table::data.table(
     margin_window_type = coalesce_null(mw$margin_window_type, NA_character_),
     end_time = iso_to_datetime(coalesce_null(mw$end_time, NA_character_)),
     is_intraday_margin_killswitch_enabled = coalesce_null(data$is_intraday_margin_killswitch_enabled, NA),
@@ -647,23 +682,24 @@ parse_margin_window <- function(data) {
       data$is_intraday_margin_enrollment_killswitch_enabled,
       NA
     )
-  )[])
+  )[]))
 }
 
 #' Parse a Coinbase Futures (CFM) Balance Summary into a one-row data.table
 #'
 #' Flattens the nested `{value, currency}` amounts into numeric columns.
 #'
-#' @param data A balance-summary object, or NULL.
-#' @return A single-row [data.table::data.table]. Empty if NULL.
+#' @param data (list | NULL) a balance-summary object, or NULL.
+#' @return (class<data.table>) a single-row table. Empty if NULL.
 #'
 #' @keywords internal
 #' @noRd
 parse_futures_balance <- function(data) {
+  assert_args_parse_futures_balance(data)
   if (is.null(data) || length(data) == 0) {
-    return(data.table::data.table()[])
+    return(assert_return_parse_futures_balance(data.table::data.table()[]))
   }
-  return(data.table::data.table(
+  return(assert_return_parse_futures_balance(data.table::data.table(
     futures_buying_power = flex_num(data$futures_buying_power),
     total_usd_balance = flex_num(data$total_usd_balance),
     cbi_usd_balance = flex_num(data$cbi_usd_balance),
@@ -676,20 +712,21 @@ parse_futures_balance <- function(data) {
     liquidation_threshold = flex_num(data$liquidation_threshold),
     liquidation_buffer_amount = flex_num(data$liquidation_buffer_amount),
     liquidation_buffer_percentage = num_or_na(data$liquidation_buffer_percentage)
-  )[])
+  )[]))
 }
 
 #' Parse Coinbase Futures (CFM) Positions into a data.table
 #'
-#' @param items A list of position objects, or NULL.
-#' @return A [data.table::data.table], one row per position. Empty if NULL/empty.
+#' @param items (list | NULL) a list of position objects, or NULL.
+#' @return (class<data.table>) one row per position. Empty if NULL/empty.
 #'
 #' @keywords internal
 #' @noRd
 parse_futures_positions <- function(items) {
+  assert_args_parse_futures_positions(items)
   items <- Filter(Negate(is.null), coalesce_null(items, list()))
   if (length(items) == 0L) {
-    return(data.table::data.table()[])
+    return(assert_return_parse_futures_positions(data.table::data.table()[]))
   }
   rows <- lapply(items, function(p) {
     return(data.table::data.table(
@@ -703,19 +740,20 @@ parse_futures_positions <- function(items) {
       expiration_time = iso_to_datetime(coalesce_null(p$expiration_time, NA_character_))
     ))
   })
-  return(data.table::rbindlist(rows, fill = TRUE)[])
+  return(assert_return_parse_futures_positions(data.table::rbindlist(rows, fill = TRUE)[]))
 }
 
 #' Parse Coinbase Futures (CFM) Sweeps into a data.table
 #'
-#' @param items A list of sweep objects, or NULL.
-#' @return A [data.table::data.table], one row per sweep. Empty if NULL/empty.
+#' @param items (list | NULL) a list of sweep objects, or NULL.
+#' @return (class<data.table>) one row per sweep. Empty if NULL/empty.
 #'
 #' @keywords internal
 #' @noRd
 parse_futures_sweeps <- function(items) {
+  assert_args_parse_futures_sweeps(items)
   if (is.null(items) || length(items) == 0) {
-    return(data.table::data.table()[])
+    return(assert_return_parse_futures_sweeps(data.table::data.table()[]))
   }
   rows <- lapply(items, function(s) {
     return(data.table::data.table(
@@ -726,7 +764,7 @@ parse_futures_sweeps <- function(items) {
       schedule_time = iso_to_datetime(coalesce_null(s$schedule_time, NA_character_))
     ))
   })
-  return(data.table::rbindlist(rows, fill = TRUE)[])
+  return(assert_return_parse_futures_sweeps(data.table::rbindlist(rows, fill = TRUE)[]))
 }
 
 #' Parse a Coinbase Exchange Order Book into a long data.table
@@ -736,17 +774,19 @@ parse_futures_sweeps <- function(items) {
 #' 3 the third element is an `order_id` string (the book is non-aggregated), so
 #' the third column is emitted as `order_id` rather than coerced to numeric.
 #'
-#' @param data A list with `bids` and `asks`, or NULL.
-#' @param level Integer; the requested book level (1, 2, or 3). Default 2.
-#' @return A [data.table::data.table] with columns `side`, `price`, `size`, and
-#'   either `num_orders` (levels 1-2) or `order_id` (level 3). Empty if `data`
-#'   is NULL or empty.
+#' @param data (list | NULL) a list with `bids` and `asks`, or NULL.
+#' @param level (scalar<count in [1, 3]>) the requested book level (1, 2, or 3).
+#'   Default 2.
+#' @return (class<data.table>) columns `side`, `price`, `size`, and either
+#'   `num_orders` (levels 1-2) or `order_id` (level 3). Empty if `data` is NULL
+#'   or empty.
 #'
 #' @keywords internal
 #' @noRd
 parse_orderbook <- function(data, level = 2L) {
+  assert_args_parse_orderbook(data, level)
   if (is.null(data) || length(data) == 0) {
-    return(data.table::data.table()[])
+    return(assert_return_parse_orderbook(data.table::data.table()[]))
   }
   is_l3 <- isTRUE(as.integer(level) == 3L)
   one_side <- function(levels, side) {
@@ -769,7 +809,7 @@ parse_orderbook <- function(data, level = 2L) {
     list(one_side(data$bids, "bid"), one_side(data$asks, "ask")),
     fill = TRUE
   )
-  return(dt[])
+  return(assert_return_parse_orderbook(dt[]))
 }
 
 #' Parse the Coinbase Exchange Bulk Product Stats into a data.table
@@ -779,14 +819,15 @@ parse_orderbook <- function(data, level = 2L) {
 #' flattens it to one row per product with numeric 24h OHLCV plus 30-day volume
 #' -- the basis for a movers/most-active scanner.
 #'
-#' @param data A named list keyed by product id, or NULL.
-#' @return A [data.table::data.table], one row per product. Empty if NULL/empty.
+#' @param data (list | NULL) a named list keyed by product id, or NULL.
+#' @return (class<data.table>) one row per product. Empty if NULL/empty.
 #'
 #' @keywords internal
 #' @noRd
 parse_stats <- function(data) {
+  assert_args_parse_stats(data)
   if (is.null(data) || length(data) == 0) {
-    return(data.table::data.table()[])
+    return(assert_return_parse_stats(data.table::data.table()[]))
   }
   ids <- names(data)
   rows <- lapply(ids, function(pid) {
@@ -803,21 +844,22 @@ parse_stats <- function(data) {
       volume_30day = num_or_na(d30$volume)
     ))
   })
-  return(data.table::rbindlist(rows, fill = TRUE)[])
+  return(assert_return_parse_stats(data.table::rbindlist(rows, fill = TRUE)[]))
 }
 
 #' Parse a Coinbase Exchange Single-Product Stats Object into a one-row data.table
 #'
-#' @param data A `/products/{id}/stats` object, or NULL.
-#' @return A single-row [data.table::data.table]. Empty if NULL.
+#' @param data (list | NULL) a `/products/{id}/stats` object, or NULL.
+#' @return (class<data.table>) a single-row table. Empty if NULL.
 #'
 #' @keywords internal
 #' @noRd
 parse_product_stats <- function(data) {
+  assert_args_parse_product_stats(data)
   if (is.null(data) || length(data) == 0) {
-    return(data.table::data.table()[])
+    return(assert_return_parse_product_stats(data.table::data.table()[]))
   }
-  return(data.table::data.table(
+  return(assert_return_parse_product_stats(data.table::data.table(
     open = num_or_na(data$open),
     high = num_or_na(data$high),
     low = num_or_na(data$low),
@@ -828,7 +870,7 @@ parse_product_stats <- function(data) {
     rfq_volume_30day = num_or_na(data$rfq_volume_30day),
     conversions_volume_24hour = num_or_na(data$conversions_volume_24hour),
     conversions_volume_30day = num_or_na(data$conversions_volume_30day)
-  )[])
+  )[]))
 }
 
 #' Parse a Coinbase Advanced Trade Best-Bid/Ask Response into a data.table
@@ -836,15 +878,17 @@ parse_product_stats <- function(data) {
 #' Flattens the `pricebooks` array to one row per product carrying the best
 #' (first) bid and ask price/size, avoiding list columns.
 #'
-#' @param data A `GetBestBidAskResponse` object with a `pricebooks` array, or NULL.
-#' @return A [data.table::data.table], one row per product. Empty if NULL/empty.
+#' @param data (list | NULL) a `GetBestBidAskResponse` object with a `pricebooks`
+#'   array, or NULL.
+#' @return (class<data.table>) one row per product. Empty if NULL/empty.
 #'
 #' @keywords internal
 #' @noRd
 parse_best_bid_ask <- function(data) {
+  assert_args_parse_best_bid_ask(data)
   items <- Filter(Negate(is.null), coalesce_null(data$pricebooks, list()))
   if (length(items) == 0L) {
-    return(data.table::data.table()[])
+    return(assert_return_parse_best_bid_ask(data.table::data.table()[]))
   }
   rows <- lapply(items, function(pb) {
     bid <- list()
@@ -864,7 +908,7 @@ parse_best_bid_ask <- function(data) {
       time = iso_to_datetime(coalesce_null(pb$time, NA_character_))
     ))
   })
-  return(data.table::rbindlist(rows, fill = TRUE)[])
+  return(assert_return_parse_best_bid_ask(data.table::rbindlist(rows, fill = TRUE)[]))
 }
 
 #' Parse a Coinbase Portfolio Breakdown into a stacked positions data.table
@@ -879,13 +923,14 @@ parse_best_bid_ask <- function(data) {
 #' real API names. The portfolio's aggregate totals are returned separately by
 #' [parse_portfolio_summary()] rather than attached as an attribute.
 #'
-#' @param data A `GetPortfolioBreakdownResponse` object with a `breakdown` field,
-#'   or NULL.
-#' @return A [data.table::data.table] of positions. Empty if there are none.
+#' @param data (list | NULL) a `GetPortfolioBreakdownResponse` object with a
+#'   `breakdown` field, or NULL.
+#' @return (class<data.table>) the positions. Empty if there are none.
 #'
 #' @keywords internal
 #' @noRd
 parse_portfolio_breakdown <- function(data) {
+  assert_args_parse_portfolio_breakdown(data)
   bd <- coalesce_null(data$breakdown, list())
 
   spot_row <- function(p) {
@@ -959,7 +1004,7 @@ parse_portfolio_breakdown <- function(data) {
   if (length(parts) > 0L) {
     positions <- data.table::rbindlist(parts, fill = TRUE)
   }
-  return(positions[])
+  return(assert_return_parse_portfolio_breakdown(positions[]))
 }
 
 #' Parse a Coinbase Portfolio Breakdown's Aggregate Totals into a one-row data.table
@@ -969,17 +1014,18 @@ parse_portfolio_breakdown <- function(data) {
 #' both parse the same endpoint, returning the totals and the positions
 #' respectively, so each remains a single flat data.table.
 #'
-#' @param data A `GetPortfolioBreakdownResponse` object with a `breakdown` field,
-#'   or NULL.
-#' @return A single-row [data.table::data.table] of portfolio totals.
+#' @param data (list | NULL) a `GetPortfolioBreakdownResponse` object with a
+#'   `breakdown` field, or NULL.
+#' @return (class<data.table>) a single-row table of portfolio totals.
 #'
 #' @keywords internal
 #' @noRd
 parse_portfolio_summary <- function(data) {
+  assert_args_parse_portfolio_summary(data)
   bd <- coalesce_null(data$breakdown, list())
   p <- coalesce_null(bd$portfolio, list())
   b <- coalesce_null(bd$portfolio_balances, list())
-  return(data.table::data.table(
+  return(assert_return_parse_portfolio_summary(data.table::data.table(
     uuid = coalesce_null(p$uuid, NA_character_),
     name = coalesce_null(p$name, NA_character_),
     type = coalesce_null(p$type, NA_character_),
@@ -990,5 +1036,5 @@ parse_portfolio_summary <- function(data) {
     futures_unrealized_pnl = money_value(b$futures_unrealized_pnl),
     perp_unrealized_pnl = money_value(b$perp_unrealized_pnl),
     total_equities_balance = money_value(b$total_equities_balance)
-  ))
+  )))
 }

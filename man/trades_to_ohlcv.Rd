@@ -7,16 +7,17 @@
 trades_to_ohlcv(trades, interval = 60)
 }
 \arguments{
-\item{trades}{A \link[data.table:data.table]{data.table::data.table} of trades with at least \code{time}
-(POSIXct), \code{price} (numeric), and \code{size} (numeric) columns; \code{trade_id}
-(numeric) is used as a tiebreaker if present.}
+\item{trades}{(class<data.table>) trades with at least \code{time} (POSIXct),
+\code{price} (numeric), and \code{size} (numeric) columns; \code{trade_id} (numeric) is
+used as a tiebreaker if present.}
 
-\item{interval}{Numeric; bar width in seconds (e.g. \code{60} for 1-minute bars).}
+\item{interval}{(scalar<numeric in ]0, Inf[>) bar width in seconds (e.g. \code{60}
+for 1-minute bars).}
 }
 \value{
-A \link[data.table:data.table]{data.table::data.table} with columns \code{datetime}, \code{open}, \code{high},
-\code{low}, \code{close}, \code{volume}, sorted ascending by \code{datetime}. \code{datetime} is the
-floored start of each bar. Empty if \code{trades} is empty.
+(class<data.table>) columns \code{datetime}, \code{open}, \code{high}, \code{low},
+\code{close}, \code{volume}, sorted ascending by \code{datetime}. \code{datetime} is the floored
+start of each bar. Empty if \code{trades} is empty.
 }
 \description{
 Converts a table of raw tick trades (as returned by

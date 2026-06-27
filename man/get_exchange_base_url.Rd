@@ -7,11 +7,11 @@
 get_exchange_base_url(url = Sys.getenv("COINBASE_EXCHANGE_API_ENDPOINT"))
 }
 \arguments{
-\item{url}{Character string; explicit base URL. Defaults to
+\item{url}{(scalar<character>) explicit base URL. Defaults to
 \code{Sys.getenv("COINBASE_EXCHANGE_API_ENDPOINT")}.}
 }
 \value{
-Character string; the Exchange API base URL.
+(scalar<character>) the Exchange API base URL.
 }
 \description{
 Returns the base URL for the Coinbase Exchange API in the following priority:

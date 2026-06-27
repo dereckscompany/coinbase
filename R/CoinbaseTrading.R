@@ -51,21 +51,24 @@ CoinbaseTrading <- R6::R6Class(
   public = list(
     #' @description Place a new order. The order is live and may execute; use
     #'   `preview_order()` first to validate.
-    #' @param product_id Character; e.g. `"BTC-USD"`.
-    #' @param side Character; `"BUY"` or `"SELL"`.
-    #' @param order_configuration Named list; the one-key order configuration.
-    #' @param client_order_id Character; idempotency key. Defaults to a fresh
-    #'   UUID via [generate_client_order_id()].
-    #' @param self_trade_prevention_id Character or NULL; self-trade-prevention
-    #'   group id. Optional.
-    #' @param leverage Character or NULL; leverage for the order (e.g. `"2"`).
+    #' @param product_id (scalar<character>) e.g. `"BTC-USD"`.
+    #' @param side (scalar<character>) `"BUY"` or `"SELL"`.
+    #' @param order_configuration (list) the one-key order configuration.
+    #' @param client_order_id (scalar<character>) idempotency key. Defaults to a
+    #'   fresh UUID via [generate_client_order_id()].
+    #' @param self_trade_prevention_id (scalar<character> | NULL)
+    #'   self-trade-prevention group id. Optional.
+    #' @param leverage (scalar<character> | NULL) leverage for the order (e.g.
+    #'   `"2"`). Optional.
+    #' @param margin_type (scalar<character> | NULL) `"CROSS"` or `"ISOLATED"`.
     #'   Optional.
-    #' @param margin_type Character or NULL; `"CROSS"` or `"ISOLATED"`. Optional.
-    #' @param retail_portfolio_id Character or NULL; portfolio to route the order
-    #'   to. Optional.
-    #' @return A single-row [data.table::data.table] with `success`, the scalar
-    #'   `order_id`, `product_id`, `side`, `client_order_id`, `failure_reason`,
-    #'   and flattened order-configuration columns, or a promise thereof.
+    #' @param retail_portfolio_id (scalar<character> | NULL) portfolio to route the
+    #'   order to. Optional.
+    #' @return (data.table | promise<data.table>) a single-row table with
+    #'   `success`, the scalar `order_id`, `product_id`, `side`,
+    #'   `client_order_id`, `failure_reason`, and flattened order-configuration
+    #'   columns, or a promise thereof.
+    #' @noassert product_id, side, order_configuration
     add_order = function(
       product_id,
       side,
@@ -79,8 +82,14 @@ CoinbaseTrading <- R6::R6Class(
       validate_symbol(product_id)
       side <- validate_side(side)
       validate_order_config(order_configuration)
+      assert_args_CoinbaseTrading__add_order(
+        client_order_id,
+        self_trade_prevention_id,
+        leverage,
+        margin_type,
+        retail_portfolio_id
+      )
       order_configuration <- stringify_order_config(order_configuration)
-      assert::assert_scalar_character(client_order_id)
       body <- list(
         client_order_id = client_order_id,
         product_id = product_id,
@@ -103,14 +112,17 @@ CoinbaseTrading <- R6::R6Class(
     #' @description Preview an order without placing it (dry run; executes
     #'   nothing). Returns the estimated total, commission, sizes, and any
     #'   validation errors.
-    #' @param product_id Character; e.g. `"BTC-USD"`.
-    #' @param side Character; `"BUY"` or `"SELL"`.
-    #' @param order_configuration Named list; the one-key order configuration.
-    #' @param leverage Character or NULL; leverage for the order. Optional.
-    #' @param margin_type Character or NULL; `"CROSS"` or `"ISOLATED"`. Optional.
-    #' @param retail_portfolio_id Character or NULL; portfolio to scope the
+    #' @param product_id (scalar<character>) e.g. `"BTC-USD"`.
+    #' @param side (scalar<character>) `"BUY"` or `"SELL"`.
+    #' @param order_configuration (list) the one-key order configuration.
+    #' @param leverage (scalar<character> | NULL) leverage for the order. Optional.
+    #' @param margin_type (scalar<character> | NULL) `"CROSS"` or `"ISOLATED"`.
+    #'   Optional.
+    #' @param retail_portfolio_id (scalar<character> | NULL) portfolio to scope the
     #'   preview to. Optional.
-    #' @return A single-row [data.table::data.table], or a promise thereof.
+    #' @return (data.table | promise<data.table>) a single-row table, or a promise
+    #'   thereof.
+    #' @noassert product_id, side, order_configuration
     preview_order = function(
       product_id,
       side,
@@ -122,6 +134,11 @@ CoinbaseTrading <- R6::R6Class(
       validate_symbol(product_id)
       side <- validate_side(side)
       validate_order_config(order_configuration)
+      assert_args_CoinbaseTrading__preview_order(
+        leverage,
+        margin_type,
+        retail_portfolio_id
+      )
       order_configuration <- stringify_order_config(order_configuration)
       body <- list(
         product_id = product_id,
@@ -141,10 +158,11 @@ CoinbaseTrading <- R6::R6Class(
     },
 
     #' @description Retrieve a single order by its ID.
-    #' @param order_id Character; the order ID.
-    #' @return A single-row [data.table::data.table], or a promise thereof.
+    #' @param order_id (scalar<character>) the order ID.
+    #' @return (data.table | promise<data.table>) a single-row table, or a promise
+    #'   thereof.
     get_order = function(order_id) {
-      assert::assert_scalar_character(order_id)
+      assert_args_CoinbaseTrading__get_order(order_id)
       return(private$.request(
         endpoint = paste0("/api/v3/brokerage/orders/historical/", order_id),
         auth = TRUE,
@@ -153,24 +171,30 @@ CoinbaseTrading <- R6::R6Class(
     },
 
     #' @description Retrieve historical orders, paginating over the cursor.
-    #' @param product_ids Character vector or NULL; filter by product(s).
-    #' @param order_status Character vector or NULL; e.g. `"OPEN"`, `"FILLED"`,
+    #' @param product_ids (character | NULL) filter by product(s).
+    #' @param order_status (character | NULL) e.g. `"OPEN"`, `"FILLED"`,
     #'   `"CANCELLED"`.
-    #' @param order_side Character or NULL; `"BUY"` or `"SELL"`.
-    #' @param limit Integer or NULL; page size.
-    #' @param order_ids Character vector or NULL; filter by specific order id(s).
-    #' @param start_date,end_date Character or NULL; RFC 3339 bounds on order
+    #' @param order_side (scalar<character> | NULL) `"BUY"` or `"SELL"`.
+    #' @param limit (scalar<count in [1, Inf[> | NULL) page size.
+    #' @param order_ids (character | NULL) filter by specific order id(s).
+    #' @param start_date (scalar<character> | NULL) RFC 3339 lower bound on order
     #'   creation time.
-    #' @param order_types Character vector or NULL; e.g. `"LIMIT"`, `"MARKET"`.
-    #' @param product_type Character or NULL; `"SPOT"` or `"FUTURE"`.
-    #' @param order_placement_source Character or NULL; e.g. `"RETAIL_ADVANCED"`.
-    #' @param contract_expiry_type Character or NULL; e.g. `"EXPIRING"`.
-    #' @param asset_filters Character vector or NULL; filter by asset.
-    #' @param retail_portfolio_id Character or NULL; scope to a portfolio.
-    #' @param time_in_forces Character vector or NULL; e.g. `"GOOD_UNTIL_CANCELLED"`.
-    #' @param sort_by Character or NULL; sort field, e.g. `"LAST_FILL_TIME"`.
-    #' @param max_pages Numeric; cap on pages fetched. Default `Inf`.
-    #' @return A [data.table::data.table] of orders, or a promise thereof.
+    #' @param end_date (scalar<character> | NULL) RFC 3339 upper bound on order
+    #'   creation time.
+    #' @param order_types (character | NULL) e.g. `"LIMIT"`, `"MARKET"`.
+    #' @param product_type (scalar<character> | NULL) `"SPOT"` or `"FUTURE"`.
+    #' @param order_placement_source (scalar<character> | NULL) e.g.
+    #'   `"RETAIL_ADVANCED"`.
+    #' @param contract_expiry_type (scalar<character> | NULL) e.g. `"EXPIRING"`.
+    #' @param asset_filters (character | NULL) filter by asset.
+    #' @param retail_portfolio_id (scalar<character> | NULL) scope to a portfolio.
+    #' @param time_in_forces (character | NULL) e.g. `"GOOD_UNTIL_CANCELLED"`.
+    #' @param sort_by (scalar<character> | NULL) sort field, e.g.
+    #'   `"LAST_FILL_TIME"`.
+    #' @param max_pages (scalar<numeric in [1, Inf]>) cap on pages fetched.
+    #'   Default `Inf`.
+    #' @return (data.table | promise<data.table>) the orders, or a promise
+    #'   thereof.
     get_orders = function(
       product_ids = NULL,
       order_status = NULL,
@@ -189,6 +213,24 @@ CoinbaseTrading <- R6::R6Class(
       sort_by = NULL,
       max_pages = Inf
     ) {
+      assert_args_CoinbaseTrading__get_orders(
+        product_ids,
+        order_status,
+        order_side,
+        limit,
+        order_ids,
+        start_date,
+        end_date,
+        order_types,
+        product_type,
+        order_placement_source,
+        contract_expiry_type,
+        asset_filters,
+        retail_portfolio_id,
+        time_in_forces,
+        sort_by,
+        max_pages
+      )
       return(coinbase_paginate_cursor(
         endpoint = "/api/v3/brokerage/orders/historical/batch",
         query = list(
@@ -217,16 +259,19 @@ CoinbaseTrading <- R6::R6Class(
     },
 
     #' @description Retrieve historical fills, paginating over the cursor.
-    #' @param order_ids Character vector or NULL; filter by order id(s).
-    #' @param trade_ids Character vector or NULL; filter by trade id(s).
-    #' @param product_ids Character vector or NULL; filter by product(s).
-    #' @param start_sequence_timestamp,end_sequence_timestamp Character or NULL;
-    #'   RFC 3339 bounds on fill sequence time.
-    #' @param retail_portfolio_id Character or NULL; scope to a portfolio.
-    #' @param limit Integer or NULL; page size.
-    #' @param sort_by Character or NULL; sort field, e.g. `"TRADE_TIME"`.
-    #' @param max_pages Numeric; cap on pages fetched. Default `Inf`.
-    #' @return A [data.table::data.table] of fills, or a promise thereof.
+    #' @param order_ids (character | NULL) filter by order id(s).
+    #' @param trade_ids (character | NULL) filter by trade id(s).
+    #' @param product_ids (character | NULL) filter by product(s).
+    #' @param start_sequence_timestamp (scalar<character> | NULL) RFC 3339 lower
+    #'   bound on fill sequence time.
+    #' @param end_sequence_timestamp (scalar<character> | NULL) RFC 3339 upper
+    #'   bound on fill sequence time.
+    #' @param retail_portfolio_id (scalar<character> | NULL) scope to a portfolio.
+    #' @param limit (scalar<count in [1, Inf[> | NULL) page size.
+    #' @param sort_by (scalar<character> | NULL) sort field, e.g. `"TRADE_TIME"`.
+    #' @param max_pages (scalar<numeric in [1, Inf]>) cap on pages fetched.
+    #'   Default `Inf`.
+    #' @return (data.table | promise<data.table>) the fills, or a promise thereof.
     get_fills = function(
       order_ids = NULL,
       trade_ids = NULL,
@@ -238,6 +283,17 @@ CoinbaseTrading <- R6::R6Class(
       sort_by = NULL,
       max_pages = Inf
     ) {
+      assert_args_CoinbaseTrading__get_fills(
+        order_ids,
+        trade_ids,
+        product_ids,
+        start_sequence_timestamp,
+        end_sequence_timestamp,
+        retail_portfolio_id,
+        limit,
+        sort_by,
+        max_pages
+      )
       return(coinbase_paginate_cursor(
         endpoint = "/api/v3/brokerage/orders/historical/fills",
         query = list(
@@ -259,12 +315,14 @@ CoinbaseTrading <- R6::R6Class(
     },
 
     #' @description Edit an open order's price and/or size.
-    #' @param order_id Character; the order ID.
-    #' @param price Character/numeric or NULL; new limit price.
-    #' @param size Character/numeric or NULL; new size.
-    #' @return A single-row [data.table::data.table], or a promise thereof.
+    #' @param order_id (scalar<character>) the order ID.
+    #' @param price (scalar<numeric> | scalar<character> | NULL) new limit price.
+    #' @param size (scalar<numeric> | scalar<character> | NULL) new size.
+    #' @return (data.table | promise<data.table>) a single-row table, or a promise
+    #'   thereof.
+    #' @noassert price, size
     edit_order = function(order_id, price = NULL, size = NULL) {
-      assert::assert_scalar_character(order_id)
+      assert_args_CoinbaseTrading__edit_order(order_id)
       if (is.null(price) && is.null(size)) {
         rlang::abort("edit_order requires at least one of `price` or `size`.")
       }
@@ -284,12 +342,15 @@ CoinbaseTrading <- R6::R6Class(
     },
 
     #' @description Preview an order edit without applying it (dry run).
-    #' @param order_id Character; the order ID.
-    #' @param price Character/numeric or NULL; proposed limit price.
-    #' @param size Character/numeric or NULL; proposed size.
-    #' @return A single-row [data.table::data.table], or a promise thereof.
+    #' @param order_id (scalar<character>) the order ID.
+    #' @param price (scalar<numeric> | scalar<character> | NULL) proposed limit
+    #'   price.
+    #' @param size (scalar<numeric> | scalar<character> | NULL) proposed size.
+    #' @return (data.table | promise<data.table>) a single-row table, or a promise
+    #'   thereof.
+    #' @noassert price, size
     preview_edit_order = function(order_id, price = NULL, size = NULL) {
-      assert::assert_scalar_character(order_id)
+      assert_args_CoinbaseTrading__preview_edit_order(order_id)
       if (is.null(price) && is.null(size)) {
         rlang::abort("preview_edit_order requires at least one of `price` or `size`.")
       }
@@ -309,11 +370,11 @@ CoinbaseTrading <- R6::R6Class(
     },
 
     #' @description Cancel one or more open orders.
-    #' @param order_ids Character vector; the order IDs to cancel.
-    #' @return A [data.table::data.table] of per-order cancel results, or a
+    #' @param order_ids (character) the order IDs to cancel.
+    #' @return (data.table | promise<data.table>) per-order cancel results, or a
     #'   promise thereof.
     cancel_orders = function(order_ids) {
-      assert::assert_character(order_ids)
+      assert_args_CoinbaseTrading__cancel_orders(order_ids)
       if (length(order_ids) == 0L) {
         rlang::abort("`order_ids` must contain at least one order id.")
       }
@@ -329,16 +390,18 @@ CoinbaseTrading <- R6::R6Class(
     #' @description Place an order to close an open position for a product. This
     #'   is the idiomatic way to flatten a position -- e.g. the short leg of a
     #'   futures pair -- without hand-constructing an opposing order.
-    #' @param product_id Character; the product whose position to close.
-    #' @param size Character/numeric or NULL; the amount (contracts / base size)
-    #'   to close. `NULL` closes the entire position.
-    #' @param client_order_id Character; idempotency key. Defaults to a fresh
-    #'   UUID via [generate_client_order_id()].
-    #' @return A single-row [data.table::data.table] with `success`, the scalar
-    #'   `order_id`, and flattened order details, or a promise thereof.
+    #' @param product_id (scalar<character>) the product whose position to close.
+    #' @param size (scalar<numeric> | scalar<character> | NULL) the amount
+    #'   (contracts / base size) to close. `NULL` closes the entire position.
+    #' @param client_order_id (scalar<character>) idempotency key. Defaults to a
+    #'   fresh UUID via [generate_client_order_id()].
+    #' @return (data.table | promise<data.table>) a single-row table with
+    #'   `success`, the scalar `order_id`, and flattened order details, or a
+    #'   promise thereof.
+    #' @noassert product_id, size
     close_position = function(product_id, size = NULL, client_order_id = generate_client_order_id()) {
       validate_symbol(product_id)
-      assert::assert_scalar_character(client_order_id)
+      assert_args_CoinbaseTrading__close_position(client_order_id)
       if (!is.null(size)) {
         size <- coerce_positive_string(size, "size")
       }

@@ -1,3 +1,27 @@
+# coinbase 0.2.0
+
+## Runtime contracts via roxyassert
+
+* Every `@param` and `@return` across the package is now written in the
+  [roxyassert](https://github.com/dereckscompany/roxyassert) (`v0.9.1`) type
+  grammar, and the `roxyassert::contract_roclet` generates the matching runtime
+  assertions into `R/contracts-generated.R`. Each function and R6 method now
+  validates its inputs (`assert_args_*`) and, where a concrete `@return` type is
+  declared, its result (`assert_return_*`) against its documented contract — so
+  the documentation and the runtime check come from one source.
+* No public signature or behaviour changed for valid inputs: the contracts
+  accept exactly what the previous hand-written `assert::` guards and the test
+  suite already passed. The pre-existing inline `assert::` checks were folded
+  into the generated contracts where the grammar expresses them; the residual
+  guards the grammar cannot express (the `BASE-QUOTE` symbol regex, the
+  single-key order-configuration shape, the positive-finite money coercion, the
+  granularity / order-book-level enums with their bespoke error messages) are
+  kept as explicit guards, with the corresponding parameters marked `@noassert`
+  so they are documented but not double-validated.
+* Sync-or-async endpoint results are typed `(data.table | promise<data.table>)`
+  for documentation; following connectcore, the promise-returning method bodies
+  are left unwrapped so the async path is unaffected.
+
 # coinbase 0.1.0
 
 ## Transport migration to connectcore

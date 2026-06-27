@@ -18,30 +18,34 @@ coinbase_build_request(
 )
 }
 \arguments{
-\item{base_url}{Character; the API base URL (scheme + host).}
+\item{base_url}{(scalar<character>) the API base URL (scheme + host).}
 
-\item{endpoint}{Character; the API path.}
+\item{endpoint}{(scalar<character>) the API path.}
 
-\item{method}{Character; HTTP method. Default \code{"GET"}.}
+\item{method}{(scalar<character>) HTTP method. Default \code{"GET"}.}
 
-\item{query}{Named list; query parameters. Default \code{list()}.}
+\item{query}{(list) query parameters. Default \code{list()}.}
 
-\item{body}{Named list or NULL; request body. Default \code{NULL}.}
+\item{body}{(list | NULL) request body. Default \code{NULL}.}
 
-\item{keys}{List or NULL; API credentials. When non-NULL the request is
+\item{keys}{(list | NULL) API credentials. When non-NULL the request is
 signed. Default \code{NULL}.}
 
-\item{.perform}{Function; the httr2 perform function. Default \code{httr2::req_perform}.}
+\item{.perform}{(function) the httr2 perform function. Default
+\code{httr2::req_perform}.}
 
-\item{.parser}{Function; post-processing applied to the parsed response body.
+\item{.parser}{(function) post-processing applied to the parsed response body.
 Default \code{identity}.}
 
-\item{is_async}{Logical; whether \code{.perform} returns promises. Default \code{FALSE}.}
+\item{is_async}{(scalar<logical>) whether \code{.perform} returns promises. Default
+\code{FALSE}.}
 
-\item{timeout}{Numeric; request timeout in seconds. Default \code{30}.}
+\item{timeout}{(scalar<numeric in ]0, Inf[>) request timeout in seconds.
+Default \code{30}.}
 }
 \value{
-Parsed and post-processed API response data, or a promise thereof.
+(any | promise<any>) parsed and post-processed API response data, or a
+promise thereof.
 }
 \description{
 Constructs an \link[httr2:request]{httr2::request}, optionally JWT-signs it, performs it (sync or
