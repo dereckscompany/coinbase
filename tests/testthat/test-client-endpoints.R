@@ -4,7 +4,7 @@
 # endpoint strings, query/host/auth selection, pagination, and each method's
 # .parser closure — which otherwise only runs during a docs render.
 
-box::use(./mock_router[mock_router])
+box::use(./mock_router[.mock_routes])
 
 # A throwaway EC P-256 key so JWT signing (which runs before the request)
 # succeeds; the mock ignores the Authorization header entirely.
@@ -15,8 +15,7 @@ box::use(./mock_router[mock_router])
 )
 
 test_that("CoinbaseMarketData public methods round-trip through the router", {
-  old <- options(httr2_mock = mock_router)
-  on.exit(options(old), add = TRUE)
+  connectcore::local_mock_api(.mock_routes)
   market <- CoinbaseMarketData$new(keys = .keys)
 
   products <- market$get_products()
@@ -55,8 +54,7 @@ test_that("CoinbaseMarketData public methods round-trip through the router", {
 })
 
 test_that("CoinbaseAccount public methods round-trip through the router", {
-  old <- options(httr2_mock = mock_router)
-  on.exit(options(old), add = TRUE)
+  connectcore::local_mock_api(.mock_routes)
   account <- CoinbaseAccount$new(keys = .keys)
 
   expect_true(data.table::is.data.table(account$get_accounts(max_pages = 1)))
@@ -79,8 +77,7 @@ test_that("CoinbaseAccount public methods round-trip through the router", {
 })
 
 test_that("CoinbaseTrading public methods round-trip through the router", {
-  old <- options(httr2_mock = mock_router)
-  on.exit(options(old), add = TRUE)
+  connectcore::local_mock_api(.mock_routes)
   trading <- CoinbaseTrading$new(keys = .keys)
   cfg <- list(market_market_ioc = list(quote_size = "10"))
 
@@ -96,8 +93,7 @@ test_that("CoinbaseTrading public methods round-trip through the router", {
 })
 
 test_that("CoinbaseFutures public methods round-trip through the router", {
-  old <- options(httr2_mock = mock_router)
-  on.exit(options(old), add = TRUE)
+  connectcore::local_mock_api(.mock_routes)
   futures <- CoinbaseFutures$new(keys = .keys)
 
   expect_equal(nrow(futures$get_balance_summary()), 1L)

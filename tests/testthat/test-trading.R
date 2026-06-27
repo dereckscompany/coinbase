@@ -4,11 +4,17 @@ test_that("close_position posts to the close-position endpoint and parses the re
   # Ephemeral key so JWT signing succeeds; the inline mock answers the request.
   sk <- openssl::ec_keygen("P-256")
   keys <- list(api_key_name = "organizations/x/apiKeys/y", api_private_key = openssl::write_pem(sk))
+  # An inline router that records the request URL/method (the thing under test)
+  # and serves the captured close-position fixture verbatim via connectcore.
+  fixture <- paste(
+    readLines(test_path("fixtures", "close_position.json"), warn = FALSE),
+    collapse = "\n"
+  )
   seen <- list()
   old <- options(httr2_mock = function(req) {
     seen$url <<- req$url
     seen$method <<- req$method
-    return(mock_cb_response(mock_cb_close_position_response()))
+    return(connectcore::mock_response(fixture))
   })
   on.exit(options(old), add = TRUE)
 
