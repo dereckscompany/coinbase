@@ -1,3 +1,33 @@
+# coinbase 0.2.1
+
+## Shared mock test harness + real captured fixtures
+
+* The hand-rolled mock HTTP router is gone. `tests/testthat/mock_router.R` no
+  longer carries its own response builder and dispatch loop; it now declares
+  only the route table (`.mock_routes`) and resolves the dispatcher from
+  [connectcore](https://github.com/dereckscompany/connectcore) (`>= 0.2.0`),
+  whose shared harness (`mock_router()`, `with_mock_api()`, `local_mock_api()`,
+  `load_fixtures()`, `mock_response()`) every connector now reuses. Tests and the
+  README/vignette setup chunks install the mock with
+  `connectcore::local_mock_api(.mock_routes)` instead of hand-setting
+  `options(httr2_mock = ...)`. The hand-written fixture file
+  `tests/testthat/helper-mockery.R` was deleted. Together this drops roughly 270
+  lines of duplicated mock machinery.
+* The test fixtures are now **real captured Coinbase responses**, stored as
+  `tests/testthat/fixtures/*.json` and served verbatim, so the parsers and
+  column contracts are validated against genuine exchange data rather than
+  hand-modelled shapes. The authenticated fixtures are **scrubbed**: every real
+  account/portfolio/order UUID is replaced with a deterministic synthetic UUID
+  and every balance/amount/price/fee with a round synthetic value, while the
+  exact JSON shape — every field, type, and nesting level — is preserved.
+  Public market-data fixtures are verbatim. The few endpoints the live test
+  account cannot populate (it holds no derivatives positions and a spot-only
+  portfolio) and the write endpoints that must never be exercised
+  (order create/preview/edit/cancel/close, sweep schedule/cancel) keep a
+  representative hand-written fixture so their populated column contracts stay
+  covered. The full suite passes against the real data with no contract
+  changes.
+
 # coinbase 0.2.0
 
 ## Runtime contracts via roxyassert
