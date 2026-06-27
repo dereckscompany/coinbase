@@ -4,6 +4,11 @@
 \alias{CoinbaseTrading}
 \title{CoinbaseTrading: Order Placement and Management}
 \description{
+CoinbaseTrading: Order Placement and Management
+
+CoinbaseTrading: Order Placement and Management
+}
+\details{
 Places, previews, edits, cancels, and queries orders and fills on the
 Coinbase Advanced Trade API. All endpoints require credentials.
 
@@ -53,37 +58,38 @@ trading$get_orders(product_ids = "BTC-USD", limit = 10)
 
 }
 \section{Super classes}{
-\code{\link[connectcore:RestClient]{connectcore::RestClient}} -> \code{\link[coinbase:CoinbaseBase]{CoinbaseBase}} -> \code{CoinbaseTrading}
+\code{\link[connectcore:RestClient]{connectcore::RestClient}} -> \code{\link[coinbase:CoinbaseBase]{coinbase::CoinbaseBase}} -> \code{CoinbaseTrading}
 }
 \section{Methods}{
 \subsection{Public methods}{
-  \itemize{
-    \item \href{#method-CoinbaseTrading-add_order}{\code{CoinbaseTrading$add_order()}}
-    \item \href{#method-CoinbaseTrading-preview_order}{\code{CoinbaseTrading$preview_order()}}
-    \item \href{#method-CoinbaseTrading-get_order}{\code{CoinbaseTrading$get_order()}}
-    \item \href{#method-CoinbaseTrading-get_orders}{\code{CoinbaseTrading$get_orders()}}
-    \item \href{#method-CoinbaseTrading-get_fills}{\code{CoinbaseTrading$get_fills()}}
-    \item \href{#method-CoinbaseTrading-edit_order}{\code{CoinbaseTrading$edit_order()}}
-    \item \href{#method-CoinbaseTrading-preview_edit_order}{\code{CoinbaseTrading$preview_edit_order()}}
-    \item \href{#method-CoinbaseTrading-cancel_orders}{\code{CoinbaseTrading$cancel_orders()}}
-    \item \href{#method-CoinbaseTrading-close_position}{\code{CoinbaseTrading$close_position()}}
-    \item \href{#method-CoinbaseTrading-clone}{\code{CoinbaseTrading$clone()}}
-  }
+\itemize{
+\item \href{#method-CoinbaseTrading-add_order}{\code{CoinbaseTrading$add_order()}}
+\item \href{#method-CoinbaseTrading-preview_order}{\code{CoinbaseTrading$preview_order()}}
+\item \href{#method-CoinbaseTrading-get_order}{\code{CoinbaseTrading$get_order()}}
+\item \href{#method-CoinbaseTrading-get_orders}{\code{CoinbaseTrading$get_orders()}}
+\item \href{#method-CoinbaseTrading-get_fills}{\code{CoinbaseTrading$get_fills()}}
+\item \href{#method-CoinbaseTrading-edit_order}{\code{CoinbaseTrading$edit_order()}}
+\item \href{#method-CoinbaseTrading-preview_edit_order}{\code{CoinbaseTrading$preview_edit_order()}}
+\item \href{#method-CoinbaseTrading-cancel_orders}{\code{CoinbaseTrading$cancel_orders()}}
+\item \href{#method-CoinbaseTrading-close_position}{\code{CoinbaseTrading$close_position()}}
+\item \href{#method-CoinbaseTrading-clone}{\code{CoinbaseTrading$clone()}}
 }
-\if{html}{\out{<details open><summary>Inherited methods</summary>
+}
+\if{html}{\out{
+<details open><summary>Inherited methods</summary>
 <ul>
-  <li><span class="pkg-link" data-pkg="coinbase" data-topic="CoinbaseBase" data-id="initialize"><a href='../../coinbase/html/CoinbaseBase.html#method-CoinbaseBase-initialize'><code>CoinbaseBase$initialize()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="coinbase" data-topic="CoinbaseBase" data-id="initialize"><a href='../../coinbase/html/CoinbaseBase.html#method-CoinbaseBase-initialize'><code>coinbase::CoinbaseBase$initialize()</code></a></span></li>
 </ul>
-</details>}}
+</details>
+}}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-CoinbaseTrading-add_order"></a>}}
 \if{latex}{\out{\hypertarget{method-CoinbaseTrading-add_order}{}}}
-\subsection{\code{CoinbaseTrading$add_order()}}{
-  Place a new order. The order is live and may execute; use
+\subsection{Method \code{add_order()}}{
+Place a new order. The order is live and may execute; use
 \code{preview_order()} first to validate.
-  \subsection{Usage}{
-    \if{html}{\out{<div class="r">}}
-    \preformatted{CoinbaseTrading$add_order(
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{CoinbaseTrading$add_order(
   product_id,
   side,
   order_configuration,
@@ -92,101 +98,110 @@ trading$get_orders(product_ids = "BTC-USD", limit = 10)
   leverage = NULL,
   margin_type = NULL,
   retail_portfolio_id = NULL
-)}
-    \if{html}{\out{</div>}}
-  }
-  \subsection{Arguments}{
-    \if{html}{\out{<div class="arguments">}}
-    \describe{
-      \item{\code{product_id}}{Character; e.g. \code{"BTC-USD"}.}
-      \item{\code{side}}{Character; \code{"BUY"} or \code{"SELL"}.}
-      \item{\code{order_configuration}}{Named list; the one-key order configuration.}
-      \item{\code{client_order_id}}{Character; idempotency key. Defaults to a fresh
-UUID via \code{\link[=generate_client_order_id]{generate_client_order_id()}}.}
-      \item{\code{self_trade_prevention_id}}{Character or NULL; self-trade-prevention
-group id. Optional.}
-      \item{\code{leverage}}{Character or NULL; leverage for the order (e.g. \code{"2"}).
-Optional.}
-      \item{\code{margin_type}}{Character or NULL; \code{"CROSS"} or \code{"ISOLATED"}. Optional.}
-      \item{\code{retail_portfolio_id}}{Character or NULL; portfolio to route the order
-to. Optional.}
-    }
-    \if{html}{\out{</div>}}
-  }
-  \subsection{Returns}{
-    A single-row \link[data.table:data.table]{data.table::data.table} with \code{success}, the scalar
-\code{order_id}, \code{product_id}, \code{side}, \code{client_order_id}, \code{failure_reason},
-and flattened order-configuration columns, or a promise thereof.
-  }
+)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{product_id}}{(scalar<character>) e.g. \code{"BTC-USD"}.}
+
+\item{\code{side}}{(scalar<character>) \code{"BUY"} or \code{"SELL"}.}
+
+\item{\code{order_configuration}}{(list) the one-key order configuration.}
+
+\item{\code{client_order_id}}{(scalar<character>) idempotency key. Defaults to a
+fresh UUID via \code{\link[=generate_client_order_id]{generate_client_order_id()}}.}
+
+\item{\code{self_trade_prevention_id}}{(scalar<character> | NULL)
+self-trade-prevention group id. Optional.}
+
+\item{\code{leverage}}{(scalar<character> | NULL) leverage for the order (e.g.
+\code{"2"}). Optional.}
+
+\item{\code{margin_type}}{(scalar<character> | NULL) \code{"CROSS"} or \code{"ISOLATED"}.
+Optional.}
+
+\item{\code{retail_portfolio_id}}{(scalar<character> | NULL) portfolio to route the
+order to. Optional.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+(CreateOrderAck | promise<CreateOrderAck>) a single-row
+create-order acknowledgement, or a promise thereof.
+}
+}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-CoinbaseTrading-preview_order"></a>}}
 \if{latex}{\out{\hypertarget{method-CoinbaseTrading-preview_order}{}}}
-\subsection{\code{CoinbaseTrading$preview_order()}}{
-  Preview an order without placing it (dry run; executes
+\subsection{Method \code{preview_order()}}{
+Preview an order without placing it (dry run; executes
 nothing). Returns the estimated total, commission, sizes, and any
 validation errors.
-  \subsection{Usage}{
-    \if{html}{\out{<div class="r">}}
-    \preformatted{CoinbaseTrading$preview_order(
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{CoinbaseTrading$preview_order(
   product_id,
   side,
   order_configuration,
   leverage = NULL,
   margin_type = NULL,
   retail_portfolio_id = NULL
-)}
-    \if{html}{\out{</div>}}
-  }
-  \subsection{Arguments}{
-    \if{html}{\out{<div class="arguments">}}
-    \describe{
-      \item{\code{product_id}}{Character; e.g. \code{"BTC-USD"}.}
-      \item{\code{side}}{Character; \code{"BUY"} or \code{"SELL"}.}
-      \item{\code{order_configuration}}{Named list; the one-key order configuration.}
-      \item{\code{leverage}}{Character or NULL; leverage for the order. Optional.}
-      \item{\code{margin_type}}{Character or NULL; \code{"CROSS"} or \code{"ISOLATED"}. Optional.}
-      \item{\code{retail_portfolio_id}}{Character or NULL; portfolio to scope the
-preview to. Optional.}
-    }
-    \if{html}{\out{</div>}}
-  }
-  \subsection{Returns}{
-    A single-row \link[data.table:data.table]{data.table::data.table}, or a promise thereof.
-  }
+)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{product_id}}{(scalar<character>) e.g. \code{"BTC-USD"}.}
+
+\item{\code{side}}{(scalar<character>) \code{"BUY"} or \code{"SELL"}.}
+
+\item{\code{order_configuration}}{(list) the one-key order configuration.}
+
+\item{\code{leverage}}{(scalar<character> | NULL) leverage for the order. Optional.}
+
+\item{\code{margin_type}}{(scalar<character> | NULL) \code{"CROSS"} or \code{"ISOLATED"}.
+Optional.}
+
+\item{\code{retail_portfolio_id}}{(scalar<character> | NULL) portfolio to scope the
+preview to. Optional.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+(Preview | promise<Preview>) a single-row preview estimate, or a
+promise thereof.
+}
+}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-CoinbaseTrading-get_order"></a>}}
 \if{latex}{\out{\hypertarget{method-CoinbaseTrading-get_order}{}}}
-\subsection{\code{CoinbaseTrading$get_order()}}{
-  Retrieve a single order by its ID.
-  \subsection{Usage}{
-    \if{html}{\out{<div class="r">}}
-    \preformatted{CoinbaseTrading$get_order(order_id)}
-    \if{html}{\out{</div>}}
-  }
-  \subsection{Arguments}{
-    \if{html}{\out{<div class="arguments">}}
-    \describe{
-      \item{\code{order_id}}{Character; the order ID.}
-    }
-    \if{html}{\out{</div>}}
-  }
-  \subsection{Returns}{
-    A single-row \link[data.table:data.table]{data.table::data.table}, or a promise thereof.
-  }
+\subsection{Method \code{get_order()}}{
+Retrieve a single order by its ID.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{CoinbaseTrading$get_order(order_id)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{order_id}}{(scalar<character>) the order ID.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+(Orders | promise<Orders>) a single-row order table, or a promise
+thereof.
+}
+}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-CoinbaseTrading-get_orders"></a>}}
 \if{latex}{\out{\hypertarget{method-CoinbaseTrading-get_orders}{}}}
-\subsection{\code{CoinbaseTrading$get_orders()}}{
-  Retrieve historical orders, paginating over the cursor.
-  \subsection{Usage}{
-    \if{html}{\out{<div class="r">}}
-    \preformatted{CoinbaseTrading$get_orders(
+\subsection{Method \code{get_orders()}}{
+Retrieve historical orders, paginating over the cursor.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{CoinbaseTrading$get_orders(
   product_ids = NULL,
   order_status = NULL,
   order_side = NULL,
@@ -203,45 +218,63 @@ preview to. Optional.}
   time_in_forces = NULL,
   sort_by = NULL,
   max_pages = Inf
-)}
-    \if{html}{\out{</div>}}
-  }
-  \subsection{Arguments}{
-    \if{html}{\out{<div class="arguments">}}
-    \describe{
-      \item{\code{product_ids}}{Character vector or NULL; filter by product(s).}
-      \item{\code{order_status}}{Character vector or NULL; e.g. \code{"OPEN"}, \code{"FILLED"},
-\code{"CANCELLED"}.}
-      \item{\code{order_side}}{Character or NULL; \code{"BUY"} or \code{"SELL"}.}
-      \item{\code{limit}}{Integer or NULL; page size.}
-      \item{\code{order_ids}}{Character vector or NULL; filter by specific order id(s).}
-      \item{\code{start_date, end_date}}{Character or NULL; RFC 3339 bounds on order
-creation time.}
-      \item{\code{order_types}}{Character vector or NULL; e.g. \code{"LIMIT"}, \code{"MARKET"}.}
-      \item{\code{product_type}}{Character or NULL; \code{"SPOT"} or \code{"FUTURE"}.}
-      \item{\code{order_placement_source}}{Character or NULL; e.g. \code{"RETAIL_ADVANCED"}.}
-      \item{\code{contract_expiry_type}}{Character or NULL; e.g. \code{"EXPIRING"}.}
-      \item{\code{asset_filters}}{Character vector or NULL; filter by asset.}
-      \item{\code{retail_portfolio_id}}{Character or NULL; scope to a portfolio.}
-      \item{\code{time_in_forces}}{Character vector or NULL; e.g. \code{"GOOD_UNTIL_CANCELLED"}.}
-      \item{\code{sort_by}}{Character or NULL; sort field, e.g. \code{"LAST_FILL_TIME"}.}
-      \item{\code{max_pages}}{Numeric; cap on pages fetched. Default \code{Inf}.}
-    }
-    \if{html}{\out{</div>}}
-  }
-  \subsection{Returns}{
-    A \link[data.table:data.table]{data.table::data.table} of orders, or a promise thereof.
-  }
+)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{product_ids}}{(character | NULL) filter by product(s).}
+
+\item{\code{order_status}}{(character | NULL) e.g. \code{"OPEN"}, \code{"FILLED"},
+\code{"CANCELLED"}.}
+
+\item{\code{order_side}}{(scalar<character> | NULL) \code{"BUY"} or \code{"SELL"}.}
+
+\item{\code{limit}}{(scalar<count in [1, Inf[> | NULL) page size.}
+
+\item{\code{order_ids}}{(character | NULL) filter by specific order id(s).}
+
+\item{\code{start_date}}{(scalar<character> | NULL) RFC 3339 lower bound on order
+creation time.}
+
+\item{\code{end_date}}{(scalar<character> | NULL) RFC 3339 upper bound on order
+creation time.}
+
+\item{\code{order_types}}{(character | NULL) e.g. \code{"LIMIT"}, \code{"MARKET"}.}
+
+\item{\code{product_type}}{(scalar<character> | NULL) \code{"SPOT"} or \code{"FUTURE"}.}
+
+\item{\code{order_placement_source}}{(scalar<character> | NULL) e.g.
+\code{"RETAIL_ADVANCED"}.}
+
+\item{\code{contract_expiry_type}}{(scalar<character> | NULL) e.g. \code{"EXPIRING"}.}
+
+\item{\code{asset_filters}}{(character | NULL) filter by asset.}
+
+\item{\code{retail_portfolio_id}}{(scalar<character> | NULL) scope to a portfolio.}
+
+\item{\code{time_in_forces}}{(character | NULL) e.g. \code{"GOOD_UNTIL_CANCELLED"}.}
+
+\item{\code{sort_by}}{(scalar<character> | NULL) sort field, e.g.
+\code{"LAST_FILL_TIME"}.}
+
+\item{\code{max_pages}}{(scalar<numeric in [1, Inf]>) cap on pages fetched.
+Default \code{Inf}.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+(Orders | promise<Orders>) the orders, or a promise thereof.
+}
+}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-CoinbaseTrading-get_fills"></a>}}
 \if{latex}{\out{\hypertarget{method-CoinbaseTrading-get_fills}{}}}
-\subsection{\code{CoinbaseTrading$get_fills()}}{
-  Retrieve historical fills, paginating over the cursor.
-  \subsection{Usage}{
-    \if{html}{\out{<div class="r">}}
-    \preformatted{CoinbaseTrading$get_fills(
+\subsection{Method \code{get_fills()}}{
+Retrieve historical fills, paginating over the cursor.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{CoinbaseTrading$get_fills(
   order_ids = NULL,
   trade_ids = NULL,
   product_ids = NULL,
@@ -251,150 +284,159 @@ creation time.}
   limit = NULL,
   sort_by = NULL,
   max_pages = Inf
-)}
-    \if{html}{\out{</div>}}
-  }
-  \subsection{Arguments}{
-    \if{html}{\out{<div class="arguments">}}
-    \describe{
-      \item{\code{order_ids}}{Character vector or NULL; filter by order id(s).}
-      \item{\code{trade_ids}}{Character vector or NULL; filter by trade id(s).}
-      \item{\code{product_ids}}{Character vector or NULL; filter by product(s).}
-      \item{\code{start_sequence_timestamp, end_sequence_timestamp}}{Character or NULL;
-RFC 3339 bounds on fill sequence time.}
-      \item{\code{retail_portfolio_id}}{Character or NULL; scope to a portfolio.}
-      \item{\code{limit}}{Integer or NULL; page size.}
-      \item{\code{sort_by}}{Character or NULL; sort field, e.g. \code{"TRADE_TIME"}.}
-      \item{\code{max_pages}}{Numeric; cap on pages fetched. Default \code{Inf}.}
-    }
-    \if{html}{\out{</div>}}
-  }
-  \subsection{Returns}{
-    A \link[data.table:data.table]{data.table::data.table} of fills, or a promise thereof.
-  }
+)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{order_ids}}{(character | NULL) filter by order id(s).}
+
+\item{\code{trade_ids}}{(character | NULL) filter by trade id(s).}
+
+\item{\code{product_ids}}{(character | NULL) filter by product(s).}
+
+\item{\code{start_sequence_timestamp}}{(scalar<character> | NULL) RFC 3339 lower
+bound on fill sequence time.}
+
+\item{\code{end_sequence_timestamp}}{(scalar<character> | NULL) RFC 3339 upper
+bound on fill sequence time.}
+
+\item{\code{retail_portfolio_id}}{(scalar<character> | NULL) scope to a portfolio.}
+
+\item{\code{limit}}{(scalar<count in [1, Inf[> | NULL) page size.}
+
+\item{\code{sort_by}}{(scalar<character> | NULL) sort field, e.g. \code{"TRADE_TIME"}.}
+
+\item{\code{max_pages}}{(scalar<numeric in [1, Inf]>) cap on pages fetched.
+Default \code{Inf}.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+(Fills | promise<Fills>) the fills, or a promise thereof.
+}
+}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-CoinbaseTrading-edit_order"></a>}}
 \if{latex}{\out{\hypertarget{method-CoinbaseTrading-edit_order}{}}}
-\subsection{\code{CoinbaseTrading$edit_order()}}{
-  Edit an open order's price and/or size.
-  \subsection{Usage}{
-    \if{html}{\out{<div class="r">}}
-    \preformatted{CoinbaseTrading$edit_order(order_id, price = NULL, size = NULL)}
-    \if{html}{\out{</div>}}
-  }
-  \subsection{Arguments}{
-    \if{html}{\out{<div class="arguments">}}
-    \describe{
-      \item{\code{order_id}}{Character; the order ID.}
-      \item{\code{price}}{Character/numeric or NULL; new limit price.}
-      \item{\code{size}}{Character/numeric or NULL; new size.}
-    }
-    \if{html}{\out{</div>}}
-  }
-  \subsection{Returns}{
-    A single-row \link[data.table:data.table]{data.table::data.table}, or a promise thereof.
-  }
+\subsection{Method \code{edit_order()}}{
+Edit an open order's price and/or size.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{CoinbaseTrading$edit_order(order_id, price = NULL, size = NULL)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{order_id}}{(scalar<character>) the order ID.}
+
+\item{\code{price}}{(scalar<numeric> | scalar<character> | NULL) new limit price.}
+
+\item{\code{size}}{(scalar<numeric> | scalar<character> | NULL) new size.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+(EditOrderAck | promise<EditOrderAck>) a single-row edit
+acknowledgement, or a promise thereof.
+}
+}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-CoinbaseTrading-preview_edit_order"></a>}}
 \if{latex}{\out{\hypertarget{method-CoinbaseTrading-preview_edit_order}{}}}
-\subsection{\code{CoinbaseTrading$preview_edit_order()}}{
-  Preview an order edit without applying it (dry run).
-  \subsection{Usage}{
-    \if{html}{\out{<div class="r">}}
-    \preformatted{CoinbaseTrading$preview_edit_order(order_id, price = NULL, size = NULL)}
-    \if{html}{\out{</div>}}
-  }
-  \subsection{Arguments}{
-    \if{html}{\out{<div class="arguments">}}
-    \describe{
-      \item{\code{order_id}}{Character; the order ID.}
-      \item{\code{price}}{Character/numeric or NULL; proposed limit price.}
-      \item{\code{size}}{Character/numeric or NULL; proposed size.}
-    }
-    \if{html}{\out{</div>}}
-  }
-  \subsection{Returns}{
-    A single-row \link[data.table:data.table]{data.table::data.table}, or a promise thereof.
-  }
+\subsection{Method \code{preview_edit_order()}}{
+Preview an order edit without applying it (dry run).
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{CoinbaseTrading$preview_edit_order(order_id, price = NULL, size = NULL)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{order_id}}{(scalar<character>) the order ID.}
+
+\item{\code{price}}{(scalar<numeric> | scalar<character> | NULL) proposed limit
+price.}
+
+\item{\code{size}}{(scalar<numeric> | scalar<character> | NULL) proposed size.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+(EditPreview | promise<EditPreview>) a single-row edit-preview
+estimate, or a promise thereof.
+}
+}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-CoinbaseTrading-cancel_orders"></a>}}
 \if{latex}{\out{\hypertarget{method-CoinbaseTrading-cancel_orders}{}}}
-\subsection{\code{CoinbaseTrading$cancel_orders()}}{
-  Cancel one or more open orders.
-  \subsection{Usage}{
-    \if{html}{\out{<div class="r">}}
-    \preformatted{CoinbaseTrading$cancel_orders(order_ids)}
-    \if{html}{\out{</div>}}
-  }
-  \subsection{Arguments}{
-    \if{html}{\out{<div class="arguments">}}
-    \describe{
-      \item{\code{order_ids}}{Character vector; the order IDs to cancel.}
-    }
-    \if{html}{\out{</div>}}
-  }
-  \subsection{Returns}{
-    A \link[data.table:data.table]{data.table::data.table} of per-order cancel results, or a
-promise thereof.
-  }
+\subsection{Method \code{cancel_orders()}}{
+Cancel one or more open orders.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{CoinbaseTrading$cancel_orders(order_ids)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{order_ids}}{(character) the order IDs to cancel.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+(CancelResults | promise<CancelResults>) per-order cancel results,
+or a promise thereof.
+}
+}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-CoinbaseTrading-close_position"></a>}}
 \if{latex}{\out{\hypertarget{method-CoinbaseTrading-close_position}{}}}
-\subsection{\code{CoinbaseTrading$close_position()}}{
-  Place an order to close an open position for a product. This
+\subsection{Method \code{close_position()}}{
+Place an order to close an open position for a product. This
 is the idiomatic way to flatten a position -- e.g. the short leg of a
 futures pair -- without hand-constructing an opposing order.
-  \subsection{Usage}{
-    \if{html}{\out{<div class="r">}}
-    \preformatted{CoinbaseTrading$close_position(
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{CoinbaseTrading$close_position(
   product_id,
   size = NULL,
   client_order_id = generate_client_order_id()
-)}
-    \if{html}{\out{</div>}}
-  }
-  \subsection{Arguments}{
-    \if{html}{\out{<div class="arguments">}}
-    \describe{
-      \item{\code{product_id}}{Character; the product whose position to close.}
-      \item{\code{size}}{Character/numeric or NULL; the amount (contracts / base size)
-to close. \code{NULL} closes the entire position.}
-      \item{\code{client_order_id}}{Character; idempotency key. Defaults to a fresh
-UUID via \code{\link[=generate_client_order_id]{generate_client_order_id()}}.}
-    }
-    \if{html}{\out{</div>}}
-  }
-  \subsection{Returns}{
-    A single-row \link[data.table:data.table]{data.table::data.table} with \code{success}, the scalar
-\code{order_id}, and flattened order details, or a promise thereof.
-  }
+)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{product_id}}{(scalar<character>) the product whose position to close.}
+
+\item{\code{size}}{(scalar<numeric> | scalar<character> | NULL) the amount
+(contracts / base size) to close. \code{NULL} closes the entire position.}
+
+\item{\code{client_order_id}}{(scalar<character>) idempotency key. Defaults to a
+fresh UUID via \code{\link[=generate_client_order_id]{generate_client_order_id()}}.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+(CreateOrderAck | promise<CreateOrderAck>) a single-row
+create-order acknowledgement, or a promise thereof.
+}
+}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-CoinbaseTrading-clone"></a>}}
 \if{latex}{\out{\hypertarget{method-CoinbaseTrading-clone}{}}}
-\subsection{\code{CoinbaseTrading$clone()}}{
-  The objects of this class are cloneable with this method.
-  \subsection{Usage}{
-    \if{html}{\out{<div class="r">}}
-    \preformatted{CoinbaseTrading$clone(deep = FALSE)}
-    \if{html}{\out{</div>}}
-  }
-  \subsection{Arguments}{
-    \if{html}{\out{<div class="arguments">}}
-    \describe{
-      \item{\code{deep}}{Whether to make a deep clone.}
-    }
-    \if{html}{\out{</div>}}
-  }
+\subsection{Method \code{clone()}}{
+The objects of this class are cloneable with this method.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{CoinbaseTrading$clone(deep = FALSE)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{deep}}{Whether to make a deep clone.}
+}
+\if{html}{\out{</div>}}
+}
+}
 }

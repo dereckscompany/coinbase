@@ -7,17 +7,24 @@
 time_convert_to_coinbase(datetime, unit = c("iso", "s"))
 }
 \arguments{
-\item{datetime}{POSIXct object(s) to convert.}
+\item{datetime}{(POSIXct) object(s) to convert.}
 
-\item{unit}{Character; the output form: \code{"iso"} (default) or \code{"s"}.}
+\item{unit}{(scalar<character in c("iso", "s")>) the output form: \code{"iso"}
+(default) or \code{"s"}.}
 }
 \value{
-A character ISO 8601 timestamp (\code{"iso"}) or numeric epoch seconds (\code{"s"}).
+(character | numeric) an ISO 8601 timestamp (\code{"iso"}) or numeric epoch
+seconds (\code{"s"}).
 }
 \description{
 Formats a POSIXct as the timestamp form Coinbase expects: an ISO 8601 string
 (\code{"iso"}, default) or whole-number epoch seconds (\code{"s"}, used for the Exchange
 candle bounds).
+}
+\details{
+For \code{unit = "s"} the value is \strong{floored} to the whole second (sub-second
+precision is truncated towards the past, not rounded); the \code{"iso"} form is
+likewise formatted to whole-second resolution (\verb{\%S} drops fractional seconds).
 }
 \examples{
 \dontrun{

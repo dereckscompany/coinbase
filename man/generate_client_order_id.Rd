@@ -7,11 +7,13 @@
 generate_client_order_id()
 }
 \value{
-Character; a UUID, e.g. \code{"11299b2b-61e3-43e7-b9f7-dee77210bb29"}.
+(scalar<character>) a UUID, e.g. \code{"11299b2b-61e3-43e7-b9f7-dee77210bb29"}.
 }
 \description{
 Produces a random RFC 4122 version-4 UUID string for use as the
-\code{client_order_id} idempotency key when placing orders.
+\code{client_order_id} idempotency key when placing orders. Delegates to
+\code{\link[uuid:UUIDgenerate]{uuid::UUIDgenerate()}}, whose output is the standard 36-character hyphenated
+UUID that Coinbase accepts.
 }
 \examples{
 generate_client_order_id()

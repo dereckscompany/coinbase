@@ -12,5 +12,6 @@ linters: linters_with_defaults(
 exclusions: list(
     "renv/activate.R",
     "packages/*/renv/",
-    "scripts/"
+    "scripts/",
+    "R/contracts-generated.R"
   )

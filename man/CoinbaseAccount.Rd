@@ -4,6 +4,11 @@
 \alias{CoinbaseAccount}
 \title{CoinbaseAccount: Account, Balance, and Fee Information}
 \description{
+CoinbaseAccount: Account, Balance, and Fee Information
+
+CoinbaseAccount: Account, Balance, and Fee Information
+}
+\details{
 Retrieves authenticated account data from the Coinbase Advanced Trade API:
 trading accounts (balances), the transaction/fee summary, portfolios, and the
 API key's permissions. All endpoints require credentials.
@@ -38,201 +43,197 @@ account$get_fees()
 
 }
 \section{Super classes}{
-\code{\link[connectcore:RestClient]{connectcore::RestClient}} -> \code{\link[coinbase:CoinbaseBase]{CoinbaseBase}} -> \code{CoinbaseAccount}
+\code{\link[connectcore:RestClient]{connectcore::RestClient}} -> \code{\link[coinbase:CoinbaseBase]{coinbase::CoinbaseBase}} -> \code{CoinbaseAccount}
 }
 \section{Methods}{
 \subsection{Public methods}{
-  \itemize{
-    \item \href{#method-CoinbaseAccount-get_accounts}{\code{CoinbaseAccount$get_accounts()}}
-    \item \href{#method-CoinbaseAccount-get_account}{\code{CoinbaseAccount$get_account()}}
-    \item \href{#method-CoinbaseAccount-get_fees}{\code{CoinbaseAccount$get_fees()}}
-    \item \href{#method-CoinbaseAccount-get_portfolios}{\code{CoinbaseAccount$get_portfolios()}}
-    \item \href{#method-CoinbaseAccount-get_portfolio_breakdown}{\code{CoinbaseAccount$get_portfolio_breakdown()}}
-    \item \href{#method-CoinbaseAccount-get_portfolio_summary}{\code{CoinbaseAccount$get_portfolio_summary()}}
-    \item \href{#method-CoinbaseAccount-get_key_permissions}{\code{CoinbaseAccount$get_key_permissions()}}
-    \item \href{#method-CoinbaseAccount-clone}{\code{CoinbaseAccount$clone()}}
-  }
+\itemize{
+\item \href{#method-CoinbaseAccount-get_accounts}{\code{CoinbaseAccount$get_accounts()}}
+\item \href{#method-CoinbaseAccount-get_account}{\code{CoinbaseAccount$get_account()}}
+\item \href{#method-CoinbaseAccount-get_fees}{\code{CoinbaseAccount$get_fees()}}
+\item \href{#method-CoinbaseAccount-get_portfolios}{\code{CoinbaseAccount$get_portfolios()}}
+\item \href{#method-CoinbaseAccount-get_portfolio_breakdown}{\code{CoinbaseAccount$get_portfolio_breakdown()}}
+\item \href{#method-CoinbaseAccount-get_portfolio_summary}{\code{CoinbaseAccount$get_portfolio_summary()}}
+\item \href{#method-CoinbaseAccount-get_key_permissions}{\code{CoinbaseAccount$get_key_permissions()}}
+\item \href{#method-CoinbaseAccount-clone}{\code{CoinbaseAccount$clone()}}
 }
-\if{html}{\out{<details open><summary>Inherited methods</summary>
+}
+\if{html}{\out{
+<details open><summary>Inherited methods</summary>
 <ul>
-  <li><span class="pkg-link" data-pkg="coinbase" data-topic="CoinbaseBase" data-id="initialize"><a href='../../coinbase/html/CoinbaseBase.html#method-CoinbaseBase-initialize'><code>CoinbaseBase$initialize()</code></a></span></li>
+<li><span class="pkg-link" data-pkg="coinbase" data-topic="CoinbaseBase" data-id="initialize"><a href='../../coinbase/html/CoinbaseBase.html#method-CoinbaseBase-initialize'><code>coinbase::CoinbaseBase$initialize()</code></a></span></li>
 </ul>
-</details>}}
+</details>
+}}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-CoinbaseAccount-get_accounts"></a>}}
 \if{latex}{\out{\hypertarget{method-CoinbaseAccount-get_accounts}{}}}
-\subsection{\code{CoinbaseAccount$get_accounts()}}{
-  Retrieve all trading accounts (balances), paginating over the
+\subsection{Method \code{get_accounts()}}{
+Retrieve all trading accounts (balances), paginating over the
 cursor until exhausted.
-  \subsection{Usage}{
-    \if{html}{\out{<div class="r">}}
-    \preformatted{CoinbaseAccount$get_accounts(limit = NULL, max_pages = Inf)}
-    \if{html}{\out{</div>}}
-  }
-  \subsection{Arguments}{
-    \if{html}{\out{<div class="arguments">}}
-    \describe{
-      \item{\code{limit}}{Integer or NULL; page size. Optional.}
-      \item{\code{max_pages}}{Numeric; cap on pages fetched. Default \code{Inf}.}
-    }
-    \if{html}{\out{</div>}}
-  }
-  \subsection{Returns}{
-    A \link[data.table:data.table]{data.table::data.table} of accounts, or a promise thereof.
-  }
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{CoinbaseAccount$get_accounts(limit = NULL, max_pages = Inf)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{limit}}{(scalar<count in [1, Inf[> | NULL) page size. Optional.}
+
+\item{\code{max_pages}}{(scalar<numeric in [1, Inf]>) cap on pages fetched.
+Default \code{Inf}.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+(Accounts | promise<Accounts>) the accounts, or a promise thereof.
+}
+}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-CoinbaseAccount-get_account"></a>}}
 \if{latex}{\out{\hypertarget{method-CoinbaseAccount-get_account}{}}}
-\subsection{\code{CoinbaseAccount$get_account()}}{
-  Retrieve a single account by its UUID.
-  \subsection{Usage}{
-    \if{html}{\out{<div class="r">}}
-    \preformatted{CoinbaseAccount$get_account(account_uuid)}
-    \if{html}{\out{</div>}}
-  }
-  \subsection{Arguments}{
-    \if{html}{\out{<div class="arguments">}}
-    \describe{
-      \item{\code{account_uuid}}{Character; the account UUID.}
-    }
-    \if{html}{\out{</div>}}
-  }
-  \subsection{Returns}{
-    A single-row \link[data.table:data.table]{data.table::data.table}, or a promise thereof.
-  }
+\subsection{Method \code{get_account()}}{
+Retrieve a single account by its UUID.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{CoinbaseAccount$get_account(account_uuid)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{account_uuid}}{(scalar<character>) the account UUID.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+(Accounts | promise<Accounts>) a single-row table, or a promise
+thereof.
+}
+}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-CoinbaseAccount-get_fees"></a>}}
 \if{latex}{\out{\hypertarget{method-CoinbaseAccount-get_fees}{}}}
-\subsection{\code{CoinbaseAccount$get_fees()}}{
-  Retrieve the transaction/fee summary, including the current
+\subsection{Method \code{get_fees()}}{
+Retrieve the transaction/fee summary, including the current
 maker/taker fee tier.
-  \subsection{Usage}{
-    \if{html}{\out{<div class="r">}}
-    \preformatted{CoinbaseAccount$get_fees(product_type = NULL)}
-    \if{html}{\out{</div>}}
-  }
-  \subsection{Arguments}{
-    \if{html}{\out{<div class="arguments">}}
-    \describe{
-      \item{\code{product_type}}{Character or NULL; \code{"SPOT"} or \code{"FUTURE"} to scope the
-summary. Optional.}
-    }
-    \if{html}{\out{</div>}}
-  }
-  \subsection{Returns}{
-    A single-row \link[data.table:data.table]{data.table::data.table}, or a promise thereof.
-  }
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{CoinbaseAccount$get_fees(product_type = NULL)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{product_type}}{(scalar<character> | NULL) \code{"SPOT"} or \code{"FUTURE"} to
+scope the summary. Optional.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+(Fees | promise<Fees>) a single-row table, or a promise thereof.
+}
+}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-CoinbaseAccount-get_portfolios"></a>}}
 \if{latex}{\out{\hypertarget{method-CoinbaseAccount-get_portfolios}{}}}
-\subsection{\code{CoinbaseAccount$get_portfolios()}}{
-  Retrieve the user's portfolios.
-  \subsection{Usage}{
-    \if{html}{\out{<div class="r">}}
-    \preformatted{CoinbaseAccount$get_portfolios()}
-    \if{html}{\out{</div>}}
-  }
-  \subsection{Returns}{
-    A \link[data.table:data.table]{data.table::data.table} of portfolios, or a promise thereof.
-  }
+\subsection{Method \code{get_portfolios()}}{
+Retrieve the user's portfolios.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{CoinbaseAccount$get_portfolios()}\if{html}{\out{</div>}}
 }
 
+\subsection{Returns}{
+(data.table | promise<data.table>) the portfolios, or a promise
+thereof.
+}
+}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-CoinbaseAccount-get_portfolio_breakdown"></a>}}
 \if{latex}{\out{\hypertarget{method-CoinbaseAccount-get_portfolio_breakdown}{}}}
-\subsection{\code{CoinbaseAccount$get_portfolio_breakdown()}}{
-  Retrieve a single portfolio's positions: its spot, futures,
+\subsection{Method \code{get_portfolio_breakdown()}}{
+Retrieve a single portfolio's positions: its spot, futures,
 and perpetual holdings stacked into one \code{data.table}, one row per
 holding, tagged by a \code{position_type} column. The concepts shared across
 types are normalised to common columns (\code{entry_price}, \code{mark_price},
 \code{side}, \code{unrealized_pnl}); the rest keep their API names. For the
 portfolio's aggregate balance totals, use \code{get_portfolio_summary()} (it
 reads the same endpoint).
-  \subsection{Usage}{
-    \if{html}{\out{<div class="r">}}
-    \preformatted{CoinbaseAccount$get_portfolio_breakdown(portfolio_uuid, currency = NULL)}
-    \if{html}{\out{</div>}}
-  }
-  \subsection{Arguments}{
-    \if{html}{\out{<div class="arguments">}}
-    \describe{
-      \item{\code{portfolio_uuid}}{Character; the portfolio UUID (from
-\code{get_portfolios()}).}
-      \item{\code{currency}}{Character or NULL; quote currency for fiat values. Optional.}
-    }
-    \if{html}{\out{</div>}}
-  }
-  \subsection{Returns}{
-    A \link[data.table:data.table]{data.table::data.table} of positions, or a promise thereof.
-  }
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{CoinbaseAccount$get_portfolio_breakdown(portfolio_uuid, currency = NULL)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{portfolio_uuid}}{(scalar<character>) the portfolio UUID (from
+\code{get_portfolios()}).}
+
+\item{\code{currency}}{(scalar<character> | NULL) quote currency for fiat values.
+Optional.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+(data.table | promise<data.table>) the positions, or a promise
+thereof.
+}
+}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-CoinbaseAccount-get_portfolio_summary"></a>}}
 \if{latex}{\out{\hypertarget{method-CoinbaseAccount-get_portfolio_summary}{}}}
-\subsection{\code{CoinbaseAccount$get_portfolio_summary()}}{
-  Retrieve a single portfolio's aggregate balance totals (total
+\subsection{Method \code{get_portfolio_summary()}}{
+Retrieve a single portfolio's aggregate balance totals (total
 balance, futures/crypto/cash-equivalent balances, and futures/perp
 unrealized PnL). The positions companion is \code{get_portfolio_breakdown()};
 both read the same endpoint.
-  \subsection{Usage}{
-    \if{html}{\out{<div class="r">}}
-    \preformatted{CoinbaseAccount$get_portfolio_summary(portfolio_uuid, currency = NULL)}
-    \if{html}{\out{</div>}}
-  }
-  \subsection{Arguments}{
-    \if{html}{\out{<div class="arguments">}}
-    \describe{
-      \item{\code{portfolio_uuid}}{Character; the portfolio UUID (from
-\code{get_portfolios()}).}
-      \item{\code{currency}}{Character or NULL; quote currency for fiat values. Optional.}
-    }
-    \if{html}{\out{</div>}}
-  }
-  \subsection{Returns}{
-    A single-row \link[data.table:data.table]{data.table::data.table} of totals, or a promise
-thereof.
-  }
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{CoinbaseAccount$get_portfolio_summary(portfolio_uuid, currency = NULL)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{portfolio_uuid}}{(scalar<character>) the portfolio UUID (from
+\code{get_portfolios()}).}
+
+\item{\code{currency}}{(scalar<character> | NULL) quote currency for fiat values.
+Optional.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+(PortfolioSummary | promise<PortfolioSummary>) a single-row table of
+totals, or a promise thereof.
+}
+}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-CoinbaseAccount-get_key_permissions"></a>}}
 \if{latex}{\out{\hypertarget{method-CoinbaseAccount-get_key_permissions}{}}}
-\subsection{\code{CoinbaseAccount$get_key_permissions()}}{
-  Retrieve the calling API key's permissions.
-  \subsection{Usage}{
-    \if{html}{\out{<div class="r">}}
-    \preformatted{CoinbaseAccount$get_key_permissions()}
-    \if{html}{\out{</div>}}
-  }
-  \subsection{Returns}{
-    A single-row \link[data.table:data.table]{data.table::data.table}, or a promise thereof.
-  }
+\subsection{Method \code{get_key_permissions()}}{
+Retrieve the calling API key's permissions.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{CoinbaseAccount$get_key_permissions()}\if{html}{\out{</div>}}
 }
 
+\subsection{Returns}{
+(data.table | promise<data.table>) a single-row table, or a promise
+thereof.
+}
+}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-CoinbaseAccount-clone"></a>}}
 \if{latex}{\out{\hypertarget{method-CoinbaseAccount-clone}{}}}
-\subsection{\code{CoinbaseAccount$clone()}}{
-  The objects of this class are cloneable with this method.
-  \subsection{Usage}{
-    \if{html}{\out{<div class="r">}}
-    \preformatted{CoinbaseAccount$clone(deep = FALSE)}
-    \if{html}{\out{</div>}}
-  }
-  \subsection{Arguments}{
-    \if{html}{\out{<div class="arguments">}}
-    \describe{
-      \item{\code{deep}}{Whether to make a deep clone.}
-    }
-    \if{html}{\out{</div>}}
-  }
+\subsection{Method \code{clone()}}{
+The objects of this class are cloneable with this method.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{CoinbaseAccount$clone(deep = FALSE)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{deep}}{Whether to make a deep clone.}
+}
+\if{html}{\out{</div>}}
+}
+}
 }

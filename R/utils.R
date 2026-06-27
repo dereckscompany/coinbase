@@ -9,9 +9,9 @@
 #' 2. The `COINBASE_API_ENDPOINT` environment variable.
 #' 3. The default `"https://api.coinbase.com"`.
 #'
-#' @param url Character string; explicit base URL. Defaults to
+#' @param url (scalar<character>) explicit base URL. Defaults to
 #'   `Sys.getenv("COINBASE_API_ENDPOINT")`.
-#' @return Character string; the API base URL.
+#' @return (scalar<character>) the API base URL.
 #'
 #' @examples
 #' \dontrun{
@@ -19,10 +19,11 @@
 #' }
 #' @export
 get_base_url <- function(url = Sys.getenv("COINBASE_API_ENDPOINT")) {
+  assert_args_get_base_url(url)
   if (is.null(url) || !nzchar(url)) {
-    return("https://api.coinbase.com")
+    return(assert_return_get_base_url("https://api.coinbase.com"))
   }
-  return(url)
+  return(assert_return_get_base_url(url))
 }
 
 #' Retrieve Coinbase Exchange API Base URL
@@ -36,9 +37,9 @@ get_base_url <- function(url = Sys.getenv("COINBASE_API_ENDPOINT")) {
 #' history paginated back to a product's inception) that the Advanced Trade host
 #' does not expose. These endpoints require no authentication.
 #'
-#' @param url Character string; explicit base URL. Defaults to
+#' @param url (scalar<character>) explicit base URL. Defaults to
 #'   `Sys.getenv("COINBASE_EXCHANGE_API_ENDPOINT")`.
-#' @return Character string; the Exchange API base URL.
+#' @return (scalar<character>) the Exchange API base URL.
 #'
 #' @examples
 #' \dontrun{
@@ -46,41 +47,29 @@ get_base_url <- function(url = Sys.getenv("COINBASE_API_ENDPOINT")) {
 #' }
 #' @export
 get_exchange_base_url <- function(url = Sys.getenv("COINBASE_EXCHANGE_API_ENDPOINT")) {
+  assert_args_get_exchange_base_url(url)
   if (is.null(url) || !nzchar(url)) {
-    return("https://api.exchange.coinbase.com")
+    return(assert_return_get_exchange_base_url("https://api.exchange.coinbase.com"))
   }
-  return(url)
+  return(assert_return_get_exchange_base_url(url))
 }
 
 #' Generate a Client Order ID
 #'
 #' Produces a random RFC 4122 version-4 UUID string for use as the
-#' `client_order_id` idempotency key when placing orders.
+#' `client_order_id` idempotency key when placing orders. Delegates to
+#' [uuid::UUIDgenerate()], whose output is the standard 36-character hyphenated
+#' UUID that Coinbase accepts.
 #'
-#' @return Character; a UUID, e.g. `"11299b2b-61e3-43e7-b9f7-dee77210bb29"`.
+#' @return (scalar<character>) a UUID, e.g. `"11299b2b-61e3-43e7-b9f7-dee77210bb29"`.
 #'
 #' @examples
 #' generate_client_order_id()
 #'
-#' @importFrom openssl rand_bytes
+#' @importFrom uuid UUIDgenerate
 #' @export
 generate_client_order_id <- function() {
-  b <- as.integer(openssl::rand_bytes(16))
-  # Set the version (4) and variant (10xx) bits per RFC 4122.
-  b[7] <- bitwOr(bitwAnd(b[7], 0x0f), 0x40)
-  b[9] <- bitwOr(bitwAnd(b[9], 0x3f), 0x80)
-  hex <- sprintf("%02x", b)
-  return(paste0(
-    paste(hex[1:4], collapse = ""),
-    "-",
-    paste(hex[5:6], collapse = ""),
-    "-",
-    paste(hex[7:8], collapse = ""),
-    "-",
-    paste(hex[9:10], collapse = ""),
-    "-",
-    paste(hex[11:16], collapse = "")
-  ))
+  return(assert_return_generate_client_order_id(uuid::UUIDgenerate()))
 }
 
 #' Retrieve Coinbase API Credentials
@@ -100,13 +89,14 @@ generate_client_order_id <- function() {
 #' (`-----BEGIN EC PRIVATE KEY-----`, signed with ES256) and base64-encoded
 #' Ed25519 keys (signed with EdDSA) are supported by the signer.
 #'
-#' @param api_key_name Character string; the credential `name`, e.g.
+#' @param api_key_name (scalar<character>) the credential `name`, e.g.
 #'   `"organizations/<org-uuid>/apiKeys/<key-uuid>"`. Defaults to
 #'   `Sys.getenv("COINBASE_API_KEY_NAME")`.
-#' @param api_private_key Character string; the credential `privateKey`.
+#' @param api_private_key (scalar<character>) the credential `privateKey`.
 #'   Defaults to `Sys.getenv("COINBASE_API_PRIVATE_KEY")`.
-#' @return Named list with `api_key_name` and `api_private_key` (newlines
-#'   unescaped).
+#' @return (list) named credentials, with newlines unescaped:
+#' - api_key_name (scalar<character>) the credential `name`.
+#' - api_private_key (scalar<character>) the credential `privateKey`.
 #'
 #' @examples
 #' \dontrun{
@@ -117,6 +107,7 @@ get_api_keys <- function(
   api_key_name = Sys.getenv("COINBASE_API_KEY_NAME"),
   api_private_key = Sys.getenv("COINBASE_API_PRIVATE_KEY")
 ) {
+  assert_args_get_api_keys(api_key_name, api_private_key)
   if (!nzchar(api_key_name) || !nzchar(api_private_key)) {
     rlang::warn(paste0(
       "Coinbase API credentials are empty. Set COINBASE_API_KEY_NAME and ",
@@ -125,8 +116,8 @@ get_api_keys <- function(
   }
   # `.Renviron` stores the PEM on one line with literal "\n"; restore newlines.
   api_private_key <- gsub("\\\\n", "\n", api_private_key)
-  return(list(
+  return(assert_return_get_api_keys(list(
     api_key_name = api_key_name,
     api_private_key = api_private_key
-  ))
+  )))
 }

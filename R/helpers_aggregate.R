@@ -8,8 +8,8 @@
 #' IDs CFM uses (`"BIT-28FEB25-CDE"`) — anything with at least two segments
 #' joined by single dashes.
 #'
-#' @param product_id Character string; the symbol to verify.
-#' @return Logical; `TRUE` if valid, `FALSE` otherwise.
+#' @param product_id (scalar<character>) the symbol to verify.
+#' @return (scalar<logical>) `TRUE` if valid, `FALSE` otherwise.
 #'
 #' @examples
 #' verify_symbol("BTC-USD") # TRUE
@@ -17,7 +17,8 @@
 #' verify_symbol("BTCUSD") # FALSE
 #' @export
 verify_symbol <- function(product_id) {
-  return(grepl("^[A-Za-z0-9]+(-[A-Za-z0-9]+)+$", product_id))
+  assert_args_verify_symbol(product_id)
+  return(assert_return_verify_symbol(grepl("^[A-Za-z0-9]+(-[A-Za-z0-9]+)+$", product_id)))
 }
 
 #' Aggregate Tick Trades into OHLCV Bars
@@ -27,17 +28,21 @@ verify_symbol <- function(product_id) {
 #' arbitrary interval. This is the deep-history path: Coinbase's candle endpoint
 #' is shallow, so complete OHLCV at any timeframe is built from ticks.
 #'
+#' Each trade is assigned to a bar by **flooring** its timestamp to the nearest
+#' lower multiple of `interval` seconds, so a bar's `datetime` is its inclusive
+#' start (left-closed, right-open) and sub-`interval` precision is discarded.
 #' Open/close are the first/last trade price within each bar (by time, with
 #' `trade_id` as a tiebreaker when present); high/low are the extremes; volume is
 #' the summed trade size. Empty intervals produce no row.
 #'
-#' @param trades A [data.table::data.table] of trades with at least `time`
-#'   (POSIXct), `price` (numeric), and `size` (numeric) columns; `trade_id`
-#'   (numeric) is used as a tiebreaker if present.
-#' @param interval Numeric; bar width in seconds (e.g. `60` for 1-minute bars).
-#' @return A [data.table::data.table] with columns `datetime`, `open`, `high`,
-#'   `low`, `close`, `volume`, sorted ascending by `datetime`. `datetime` is the
-#'   floored start of each bar. Empty if `trades` is empty.
+#' @param trades (class<data.table>) trades with at least `time` (POSIXct),
+#'   `price` (numeric), and `size` (numeric) columns; `trade_id` (numeric) is
+#'   used as a tiebreaker if present.
+#' @param interval (scalar<numeric in ]0, Inf[>) bar width in seconds (e.g. `60`
+#'   for 1-minute bars).
+#' @return (class<data.table>) columns `datetime`, `open`, `high`, `low`,
+#'   `close`, `volume`, sorted ascending by `datetime`. `datetime` is the floored
+#'   start of each bar. Empty if `trades` is empty.
 #'
 #' @examples
 #' \dontrun{
@@ -48,11 +53,10 @@ verify_symbol <- function(product_id) {
 #' @import data.table
 #' @export
 trades_to_ohlcv <- function(trades, interval = 60) {
-  assert::assert_data_table(trades)
-  assert::assert_scalar_positive(interval)
+  assert_args_trades_to_ohlcv(trades, interval)
 
   if (nrow(trades) == 0L) {
-    return(data.table::data.table()[])
+    return(assert_return_trades_to_ohlcv(data.table::data.table()[]))
   }
 
   assert::assert_column_types(trades, "POSIXct", "time")
@@ -83,5 +87,5 @@ trades_to_ohlcv <- function(trades, interval = 60) {
   ]
 
   data.table::setorder(bars, datetime)
-  return(bars[])
+  return(assert_return_trades_to_ohlcv(bars[]))
 }

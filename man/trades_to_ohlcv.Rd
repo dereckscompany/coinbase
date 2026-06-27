@@ -7,16 +7,17 @@
 trades_to_ohlcv(trades, interval = 60)
 }
 \arguments{
-\item{trades}{A \link[data.table:data.table]{data.table::data.table} of trades with at least \code{time}
-(POSIXct), \code{price} (numeric), and \code{size} (numeric) columns; \code{trade_id}
-(numeric) is used as a tiebreaker if present.}
+\item{trades}{(class<data.table>) trades with at least \code{time} (POSIXct),
+\code{price} (numeric), and \code{size} (numeric) columns; \code{trade_id} (numeric) is
+used as a tiebreaker if present.}
 
-\item{interval}{Numeric; bar width in seconds (e.g. \code{60} for 1-minute bars).}
+\item{interval}{(scalar<numeric in ]0, Inf[>) bar width in seconds (e.g. \code{60}
+for 1-minute bars).}
 }
 \value{
-A \link[data.table:data.table]{data.table::data.table} with columns \code{datetime}, \code{open}, \code{high},
-\code{low}, \code{close}, \code{volume}, sorted ascending by \code{datetime}. \code{datetime} is the
-floored start of each bar. Empty if \code{trades} is empty.
+(class<data.table>) columns \code{datetime}, \code{open}, \code{high}, \code{low},
+\code{close}, \code{volume}, sorted ascending by \code{datetime}. \code{datetime} is the floored
+start of each bar. Empty if \code{trades} is empty.
 }
 \description{
 Converts a table of raw tick trades (as returned by
@@ -25,6 +26,9 @@ arbitrary interval. This is the deep-history path: Coinbase's candle endpoint
 is shallow, so complete OHLCV at any timeframe is built from ticks.
 }
 \details{
+Each trade is assigned to a bar by \strong{flooring} its timestamp to the nearest
+lower multiple of \code{interval} seconds, so a bar's \code{datetime} is its inclusive
+start (left-closed, right-open) and sub-\code{interval} precision is discarded.
 Open/close are the first/last trade price within each bar (by time, with
 \code{trade_id} as a tiebreaker when present); high/low are the extremes; volume is
 the summed trade size. Empty intervals produce no row.

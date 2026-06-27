@@ -4,48 +4,58 @@
 
 #' Convert an ISO 8601 Timestamp to POSIXct
 #'
-#' @param x Character vector; ISO 8601 timestamps (e.g. `"2026-05-30T18:40:29.98Z"`).
-#' @return POSIXct vector in UTC. Use [lubridate::with_tz()] to view elsewhere.
+#' @param x (character | NA) ISO 8601 timestamps (e.g. `"2026-05-30T18:40:29.98Z"`).
+#' @return (POSIXct | NA) vector in UTC. Use [lubridate::with_tz()] to view
+#'   elsewhere.
 #'
 #' @importFrom lubridate ymd_hms
 #' @keywords internal
 #' @noRd
 iso_to_datetime <- function(x) {
-  return(lubridate::ymd_hms(x, tz = "UTC"))
+  assert_args_iso_to_datetime(x)
+  return(assert_return_iso_to_datetime(lubridate::ymd_hms(x, tz = "UTC")))
 }
 
 #' Convert an Epoch-Seconds Timestamp to POSIXct
 #'
-#' @param s Numeric vector; epoch seconds.
-#' @return POSIXct vector in UTC.
+#' @param s (numeric | NA) epoch seconds.
+#' @return (POSIXct | NA) vector in UTC.
 #'
 #' @importFrom lubridate as_datetime
 #' @keywords internal
 #' @noRd
 s_to_datetime <- function(s) {
-  return(lubridate::as_datetime(as.numeric(s), tz = "UTC"))
+  assert_args_s_to_datetime(s)
+  return(assert_return_s_to_datetime(lubridate::as_datetime(as.numeric(s), tz = "UTC")))
 }
 
 #' Coerce a Datetime to Epoch Seconds
 #'
-#' Normalises a POSIXct, Date, or datetime-like value to UTC via
-#' [lubridate::as_datetime()] and returns integer epoch seconds, the form the
-#' Coinbase Exchange API expects for candle time bounds.
+#' Normalises a POSIXct or Date value to UTC via [lubridate::as_datetime()] and
+#' returns whole-number epoch seconds, the form the Coinbase Exchange API expects
+#' for candle time bounds.
 #'
-#' @param x A POSIXct, Date, or value coercible by [lubridate::as_datetime()].
-#' @return Numeric; whole-number epoch seconds. `NULL` passes through as `NULL`.
+#' The result is **floored** to the whole second with [base::floor()]: any
+#' sub-second precision in `x` is discarded (truncated towards the past, not
+#' rounded to nearest). When `x` is used as a range `end`, the final partial
+#' second is therefore excluded.
+#'
+#' @param x (POSIXct | Date | NULL) a timestamp or date. `NULL` passes through.
+#' @return (numeric | NULL) whole-number (floored) epoch seconds. `NULL` passes
+#'   through as `NULL`.
 #'
 #' @importFrom lubridate as_datetime
 #' @keywords internal
 #' @noRd
 datetime_to_epoch <- function(x) {
+  assert_args_datetime_to_epoch(x)
   if (is.null(x)) {
-    return(NULL)
+    return(assert_return_datetime_to_epoch(NULL))
   }
   # Keep this a double, not as.integer(): epoch seconds beyond 2038-01-19 exceed
   # the 32-bit integer range and would silently become NA. httr2 serialises a
   # whole-number double cleanly (no scientific notation) in the query string.
-  return(floor(as.numeric(lubridate::as_datetime(x, tz = "UTC"))))
+  return(assert_return_datetime_to_epoch(floor(as.numeric(lubridate::as_datetime(x, tz = "UTC")))))
 }
 
 #' Convert a Coinbase Timestamp to POSIXct
@@ -54,10 +64,11 @@ datetime_to_epoch <- function(x) {
 #' epoch seconds (the Exchange candle bounds). This converts either form to a
 #' POSIXct in UTC.
 #'
-#' @param time_value Character ISO 8601 timestamp(s), or numeric epoch seconds.
-#' @param unit Character; the input form: `"iso"` (ISO 8601 string, default) or
-#'   `"s"` (epoch seconds).
-#' @return POSIXct vector in UTC.
+#' @param time_value (character | numeric) ISO 8601 timestamp(s), or numeric
+#'   epoch seconds.
+#' @param unit (scalar<character in c("iso", "s")>) the input form: `"iso"` (ISO
+#'   8601 string, default) or `"s"` (epoch seconds).
+#' @return (POSIXct | NA) vector in UTC.
 #'
 #' @examples
 #' \dontrun{
@@ -68,12 +79,13 @@ datetime_to_epoch <- function(x) {
 #' @export
 time_convert_from_coinbase <- function(time_value, unit = c("iso", "s")) {
   unit <- match.arg(unit)
+  assert_args_time_convert_from_coinbase(time_value, unit)
   result <- switch(
     unit,
     iso = iso_to_datetime(time_value),
     s = s_to_datetime(time_value)
   )
-  return(result)
+  return(assert_return_time_convert_from_coinbase(result))
 }
 
 #' Convert a POSIXct to a Coinbase Timestamp
@@ -82,9 +94,15 @@ time_convert_from_coinbase <- function(time_value, unit = c("iso", "s")) {
 #' (`"iso"`, default) or whole-number epoch seconds (`"s"`, used for the Exchange
 #' candle bounds).
 #'
-#' @param datetime POSIXct object(s) to convert.
-#' @param unit Character; the output form: `"iso"` (default) or `"s"`.
-#' @return A character ISO 8601 timestamp (`"iso"`) or numeric epoch seconds (`"s"`).
+#' For `unit = "s"` the value is **floored** to the whole second (sub-second
+#' precision is truncated towards the past, not rounded); the `"iso"` form is
+#' likewise formatted to whole-second resolution (`%S` drops fractional seconds).
+#'
+#' @param datetime (POSIXct) object(s) to convert.
+#' @param unit (scalar<character in c("iso", "s")>) the output form: `"iso"`
+#'   (default) or `"s"`.
+#' @return (character | numeric) an ISO 8601 timestamp (`"iso"`) or numeric epoch
+#'   seconds (`"s"`).
 #'
 #' @examples
 #' \dontrun{
@@ -93,17 +111,14 @@ time_convert_from_coinbase <- function(time_value, unit = c("iso", "s")) {
 #' time_convert_to_coinbase(dt, unit = "s") # 1780252829
 #' }
 #'
-#' @importFrom rlang abort
 #' @export
 time_convert_to_coinbase <- function(datetime, unit = c("iso", "s")) {
   unit <- match.arg(unit)
-  if (!inherits(datetime, "POSIXct")) {
-    rlang::abort("`datetime` must be a POSIXct object.")
-  }
+  assert_args_time_convert_to_coinbase(datetime, unit)
   result <- switch(
     unit,
     iso = format(datetime, "%Y-%m-%dT%H:%M:%SZ", tz = "UTC"),
     s = datetime_to_epoch(datetime)
   )
-  return(result)
+  return(assert_return_time_convert_to_coinbase(result))
 }

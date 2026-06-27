@@ -17,31 +17,34 @@ coinbase_backfill_trades(
 )
 }
 \arguments{
-\item{symbols}{Character vector of product symbols (e.g.
-\code{c("BTC-USD", "ETH-USD")}). Must not be NULL or empty.}
+\item{symbols}{(character) product symbols (e.g. \code{c("BTC-USD", "ETH-USD")}).
+Must not be NULL or empty.}
 
-\item{from}{POSIXct or numeric; start of the backfill window. Defaults to one
+\item{from}{(POSIXct | numeric) start of the backfill window. Defaults to one
 week ago. Tick volume is large, so widen this deliberately.}
 
-\item{to}{POSIXct or numeric; end of the window. Defaults to the current time.}
+\item{to}{(POSIXct | numeric) end of the window. Defaults to the current time.}
 
-\item{file}{Character; path to the output CSV. Data is appended incrementally
-so progress survives interruption.}
+\item{file}{(scalar<character>) path to the output CSV. Data is appended
+incrementally so progress survives interruption.}
 
-\item{base_url}{Character; Advanced Trade API base URL.}
+\item{base_url}{(scalar<character>) Advanced Trade API base URL.}
 
-\item{exchange_base_url}{Character; Exchange API base URL.}
+\item{exchange_base_url}{(scalar<character>) Exchange API base URL.}
 
-\item{max_pages}{Numeric; per-symbol cap on pages fetched. Default \code{Inf}.}
+\item{max_pages}{(scalar<numeric in [1, Inf]>) per-symbol cap on pages
+fetched. Default \code{Inf}.}
 
-\item{sleep}{Numeric; seconds to sleep between symbols to respect rate limits.}
+\item{sleep}{(scalar<numeric in [0, Inf[>) seconds to sleep between symbols to
+respect rate limits.}
 
-\item{verbose}{Logical; if \code{TRUE}, prints progress via \code{\link[rlang:inform]{rlang::inform()}}.}
+\item{verbose}{(scalar<logical>) if \code{TRUE}, prints progress via
+\code{\link[rlang:abort]{rlang::inform()}}.}
 }
 \value{
-The file path (invisibly). If any symbols failed, a \code{"failures"}
-attribute is attached: a \link[data.table:data.table]{data.table::data.table} with columns \code{symbol}
-and \code{error}.
+(scalar<character>) the file path (invisibly). If any symbols failed, a
+\code{"failures"} attribute is attached: a \link[data.table:data.table]{data.table::data.table} with columns
+\code{symbol} and \code{error}.
 }
 \description{
 Downloads deep tick history for one or more products and writes the results
