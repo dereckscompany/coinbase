@@ -77,6 +77,31 @@
   `(Shape | promise<Shape>)` reference, so every column is still enforced at the
   public boundary — that path is unchanged.
 
+## Self-review fixes
+
+* **`promises` is now a hard dependency.** `R/imports.R` declares
+  `@import promises` (so `NAMESPACE` has `import(promises)`) and
+  `promises::then()` is called unconditionally in `R/helpers_paginate.R` and
+  `R/impl_trades.R`, so `promises` belongs in `Imports`, not `Suggests` (where
+  it triggered an `R CMD check` "Namespace dependency not required" warning). It
+  has been moved.
+* **A genuinely empty deep-trade fetch keeps the `Trades` contract.** The
+  empty-accumulator branch of `coinbase_fetch_trades_history()` returned a bare
+  schemaless `data.table()`, which `get_trades_history()`'s generated
+  `assert_return` (the 5-column `Trades` shape) would reject — so an empty fetch
+  through the public method aborted. It now returns the fully-typed zero-row
+  `empty_dt_trades()`, and the empty-universe test drives the public
+  `get_trades_history()` (not the bare impl) and asserts the five `Trades`
+  columns are present and correctly typed.
+* **The `Products` shape is now wired to a method.** `get_products()` previously
+  returned a bare `(data.table)` via `as_dt_list`, leaving the `Products`
+  `@type` referenced by no method (and the types prose's "every shape is
+  referenced by a method's `@return`" claim false). The live Exchange
+  `/products` payload is a fixed 18-field record, so a `parse_products()` (with
+  `empty_dt_products()`) now builds the typed `Products` table, `get_products()`
+  uses it as its `.parser`, and its `@return` is `(Products | promise<Products>)`
+  — every column enforced at the public boundary, the prose claim now true.
+
 # coinbase 0.1.0
 
 ## Transport migration to connectcore

@@ -19,7 +19,11 @@ test_that("CoinbaseMarketData public methods round-trip through the router", {
   on.exit(options(old), add = TRUE)
   market <- CoinbaseMarketData$new(keys = .keys)
 
-  expect_true(data.table::is.data.table(market$get_products()))
+  products <- market$get_products()
+  expect_true(data.table::is.data.table(products))
+  expect_true(all(c("id", "base_currency", "quote_currency", "status") %in% names(products)))
+  expect_type(products$id, "character")
+  expect_type(products$margin_enabled, "logical")
   expect_equal(nrow(market$get_product("BTC-USD")), 1L)
 
   ohlcv <- market$get_ohlcv("BTC-USD", granularity = "1day")

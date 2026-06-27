@@ -95,8 +95,8 @@ Retrieve all available trading products (currency pairs).
 }
 
 \subsection{Returns}{
-(data.table | promise<data.table>) the products, or a promise
-thereof.
+(Products | promise<Products>) one row per tradable product, or a
+promise thereof.
 }
 }
 \if{html}{\out{<hr>}}

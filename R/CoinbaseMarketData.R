@@ -68,14 +68,14 @@ CoinbaseMarketData <- R6::R6Class(
   inherit = CoinbaseBase,
   public = list(
     #' @description Retrieve all available trading products (currency pairs).
-    #' @return (data.table | promise<data.table>) the products, or a promise
-    #'   thereof.
+    #' @return (Products | promise<Products>) one row per tradable product, or a
+    #'   promise thereof.
     get_products = function() {
       res <- private$.request(
         endpoint = "/products",
         auth = FALSE,
         base_url = private$.exchange_base_url,
-        .parser = as_dt_list
+        .parser = parse_products
       )
       return(connectcore::then_or_now(
         res,

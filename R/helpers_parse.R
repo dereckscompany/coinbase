@@ -300,6 +300,32 @@ as_dt_list <- function(items) {
 #' @keywords internal
 #' @noRd
 #' @noassert
+empty_dt_products <- function() {
+  return(data.table::data.table(
+    id = character(0),
+    base_currency = character(0),
+    quote_currency = character(0),
+    quote_increment = character(0),
+    base_increment = character(0),
+    display_name = character(0),
+    min_market_funds = character(0),
+    margin_enabled = logical(0),
+    post_only = logical(0),
+    limit_only = logical(0),
+    cancel_only = logical(0),
+    status = character(0),
+    status_message = character(0),
+    trading_disabled = logical(0),
+    fx_stablecoin = logical(0),
+    max_slippage_percentage = character(0),
+    auction_mode = logical(0),
+    high_bid_limit_percentage = character(0)
+  ))
+}
+
+#' @keywords internal
+#' @noRd
+#' @noassert
 empty_dt_ohlcv <- function() {
   return(data.table::data.table(
     datetime = s_to_datetime(numeric(0)),
@@ -611,6 +637,50 @@ empty_dt_portfolio_summary <- function() {
     perp_unrealized_pnl = numeric(0),
     total_equities_balance = numeric(0)
   ))
+}
+
+#' Parse Coinbase Exchange Products into a data.table
+#'
+#' Flattens each product object from the Exchange `/products` array into the
+#' fixed `Products` shape (one row per tradable product), coalescing any absent
+#' field to `NA` and coercing each column to its declared type, so the result is
+#' list-column-free and satisfies the column contract its method enforces.
+#'
+#' @param items (list | NULL) a list of product objects, or NULL.
+#' @return (class<data.table>) one row per product. Empty if `items` is NULL or
+#'   empty.
+#'
+#' @keywords internal
+#' @noRd
+parse_products <- function(items) {
+  assert_args_parse_products(items)
+  items <- Filter(Negate(is.null), coalesce_null(items, list()))
+  if (length(items) == 0L) {
+    return(assert_return_parse_products(empty_dt_products()))
+  }
+  rows <- lapply(items, function(p) {
+    return(data.table::data.table(
+      id = coalesce_null(p$id, NA_character_),
+      base_currency = coalesce_null(p$base_currency, NA_character_),
+      quote_currency = coalesce_null(p$quote_currency, NA_character_),
+      quote_increment = coalesce_null(p$quote_increment, NA_character_),
+      base_increment = coalesce_null(p$base_increment, NA_character_),
+      display_name = coalesce_null(p$display_name, NA_character_),
+      min_market_funds = coalesce_null(p$min_market_funds, NA_character_),
+      margin_enabled = coalesce_null(p$margin_enabled, NA),
+      post_only = coalesce_null(p$post_only, NA),
+      limit_only = coalesce_null(p$limit_only, NA),
+      cancel_only = coalesce_null(p$cancel_only, NA),
+      status = coalesce_null(p$status, NA_character_),
+      status_message = coalesce_null(p$status_message, NA_character_),
+      trading_disabled = coalesce_null(p$trading_disabled, NA),
+      fx_stablecoin = coalesce_null(p$fx_stablecoin, NA),
+      max_slippage_percentage = coalesce_null(p$max_slippage_percentage, NA_character_),
+      auction_mode = coalesce_null(p$auction_mode, NA),
+      high_bid_limit_percentage = coalesce_null(p$high_bid_limit_percentage, NA_character_)
+    ))
+  })
+  return(assert_return_parse_products(data.table::rbindlist(rows, fill = TRUE)[]))
 }
 
 #' Parse Coinbase Exchange Candles into an OHLCV data.table

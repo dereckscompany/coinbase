@@ -236,6 +236,25 @@ assert_return_CoinbaseFutures__get_current_margin_window <- function(value) {
 
 assert_return_CoinbaseMarketData__get_products <- function(value) {
   assert_data_table(value)
+  assert_has_columns(value, c("id", "base_currency", "quote_currency", "quote_increment", "base_increment", "display_name", "min_market_funds", "margin_enabled", "post_only", "limit_only", "cancel_only", "status", "status_message", "trading_disabled", "fx_stablecoin", "max_slippage_percentage", "auction_mode", "high_bid_limit_percentage"))
+  assert_character(value[["id"]])
+  assert_character(value[["base_currency"]])
+  assert_character(value[["quote_currency"]])
+  assert_character(value[["quote_increment"]])
+  assert_character(value[["base_increment"]])
+  assert_character(value[["display_name"]])
+  assert_character(value[["min_market_funds"]])
+  assert_logical(value[["margin_enabled"]])
+  assert_logical(value[["post_only"]])
+  assert_logical(value[["limit_only"]])
+  assert_logical(value[["cancel_only"]])
+  assert_character(value[["status"]])
+  assert_character(value[["status_message"]])
+  assert_logical(value[["trading_disabled"]])
+  assert_logical(value[["fx_stablecoin"]])
+  assert_character(value[["max_slippage_percentage"]])
+  assert_logical(value[["auction_mode"]])
+  assert_character(value[["high_bid_limit_percentage"]])
   return(value)
 }
 
@@ -894,6 +913,18 @@ assert_args_as_dt_list <- function(items) {
 }
 
 assert_return_as_dt_list <- function(value) {
+  assert_class(value, "data.table")
+  return(value)
+}
+
+assert_args_parse_products <- function(items) {
+  if (!is.null(items)) {
+    assert_list(items)
+  }
+  return(invisible(NULL))
+}
+
+assert_return_parse_products <- function(value) {
   assert_class(value, "data.table")
   return(value)
 }
