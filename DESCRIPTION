@@ -28,6 +28,7 @@ Imports:
     lubridate,
     assert,
     connectcore (>= 0.1.0),
+    promises,
     stats,
     uuid
 Suggests:
@@ -39,7 +40,6 @@ Suggests:
     later,
     lintr,
     pkgdown,
-    promises,
     rcmdcheck,
     rmarkdown,
     roxyassert (>= 0.9.1),
