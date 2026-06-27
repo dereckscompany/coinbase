@@ -78,11 +78,10 @@ test_that("parse_coinbase_response aborts on HTTP >= 400 with status and body", 
 test_that("coinbase_build_request omits NULL body fields (single-field edit) but keeps nested config", {
   captured <- NULL
   fake_perform <- function(req) {
-    b <- req$body$data
-    captured <<- as.character(b)
-    if (is.raw(b)) {
-      captured <<- rawToChar(b)
-    }
+    # connectcore's funnel encodes the body via req_body_json, so req$body$data
+    # is the (NULL-stripped) list; serialise it the way httr2 sends it on the
+    # wire to assert the exact JSON.
+    captured <<- as.character(jsonlite::toJSON(req$body$data, auto_unbox = TRUE, null = "null"))
     return(httr2::response(
       status_code = 200L,
       headers = list(`Content-Type` = "application/json"),
@@ -111,6 +110,33 @@ test_that("coinbase_build_request omits NULL body fields (single-field edit) but
   )
   expect_true(grepl("market_market_ioc", captured))
   expect_true(grepl("\"quote_size\":\"10\"", captured))
+})
+
+test_that("coinbase_build_request explodes a multi-value query param (product_ids repeats, no abort)", {
+  # Regression: connectcore must set .multi = "explode" in the funnel so a vector
+  # product_ids becomes ?product_ids=A&product_ids=B (Coinbase's wire format),
+  # NOT abort. Exercised by CoinbaseMarketData$get_best_bid_ask,
+  # CoinbaseTrading$get_orders, and CoinbaseTrading$get_fills.
+  captured <- NULL
+  fake_perform <- function(req) {
+    captured <<- req$url
+    return(httr2::response(
+      status_code = 200L,
+      headers = list(`Content-Type` = "application/json"),
+      body = charToRaw("{}")
+    ))
+  }
+  expect_no_error(
+    coinbase_build_request(
+      base_url = "https://api.coinbase.com",
+      endpoint = "/api/v3/brokerage/best_bid_ask",
+      method = "GET",
+      query = list(product_ids = c("BTC-USD", "ETH-USD")),
+      .perform = fake_perform
+    )
+  )
+  expect_true(grepl("product_ids=BTC-USD", captured, fixed = TRUE))
+  expect_true(grepl("product_ids=ETH-USD", captured, fixed = TRUE))
 })
 
 test_that("parse_coinbase_response returns parsed body on success", {

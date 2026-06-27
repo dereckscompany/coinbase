@@ -4,10 +4,17 @@
 \alias{CoinbaseBase}
 \title{CoinbaseBase: Abstract Base Class for Coinbase API Clients}
 \description{
-Provides shared infrastructure for all Coinbase R6 classes, including API
-credential management, sync/async execution mode, and a standardised method
-for executing API requests through the single \code{\link[=coinbase_build_request]{coinbase_build_request()}}
-funnel.
+Provides shared infrastructure for all Coinbase R6 classes by extending
+\link[connectcore:RestClient]{connectcore::RestClient}. It inherits the single \code{private$.request()} funnel
+(mode-transparent sync/async, NULL-field stripping, retry/throttle) and
+customises only the two venue-specific seams:
+\itemize{
+\item \code{.sign()} — attaches a Coinbase JWT (ES256 / EdDSA) to each authenticated
+request (via the internal \code{coinbase_jwt_sign()}).
+\item \code{.parse_envelope()} — reads the Coinbase error envelope and tolerates the
+empty success bodies some endpoints return (via the internal
+\code{parse_coinbase_response()}).
+}
 \subsection{Sync vs Async}{
 
 The \code{async} parameter controls execution mode for all API methods:
@@ -30,7 +37,8 @@ live on the Advanced Trade host (\code{\link[=get_base_url]{get_base_url()}},
 \verb{https://api.coinbase.com}); the public market-data endpoints with deep
 history live on the Exchange host (\code{\link[=get_exchange_base_url]{get_exchange_base_url()}},
 \verb{https://api.exchange.coinbase.com}). Subclasses select the host per request
-via the \code{base_url} argument of \code{private$.request()}.
+via the \code{base_url} argument of \code{private$.request()} (this class extends the
+connectcore funnel with that argument).
 }
 
 \subsection{Design}{
@@ -44,21 +52,14 @@ methods that delegate to \code{private$.request()}.
 
 All fields are private:
 \itemize{
-\item \code{.keys}: List; API credentials from \code{\link[=get_api_keys]{get_api_keys()}}.
-\item \code{.base_url}: Character; Advanced Trade API base URL.
-\item \code{.exchange_base_url}: Character; Exchange API base URL.
-\item \code{.perform}: Function; either \link[httr2:req_perform]{httr2::req_perform} or \link[httr2:req_perform_promise]{httr2::req_perform_promise}.
-\item \code{.is_async}: Logical; whether the instance is in async mode.
+\item \code{.exchange_base_url}: Character; Exchange API base URL (the Advanced Trade
+base, credentials, async flag, and perform function are held by the
+\link[connectcore:RestClient]{connectcore::RestClient} superclass).
 }
 }
 
-\section{Active bindings}{
-  \if{html}{\out{<div class="r6-active-bindings">}}
-  \describe{
-    \item{\code{is_async}}{Logical; read-only flag indicating whether this instance
-operates in async mode.}
-  }
-  \if{html}{\out{</div>}}
+\section{Super class}{
+\code{\link[connectcore:RestClient]{connectcore::RestClient}} -> \code{CoinbaseBase}
 }
 \section{Methods}{
 \subsection{Public methods}{
