@@ -78,10 +78,10 @@ test_that("parse_coinbase_response aborts on HTTP >= 400 with status and body", 
 test_that("coinbase_build_request omits NULL body fields (single-field edit) but keeps nested config", {
   captured <- NULL
   fake_perform <- function(req) {
-    # Capture the ACTUAL bytes httr2 puts on the wire (via a dry run) rather than
-    # re-serialising the request ourselves, so the assertion reflects exactly
-    # what connectcore's funnel sends.
-    captured <<- rawToChar(httr2::req_dry_run(req, quiet = TRUE)$body)
+    # connectcore's funnel encodes the body via req_body_json, so req$body$data
+    # is the (NULL-stripped) list; serialise it the way httr2 sends it on the
+    # wire to assert the exact JSON.
+    captured <<- as.character(jsonlite::toJSON(req$body$data, auto_unbox = TRUE, null = "null"))
     return(httr2::response(
       status_code = 200L,
       headers = list(`Content-Type` = "application/json"),

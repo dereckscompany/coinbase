@@ -1,4 +1,4 @@
-# coinbase (development version)
+# coinbase 0.1.0
 
 ## Transport migration to connectcore
 
