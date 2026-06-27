@@ -3,7 +3,7 @@
 ## Transport migration to connectcore
 
 * The HTTP transport now builds on
-  [connectcore](https://github.com/dereckscompany/connectcore) (`v0.0.1`), the
+  [connectcore](https://github.com/dereckscompany/connectcore) (`v0.1.0`), the
   shared transport base extracted from these connectors. `CoinbaseBase` inherits
   `connectcore::RestClient` and overrides only the two genuinely
   Coinbase-specific seams — `.sign()` (the ES256 / EdDSA JWT) and
@@ -19,6 +19,11 @@
   extends the connectcore funnel with a per-request `base_url` argument.
 * The public API (R6 classes, exported functions, and return shapes) is
   unchanged.
+* Pinned to connectcore `v0.1.0`, which restores multi-value query support
+  (`.multi = "explode"`) in the funnel: a vector `product_ids` now repeats the
+  key (`?product_ids=A&product_ids=B`) instead of aborting, as Coinbase's
+  `best_bid_ask`, `orders`, and `fills` endpoints require. Added a network-free
+  regression test that pins this behaviour.
 
 # coinbase 0.0.1
 
