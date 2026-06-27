@@ -17,12 +17,14 @@
 #'
 #' @param private_key (scalar<character>) the credential private key (PEM or
 #'   base64).
-#' @return (any) an openssl key object suitable for [jose::jwt_encode_sig()].
+#' @return (class<key>) an openssl key object suitable for
+#'   [jose::jwt_encode_sig()].
 #'
 #' @importFrom openssl read_key base64_decode base64_encode
 #' @keywords internal
 #' @noRd
 load_private_key <- function(private_key) {
+  assert::assert_nonempty_strings(private_key)
   assert_args_load_private_key(private_key)
   if (grepl("^\\s*-----BEGIN", private_key)) {
     return(assert_return_load_private_key(openssl::read_key(private_key)))
@@ -97,6 +99,9 @@ load_private_key <- function(private_key) {
 #' @noRd
 build_jwt <- function(keys, method, host, path) {
   assert_args_build_jwt(keys, method, host, path)
+  assert::assert_nonempty_strings(method)
+  assert::assert_nonempty_strings(host)
+  assert::assert_nonempty_strings(path)
   if (is.null(keys$api_private_key) || !nzchar(keys$api_private_key) || !nzchar(coalesce_null(keys$api_key_name, ""))) {
     rlang::abort(paste0(
       "Coinbase API credentials are not set. Provide them via get_api_keys() ",
@@ -209,6 +214,9 @@ coinbase_build_request <- function(
   is_async = FALSE,
   timeout = 30
 ) {
+  assert::assert_nonempty_strings(base_url)
+  assert::assert_nonempty_strings(endpoint)
+  assert::assert_nonempty_strings(method)
   return(connectcore::build_request(
     base_url = base_url,
     endpoint = endpoint,

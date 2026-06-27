@@ -87,6 +87,11 @@ CoinbaseTrading <- R6::R6Class(
         margin_type,
         retail_portfolio_id
       )
+      assert::assert_nonempty_strings(client_order_id)
+      assert::assert_nonempty_strings(self_trade_prevention_id, null_ok = TRUE)
+      assert::assert_nonempty_strings(leverage, null_ok = TRUE)
+      assert::assert_nonempty_strings(margin_type, null_ok = TRUE)
+      assert::assert_nonempty_strings(retail_portfolio_id, null_ok = TRUE)
       order_configuration <- stringify_order_config(order_configuration)
       body <- list(
         client_order_id = client_order_id,
@@ -142,6 +147,9 @@ CoinbaseTrading <- R6::R6Class(
         margin_type,
         retail_portfolio_id
       )
+      assert::assert_nonempty_strings(leverage, null_ok = TRUE)
+      assert::assert_nonempty_strings(margin_type, null_ok = TRUE)
+      assert::assert_nonempty_strings(retail_portfolio_id, null_ok = TRUE)
       order_configuration <- stringify_order_config(order_configuration)
       body <- list(
         product_id = product_id,
@@ -171,6 +179,7 @@ CoinbaseTrading <- R6::R6Class(
     #'   thereof.
     get_order = function(order_id) {
       assert_args_CoinbaseTrading__get_order(order_id)
+      assert::assert_nonempty_strings(order_id)
       res <- private$.request(
         endpoint = paste0("/api/v3/brokerage/orders/historical/", order_id),
         auth = TRUE,
@@ -243,6 +252,9 @@ CoinbaseTrading <- R6::R6Class(
         sort_by,
         max_pages
       )
+      assert::assert_nonempty_strings(product_ids, null_ok = TRUE)
+      assert::assert_nonempty_strings(order_ids, null_ok = TRUE)
+      assert::assert_nonempty_strings(retail_portfolio_id, null_ok = TRUE)
       res <- coinbase_paginate_cursor(
         endpoint = "/api/v3/brokerage/orders/historical/batch",
         query = list(
@@ -311,6 +323,10 @@ CoinbaseTrading <- R6::R6Class(
         sort_by,
         max_pages
       )
+      assert::assert_nonempty_strings(order_ids, null_ok = TRUE)
+      assert::assert_nonempty_strings(trade_ids, null_ok = TRUE)
+      assert::assert_nonempty_strings(product_ids, null_ok = TRUE)
+      assert::assert_nonempty_strings(retail_portfolio_id, null_ok = TRUE)
       res <- coinbase_paginate_cursor(
         endpoint = "/api/v3/brokerage/orders/historical/fills",
         query = list(
@@ -345,6 +361,7 @@ CoinbaseTrading <- R6::R6Class(
     #' @noassert price, size
     edit_order = function(order_id, price = NULL, size = NULL) {
       assert_args_CoinbaseTrading__edit_order(order_id)
+      assert::assert_nonempty_strings(order_id)
       if (is.null(price) && is.null(size)) {
         rlang::abort("edit_order requires at least one of `price` or `size`.")
       }
@@ -378,6 +395,7 @@ CoinbaseTrading <- R6::R6Class(
     #' @noassert price, size
     preview_edit_order = function(order_id, price = NULL, size = NULL) {
       assert_args_CoinbaseTrading__preview_edit_order(order_id)
+      assert::assert_nonempty_strings(order_id)
       if (is.null(price) && is.null(size)) {
         rlang::abort("preview_edit_order requires at least one of `price` or `size`.")
       }
@@ -410,6 +428,7 @@ CoinbaseTrading <- R6::R6Class(
       if (length(order_ids) == 0L) {
         rlang::abort("`order_ids` must contain at least one order id.")
       }
+      assert::assert_nonempty_strings(order_ids)
       res <- private$.request(
         endpoint = "/api/v3/brokerage/orders/batch_cancel",
         method = "POST",
@@ -438,6 +457,7 @@ CoinbaseTrading <- R6::R6Class(
     close_position = function(product_id, size = NULL, client_order_id = generate_client_order_id()) {
       validate_symbol(product_id)
       assert_args_CoinbaseTrading__close_position(client_order_id)
+      assert::assert_nonempty_strings(client_order_id)
       if (!is.null(size)) {
         size <- coerce_positive_string(size, "size")
       }

@@ -64,8 +64,8 @@ coinbase_backfill_trades <- function(
   for (s in symbols) {
     validate_symbol(s)
   }
-  if (missing(file) || !is.character(file) || length(file) != 1L) {
-    rlang::abort("`file` must be a single path string.")
+  if (missing(file) || !is.character(file) || length(file) != 1L || !nzchar(file)) {
+    rlang::abort("`file` must be a single non-empty path string.")
   }
   assert_args_coinbase_backfill_trades(
     symbols,

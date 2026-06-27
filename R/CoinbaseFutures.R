@@ -184,6 +184,7 @@ CoinbaseFutures <- R6::R6Class(
     #'   aborts), or a promise thereof.
     set_intraday_margin_setting = function(setting) {
       assert_args_CoinbaseFutures__set_intraday_margin_setting(setting)
+      assert::assert_nonempty_strings(setting)
       res <- private$.request(
         endpoint = "/api/v3/brokerage/cfm/intraday/margin_setting",
         method = "POST",
@@ -207,6 +208,7 @@ CoinbaseFutures <- R6::R6Class(
     #'   promise thereof.
     get_current_margin_window = function(margin_profile_type) {
       assert_args_CoinbaseFutures__get_current_margin_window(margin_profile_type)
+      assert::assert_nonempty_strings(margin_profile_type)
       res <- private$.request(
         endpoint = "/api/v3/brokerage/cfm/intraday/current_margin_window",
         query = list(margin_profile_type = margin_profile_type),

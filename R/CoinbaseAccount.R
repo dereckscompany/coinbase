@@ -68,6 +68,7 @@ CoinbaseAccount <- R6::R6Class(
     #'   thereof.
     get_account = function(account_uuid) {
       assert_args_CoinbaseAccount__get_account(account_uuid)
+      assert::assert_nonempty_strings(account_uuid)
       res <- private$.request(
         endpoint = paste0("/api/v3/brokerage/accounts/", account_uuid),
         auth = TRUE,
@@ -87,6 +88,7 @@ CoinbaseAccount <- R6::R6Class(
     #' @return (Fees | promise<Fees>) a single-row table, or a promise thereof.
     get_fees = function(product_type = NULL) {
       assert_args_CoinbaseAccount__get_fees(product_type)
+      assert::assert_nonempty_strings(product_type, null_ok = TRUE)
       res <- private$.request(
         endpoint = "/api/v3/brokerage/transaction_summary",
         query = list(product_type = product_type),
@@ -131,6 +133,8 @@ CoinbaseAccount <- R6::R6Class(
     #'   thereof.
     get_portfolio_breakdown = function(portfolio_uuid, currency = NULL) {
       assert_args_CoinbaseAccount__get_portfolio_breakdown(portfolio_uuid, currency)
+      assert::assert_nonempty_strings(portfolio_uuid)
+      assert::assert_nonempty_strings(currency, null_ok = TRUE)
       res <- private$.request(
         endpoint = paste0("/api/v3/brokerage/portfolios/", portfolio_uuid),
         query = list(currency = currency),
@@ -156,6 +160,8 @@ CoinbaseAccount <- R6::R6Class(
     #'   totals, or a promise thereof.
     get_portfolio_summary = function(portfolio_uuid, currency = NULL) {
       assert_args_CoinbaseAccount__get_portfolio_summary(portfolio_uuid, currency)
+      assert::assert_nonempty_strings(portfolio_uuid)
+      assert::assert_nonempty_strings(currency, null_ok = TRUE)
       res <- private$.request(
         endpoint = paste0("/api/v3/brokerage/portfolios/", portfolio_uuid),
         query = list(currency = currency),

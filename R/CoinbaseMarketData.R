@@ -323,6 +323,7 @@ CoinbaseMarketData <- R6::R6Class(
     #'   thereof.
     get_best_bid_ask = function(product_ids = NULL) {
       assert_args_CoinbaseMarketData__get_best_bid_ask(product_ids)
+      assert::assert_nonempty_strings(product_ids, null_ok = TRUE)
       res <- private$.request(
         endpoint = "/api/v3/brokerage/best_bid_ask",
         query = list(product_ids = product_ids),

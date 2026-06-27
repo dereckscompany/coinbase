@@ -804,6 +804,17 @@ assert_return_money_value <- function(value) {
 }
 
 assert_args_nth_num <- function(x, i) {
+  if (!is.null(x)) {
+    assert_any_of(
+      x,
+      function(.x) {
+        assert_list(.x)
+      },
+      function(.x) {
+        
+      }
+    )
+  }
   assert_scalar_count(i)
   assert_between(i, lower = 1)
   return(invisible(NULL))
@@ -816,6 +827,17 @@ assert_return_nth_num <- function(value) {
 }
 
 assert_args_nth_chr <- function(x, i) {
+  if (!is.null(x)) {
+    assert_any_of(
+      x,
+      function(.x) {
+        assert_list(.x)
+      },
+      function(.x) {
+        
+      }
+    )
+  }
   assert_scalar_count(i)
   assert_between(i, lower = 1)
   return(invisible(NULL))
@@ -1167,6 +1189,7 @@ assert_args_load_private_key <- function(private_key) {
 }
 
 assert_return_load_private_key <- function(value) {
+  assert_class(value, "key")
   return(value)
 }
 
@@ -1647,6 +1670,19 @@ assert_return_s_to_datetime <- function(value) {
 }
 
 assert_args_datetime_to_epoch <- function(x) {
+  if (!is.null(x)) {
+    assert_any_of(
+      x,
+      function(.x) {
+        assert_datetime(.x)
+        assert_no_missing_values(.x)
+      },
+      function(.x) {
+        assert_date(.x)
+        assert_no_missing_values(.x)
+      }
+    )
+  }
   return(invisible(NULL))
 }
 

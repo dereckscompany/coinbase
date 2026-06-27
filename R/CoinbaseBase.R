@@ -72,6 +72,8 @@ CoinbaseBase <- R6::R6Class(
       async = FALSE
     ) {
       assert_args_CoinbaseBase__initialize(keys, base_url, exchange_base_url, async)
+      assert::assert_nonempty_strings(base_url)
+      assert::assert_nonempty_strings(exchange_base_url)
       super$initialize(
         keys = keys,
         base_url = base_url,
