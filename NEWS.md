@@ -42,6 +42,32 @@
   `promises`), replacing the `_PACKAGE` doc file, to match the sibling
   connectors.
 
+## Review-round hardening
+
+* **Non-empty string identifiers.** roxyassert's grammar has no non-empty-string
+  production (`scalar<character>` accepts `""`), so every required string that
+  identifies a resource — account / portfolio / order ids, the
+  `client_order_id` idempotency key, futures `setting` / `margin_profile_type`,
+  request `base_url` / `endpoint` / `host` / `path`, the private key — now
+  carries an explicit `assert::assert_nonempty_strings()` guard, and every
+  optional id / code filter (`currency`, `product_type`, the `*_id(s)` filters,
+  `leverage`, `margin_type`) uses the same guard with `null_ok = TRUE`. The
+  `coinbase_backfill_trades(file = )` guard now also rejects the empty path.
+* **Tighter `any` annotations.** `datetime_to_epoch()` is now typed
+  `(POSIXct | Date | NULL)` and `load_private_key()` returns `(class<key>)`
+  instead of `(any)`. The raw-JSON value helpers (`num_or_na()`, `flex_num()`,
+  `money_value()`) keep `any` because the underlying value's R type genuinely
+  varies (integer / double / character / logical); `nth_num()` / `nth_chr()`
+  are tightened to `(list | vector<any, 0..> | NULL)`.
+* **Documented lossy rounding.** `datetime_to_epoch()` and
+  `time_convert_to_coinbase(unit = "s")` now state in their docs that the value
+  is **floored** to the whole second (sub-second precision truncated towards the
+  past, not rounded); `trades_to_ohlcv()` documents that each trade is floored
+  to its left-closed bar start.
+* **`generate_client_order_id()`** now delegates to `uuid::UUIDgenerate()` (added
+  to Imports) instead of hand-rolling the RFC-4122 v4 bit-twiddling; the output
+  is the same standard 36-character hyphenated UUID Coinbase accepts.
+
 # coinbase 0.1.0
 
 ## Transport migration to connectcore
