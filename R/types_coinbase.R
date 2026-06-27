@@ -30,14 +30,14 @@
 #' return level/source-dependent column sets and are documented inline at those
 #' parsers.
 #'
-#' `@genassert` emits a standalone `assert_type_<Shape>()` for each shape (so the
-#' `OrderConfig` record built inside `parse_orders()` / `parse_create_order()`
-#' can be validated even though it is never a public argument), and
-#' `@exportassert` exports them so a downstream package can validate against
-#' coinbase's shapes.
+#' Each shape is referenced by a table-returning method's `@return` as
+#' `(Shape | promise<Shape>)`, so the contract roclet expands it inline into that
+#' method's generated `assert_return_*` -- no standalone `assert_type_<Shape>()`
+#' is emitted. coinbase is a leaf connector: nothing internal calls a per-shape
+#' validator and no downstream package validates against these shapes, so there
+#' is no `@genassert` (no callable validators to generate) and no
+#' `@exportassert` (nothing to export).
 #' @name coinbase_shapes
-#' @genassert
-#' @exportassert
 #'
 #' @type Products (data.table) one row per tradable product (Exchange `/products`):
 #' - id (character | NA) the product id, e.g. `"BTC-USD"`.

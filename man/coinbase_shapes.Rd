@@ -24,9 +24,11 @@ record), \code{Orders}, \code{Fills}, \code{Preview}, \code{CreateOrderAck}, \co
 return level/source-dependent column sets and are documented inline at those
 parsers.
 
-\verb{@genassert} emits a standalone \verb{assert_type_<Shape>()} for each shape (so the
-\code{OrderConfig} record built inside \code{parse_orders()} / \code{parse_create_order()}
-can be validated even though it is never a public argument), and
-\verb{@exportassert} exports them so a downstream package can validate against
-coinbase's shapes.
+Each shape is referenced by a table-returning method's \verb{@return} as
+\verb{(Shape | promise<Shape>)}, so the contract roclet expands it inline into that
+method's generated \verb{assert_return_*} -- no standalone \verb{assert_type_<Shape>()}
+is emitted. coinbase is a leaf connector: nothing internal calls a per-shape
+validator and no downstream package validates against these shapes, so there
+is no \verb{@genassert} (no callable validators to generate) and no
+\verb{@exportassert} (nothing to export).
 }

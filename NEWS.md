@@ -67,6 +67,15 @@
 * **`generate_client_order_id()`** now delegates to `uuid::UUIDgenerate()` (added
   to Imports) instead of hand-rolling the RFC-4122 v4 bit-twiddling; the output
   is the same standard 36-character hyphenated UUID Coinbase accepts.
+* **No exported shape validators.** The `@type` shapes block in
+  `R/types_coinbase.R` no longer carries `@genassert` / `@exportassert`. coinbase
+  is a leaf connector: nothing internal calls a per-shape `assert_type_<Shape>()`
+  and no downstream package validates against these shapes, so generating and
+  exporting 21 standalone validators only polluted the `NAMESPACE` (and forced a
+  `man/roxyassert-generated-asserts.Rd`). Both are removed. Each shape is still
+  expanded inline into its method's `assert_return_*` via the `@return`
+  `(Shape | promise<Shape>)` reference, so every column is still enforced at the
+  public boundary — that path is unchanged.
 
 # coinbase 0.1.0
 
