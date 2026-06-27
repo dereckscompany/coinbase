@@ -18,9 +18,28 @@
   granularity / order-book-level enums with their bespoke error messages) are
   kept as explicit guards, with the corresponding parameters marked `@noassert`
   so they are documented but not double-validated.
-* Sync-or-async endpoint results are typed `(data.table | promise<data.table>)`
-  for documentation; following connectcore, the promise-returning method bodies
-  are left unwrapped so the async path is unaffected.
+* Typed `data.table` return shapes are now the single source of truth for what
+  every table-returning method yields. `R/types_coinbase.R` defines reusable
+  roxyassert `@type` shapes (`Ohlcv`, `Trades`, `Accounts`, `Orders`, `Fills`,
+  `Preview`, `CreateOrderAck`, the futures shapes, ...), each typed column by
+  column to what the parser actually produces. A fixed-shape method documents
+  its result as `(Shape | promise<Shape>)`, so the contract roclet expands the
+  shape into the method's `assert_return_*` and every column's presence and type
+  is checked at the public boundary; the variable-shape methods (order book,
+  portfolio breakdown, and the generic acks) keep `(data.table |
+  promise<data.table>)`.
+* `assert_return` is now enforced at every table-returning method, sync and
+  async alike, by wrapping the result in `connectcore::then_or_now(res, ...)` —
+  the single sync/async branch point — so the resolved value is validated in
+  both modes without touching the async path.
+* So that an empty result still satisfies its column contract, each fixed-shape
+  parser's empty branch now returns a fully-typed zero-row table (`empty_*()` in
+  `R/helpers_parse.R`) instead of a schemaless `data.table()`; datetime columns
+  are built with the same `iso_to_datetime()` / `s_to_datetime()` helpers the
+  populated path uses so class and tz match.
+* Adopted the `R/imports.R` convention (`@import assert` / `data.table` /
+  `promises`), replacing the `_PACKAGE` doc file, to match the sibling
+  connectors.
 
 # coinbase 0.1.0
 

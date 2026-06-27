@@ -1,11 +1,13 @@
 # File: R/types_coinbase.R
-# Reusable roxyassert `@type` shapes for the `data.table`s returned by the
-# parser helpers in R/helpers_parse.R (and, through them, by the public R6
-# methods). Each parser documents its return as one of these named shapes; the
-# contract roclet expands the shape into the generated `assert_return_*` helper,
-# so every column's presence and type is enforced at runtime. A public method
-# that returns the parser's table (possibly as a promise) references the same
-# shape via `(Shape | promise<Shape>)` and re-validates the resolved value.
+# Reusable roxyassert `@type` shapes for the `data.table`s the public R6 methods
+# return. Each table-returning method documents its return as one of these named
+# shapes via `(Shape | promise<Shape>)`; the contract roclet expands the shape
+# into that method's generated `assert_return_*` helper, so every column's
+# presence and type is enforced at the public boundary — for both the synchronous
+# value and the resolved value of a promise (wired through
+# `connectcore::then_or_now()`). The internal parsers in R/helpers_parse.R build
+# the same shapes, and their empty branches return the fully-typed zero-row table
+# (`empty_*()`) so the method's column contract still holds on an empty result.
 
 #' @title Coinbase return shapes
 #' @description Reusable roxyassert `@type` shapes for the parsed Coinbase
