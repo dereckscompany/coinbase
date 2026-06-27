@@ -285,6 +285,331 @@ as_dt_list <- function(items) {
   return(assert_return_as_dt_list(dt[]))
 }
 
+# ---- Typed zero-row empties ------------------------------------------------
+# Each fixed-shape parser's empty branch returns the fully-typed zero-row table
+# for its shape (columns and types EXACTLY matching R/types_coinbase.R and the
+# parser's non-empty branch) so a method's column contract still holds on an
+# empty result. Datetime columns are built with the SAME helper the parser uses
+# (iso_to_datetime / s_to_datetime on a zero-length vector) so class and tz
+# match the populated case. These mirror their shape; they are deliberately not
+# asserted.
+
+#' @keywords internal
+#' @noRd
+#' @noassert
+empty_Ohlcv <- function() {
+  return(data.table::data.table(
+    datetime = s_to_datetime(numeric(0)),
+    open = numeric(0),
+    high = numeric(0),
+    low = numeric(0),
+    close = numeric(0),
+    volume = numeric(0)
+  ))
+}
+
+#' @keywords internal
+#' @noRd
+#' @noassert
+empty_Trades <- function() {
+  return(data.table::data.table(
+    trade_id = numeric(0),
+    side = character(0),
+    price = numeric(0),
+    size = numeric(0),
+    time = iso_to_datetime(character(0))
+  ))
+}
+
+#' @keywords internal
+#' @noRd
+#' @noassert
+empty_Accounts <- function() {
+  return(data.table::data.table(
+    uuid = character(0),
+    name = character(0),
+    currency = character(0),
+    available_balance = numeric(0),
+    hold = numeric(0),
+    active = logical(0),
+    default = logical(0),
+    ready = logical(0),
+    type = character(0),
+    platform = character(0),
+    retail_portfolio_id = character(0),
+    created_at = iso_to_datetime(character(0)),
+    updated_at = iso_to_datetime(character(0))
+  ))
+}
+
+#' @keywords internal
+#' @noRd
+#' @noassert
+empty_Fees <- function() {
+  return(data.table::data.table(
+    pricing_tier = character(0),
+    maker_fee_rate = numeric(0),
+    taker_fee_rate = numeric(0),
+    usd_from = numeric(0),
+    usd_to = numeric(0),
+    total_volume = numeric(0),
+    total_fees = numeric(0),
+    total_balance = numeric(0)
+  ))
+}
+
+#' @keywords internal
+#' @noRd
+#' @noassert
+empty_Orders <- function() {
+  return(data.table::data.table(
+    order_id = character(0),
+    client_order_id = character(0),
+    product_id = character(0),
+    side = character(0),
+    status = character(0),
+    order_type = character(0),
+    config_type = character(0),
+    time_in_force = character(0),
+    created_time = iso_to_datetime(character(0)),
+    completion_percentage = numeric(0),
+    filled_size = numeric(0),
+    average_filled_price = numeric(0),
+    number_of_fills = numeric(0),
+    filled_value = numeric(0),
+    total_fees = numeric(0),
+    base_size = numeric(0),
+    quote_size = numeric(0),
+    limit_price = numeric(0),
+    stop_price = numeric(0),
+    stop_trigger_price = numeric(0),
+    stop_direction = character(0),
+    end_time = iso_to_datetime(character(0)),
+    post_only = logical(0)
+  ))
+}
+
+#' @keywords internal
+#' @noRd
+#' @noassert
+empty_Fills <- function() {
+  return(data.table::data.table(
+    entry_id = character(0),
+    trade_id = character(0),
+    order_id = character(0),
+    product_id = character(0),
+    side = character(0),
+    trade_time = iso_to_datetime(character(0)),
+    trade_type = character(0),
+    price = numeric(0),
+    size = numeric(0),
+    commission = numeric(0),
+    size_in_quote = logical(0),
+    liquidity_indicator = character(0)
+  ))
+}
+
+#' @keywords internal
+#' @noRd
+#' @noassert
+empty_Preview <- function() {
+  return(data.table::data.table(
+    order_total = numeric(0),
+    commission_total = numeric(0),
+    quote_size = numeric(0),
+    base_size = numeric(0),
+    best_bid = numeric(0),
+    best_ask = numeric(0),
+    slippage = numeric(0),
+    errs = character(0),
+    preview_id = character(0)
+  ))
+}
+
+#' @keywords internal
+#' @noRd
+#' @noassert
+empty_CreateOrderAck <- function() {
+  return(data.table::data.table(
+    success = logical(0),
+    order_id = character(0),
+    product_id = character(0),
+    side = character(0),
+    client_order_id = character(0),
+    failure_reason = character(0),
+    config_type = character(0),
+    base_size = numeric(0),
+    quote_size = numeric(0),
+    limit_price = numeric(0),
+    stop_price = numeric(0),
+    stop_trigger_price = numeric(0)
+  ))
+}
+
+#' @keywords internal
+#' @noRd
+#' @noassert
+empty_EditOrderAck <- function() {
+  return(data.table::data.table(
+    success = logical(0),
+    order_id = character(0),
+    errors = character(0)
+  ))
+}
+
+#' @keywords internal
+#' @noRd
+#' @noassert
+empty_EditPreview <- function() {
+  return(data.table::data.table(
+    errors = character(0),
+    slippage = numeric(0),
+    order_total = numeric(0),
+    commission_total = numeric(0),
+    quote_size = numeric(0),
+    base_size = numeric(0),
+    best_bid = numeric(0),
+    average_filled_price = numeric(0)
+  ))
+}
+
+#' @keywords internal
+#' @noRd
+#' @noassert
+empty_CancelResults <- function() {
+  return(data.table::data.table(
+    order_id = character(0),
+    success = logical(0),
+    failure_reason = character(0)
+  ))
+}
+
+#' @keywords internal
+#' @noRd
+#' @noassert
+empty_MarginWindow <- function() {
+  return(data.table::data.table(
+    margin_window_type = character(0),
+    end_time = iso_to_datetime(character(0)),
+    is_intraday_margin_killswitch_enabled = logical(0),
+    is_intraday_margin_enrollment_killswitch_enabled = logical(0)
+  ))
+}
+
+#' @keywords internal
+#' @noRd
+#' @noassert
+empty_FuturesBalance <- function() {
+  return(data.table::data.table(
+    futures_buying_power = numeric(0),
+    total_usd_balance = numeric(0),
+    cbi_usd_balance = numeric(0),
+    cfm_usd_balance = numeric(0),
+    total_open_orders_hold_amount = numeric(0),
+    unrealized_pnl = numeric(0),
+    daily_realized_pnl = numeric(0),
+    initial_margin = numeric(0),
+    available_margin = numeric(0),
+    liquidation_threshold = numeric(0),
+    liquidation_buffer_amount = numeric(0),
+    liquidation_buffer_percentage = numeric(0)
+  ))
+}
+
+#' @keywords internal
+#' @noRd
+#' @noassert
+empty_FuturesPositions <- function() {
+  return(data.table::data.table(
+    product_id = character(0),
+    side = character(0),
+    number_of_contracts = numeric(0),
+    current_price = numeric(0),
+    avg_entry_price = numeric(0),
+    unrealized_pnl = numeric(0),
+    daily_realized_pnl = numeric(0),
+    expiration_time = iso_to_datetime(character(0))
+  ))
+}
+
+#' @keywords internal
+#' @noRd
+#' @noassert
+empty_FuturesSweeps <- function() {
+  return(data.table::data.table(
+    id = character(0),
+    requested_amount = numeric(0),
+    should_sweep_all = logical(0),
+    status = character(0),
+    schedule_time = iso_to_datetime(character(0))
+  ))
+}
+
+#' @keywords internal
+#' @noRd
+#' @noassert
+empty_Stats <- function() {
+  return(data.table::data.table(
+    product_id = character(0),
+    open = numeric(0),
+    high = numeric(0),
+    low = numeric(0),
+    last = numeric(0),
+    volume = numeric(0),
+    volume_30day = numeric(0)
+  ))
+}
+
+#' @keywords internal
+#' @noRd
+#' @noassert
+empty_ProductStats <- function() {
+  return(data.table::data.table(
+    open = numeric(0),
+    high = numeric(0),
+    low = numeric(0),
+    last = numeric(0),
+    volume = numeric(0),
+    volume_30day = numeric(0),
+    rfq_volume_24hour = numeric(0),
+    rfq_volume_30day = numeric(0),
+    conversions_volume_24hour = numeric(0),
+    conversions_volume_30day = numeric(0)
+  ))
+}
+
+#' @keywords internal
+#' @noRd
+#' @noassert
+empty_BestBidAsk <- function() {
+  return(data.table::data.table(
+    product_id = character(0),
+    bid_price = numeric(0),
+    bid_size = numeric(0),
+    ask_price = numeric(0),
+    ask_size = numeric(0),
+    time = iso_to_datetime(character(0))
+  ))
+}
+
+#' @keywords internal
+#' @noRd
+#' @noassert
+empty_PortfolioSummary <- function() {
+  return(data.table::data.table(
+    uuid = character(0),
+    name = character(0),
+    type = character(0),
+    total_balance = numeric(0),
+    total_futures_balance = numeric(0),
+    total_cash_equivalent_balance = numeric(0),
+    total_crypto_balance = numeric(0),
+    futures_unrealized_pnl = numeric(0),
+    perp_unrealized_pnl = numeric(0),
+    total_equities_balance = numeric(0)
+  ))
+}
+
 #' Parse Coinbase Exchange Candles into an OHLCV data.table
 #'
 #' The Exchange API returns each candle as the array
@@ -300,7 +625,7 @@ as_dt_list <- function(items) {
 parse_candles <- function(data) {
   assert_args_parse_candles(data)
   if (is.null(data) || length(data) == 0) {
-    return(assert_return_parse_candles(data.table::data.table()[]))
+    return(assert_return_parse_candles(empty_Ohlcv()))
   }
   dt <- data.table::data.table(
     datetime = s_to_datetime(vapply(data, function(c) nth_num(c, 1L), numeric(1))),
@@ -326,7 +651,7 @@ parse_candles <- function(data) {
 parse_trades <- function(data) {
   assert_args_parse_trades(data)
   if (is.null(data) || length(data) == 0) {
-    return(assert_return_parse_trades(data.table::data.table()[]))
+    return(assert_return_parse_trades(empty_Trades()))
   }
   dt <- data.table::data.table(
     trade_id = vapply(data, function(t) num_or_na(t$trade_id), numeric(1)),
@@ -353,7 +678,7 @@ parse_accounts <- function(items) {
   assert_args_parse_accounts(items)
   items <- Filter(Negate(is.null), coalesce_null(items, list()))
   if (length(items) == 0L) {
-    return(assert_return_parse_accounts(data.table::data.table()[]))
+    return(assert_return_parse_accounts(empty_Accounts()))
   }
   rows <- lapply(items, function(a) {
     return(data.table::data.table(
@@ -388,7 +713,7 @@ parse_accounts <- function(items) {
 parse_fees <- function(data) {
   assert_args_parse_fees(data)
   if (is.null(data) || length(data) == 0) {
-    return(assert_return_parse_fees(data.table::data.table()[]))
+    return(assert_return_parse_fees(empty_Fees()))
   }
   ft <- coalesce_null(data$fee_tier, list())
   return(assert_return_parse_fees(data.table::data.table(
@@ -460,7 +785,7 @@ parse_orders <- function(items) {
   assert_args_parse_orders(items)
   items <- Filter(Negate(is.null), coalesce_null(items, list()))
   if (length(items) == 0L) {
-    return(assert_return_parse_orders(data.table::data.table()[]))
+    return(assert_return_parse_orders(empty_Orders()))
   }
   rows <- lapply(items, function(o) {
     cfg <- flatten_order_config(o$order_configuration)
@@ -505,7 +830,7 @@ parse_fills <- function(items) {
   assert_args_parse_fills(items)
   items <- Filter(Negate(is.null), coalesce_null(items, list()))
   if (length(items) == 0L) {
-    return(assert_return_parse_fills(data.table::data.table()[]))
+    return(assert_return_parse_fills(empty_Fills()))
   }
   rows <- lapply(items, function(f) {
     return(data.table::data.table(
@@ -536,7 +861,7 @@ parse_fills <- function(items) {
 parse_preview <- function(data) {
   assert_args_parse_preview(data)
   if (is.null(data) || length(data) == 0) {
-    return(assert_return_parse_preview(data.table::data.table()[]))
+    return(assert_return_parse_preview(empty_Preview()))
   }
   return(assert_return_parse_preview(data.table::data.table(
     order_total = num_or_na(data$order_total),
@@ -565,7 +890,7 @@ parse_preview <- function(data) {
 parse_create_order <- function(data) {
   assert_args_parse_create_order(data)
   if (is.null(data) || length(data) == 0) {
-    return(assert_return_parse_create_order(data.table::data.table()[]))
+    return(assert_return_parse_create_order(empty_CreateOrderAck()))
   }
   sr <- coalesce_null(data$success_response, list())
   cfg <- flatten_order_config(data$order_configuration)
@@ -596,7 +921,7 @@ parse_create_order <- function(data) {
 parse_edit_order <- function(data) {
   assert_args_parse_edit_order(data)
   if (is.null(data) || length(data) == 0) {
-    return(assert_return_parse_edit_order(data.table::data.table()[]))
+    return(assert_return_parse_edit_order(empty_EditOrderAck()))
   }
   sr <- coalesce_null(data$success_response, list())
   err_items <- c(coalesce_null(data$errors, list()), Filter(Negate(is.null), list(data$error_response)))
@@ -617,7 +942,7 @@ parse_edit_order <- function(data) {
 parse_edit_preview <- function(data) {
   assert_args_parse_edit_preview(data)
   if (is.null(data) || length(data) == 0) {
-    return(assert_return_parse_edit_preview(data.table::data.table()[]))
+    return(assert_return_parse_edit_preview(empty_EditPreview()))
   }
   return(assert_return_parse_edit_preview(data.table::data.table(
     errors = collapse_errors(data$errors),
@@ -642,7 +967,7 @@ parse_cancel_results <- function(items) {
   assert_args_parse_cancel_results(items)
   items <- Filter(Negate(is.null), coalesce_null(items, list()))
   if (length(items) == 0L) {
-    return(assert_return_parse_cancel_results(data.table::data.table()[]))
+    return(assert_return_parse_cancel_results(empty_CancelResults()))
   }
   rows <- lapply(items, function(r) {
     fr <- r$failure_reason
@@ -671,7 +996,7 @@ parse_cancel_results <- function(items) {
 parse_margin_window <- function(data) {
   assert_args_parse_margin_window(data)
   if (is.null(data) || length(data) == 0) {
-    return(assert_return_parse_margin_window(data.table::data.table()[]))
+    return(assert_return_parse_margin_window(empty_MarginWindow()))
   }
   mw <- coalesce_null(data$margin_window, list())
   return(assert_return_parse_margin_window(data.table::data.table(
@@ -697,7 +1022,7 @@ parse_margin_window <- function(data) {
 parse_futures_balance <- function(data) {
   assert_args_parse_futures_balance(data)
   if (is.null(data) || length(data) == 0) {
-    return(assert_return_parse_futures_balance(data.table::data.table()[]))
+    return(assert_return_parse_futures_balance(empty_FuturesBalance()))
   }
   return(assert_return_parse_futures_balance(data.table::data.table(
     futures_buying_power = flex_num(data$futures_buying_power),
@@ -726,7 +1051,7 @@ parse_futures_positions <- function(items) {
   assert_args_parse_futures_positions(items)
   items <- Filter(Negate(is.null), coalesce_null(items, list()))
   if (length(items) == 0L) {
-    return(assert_return_parse_futures_positions(data.table::data.table()[]))
+    return(assert_return_parse_futures_positions(empty_FuturesPositions()))
   }
   rows <- lapply(items, function(p) {
     return(data.table::data.table(
@@ -753,7 +1078,7 @@ parse_futures_positions <- function(items) {
 parse_futures_sweeps <- function(items) {
   assert_args_parse_futures_sweeps(items)
   if (is.null(items) || length(items) == 0) {
-    return(assert_return_parse_futures_sweeps(data.table::data.table()[]))
+    return(assert_return_parse_futures_sweeps(empty_FuturesSweeps()))
   }
   rows <- lapply(items, function(s) {
     return(data.table::data.table(
@@ -827,7 +1152,7 @@ parse_orderbook <- function(data, level = 2L) {
 parse_stats <- function(data) {
   assert_args_parse_stats(data)
   if (is.null(data) || length(data) == 0) {
-    return(assert_return_parse_stats(data.table::data.table()[]))
+    return(assert_return_parse_stats(empty_Stats()))
   }
   ids <- names(data)
   rows <- lapply(ids, function(pid) {
@@ -857,7 +1182,7 @@ parse_stats <- function(data) {
 parse_product_stats <- function(data) {
   assert_args_parse_product_stats(data)
   if (is.null(data) || length(data) == 0) {
-    return(assert_return_parse_product_stats(data.table::data.table()[]))
+    return(assert_return_parse_product_stats(empty_ProductStats()))
   }
   return(assert_return_parse_product_stats(data.table::data.table(
     open = num_or_na(data$open),
@@ -888,7 +1213,7 @@ parse_best_bid_ask <- function(data) {
   assert_args_parse_best_bid_ask(data)
   items <- Filter(Negate(is.null), coalesce_null(data$pricebooks, list()))
   if (length(items) == 0L) {
-    return(assert_return_parse_best_bid_ask(data.table::data.table()[]))
+    return(assert_return_parse_best_bid_ask(empty_BestBidAsk()))
   }
   rows <- lapply(items, function(pb) {
     bid <- list()
