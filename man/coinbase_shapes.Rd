@@ -12,7 +12,7 @@ because the parsers coalesce absent JSON fields to \code{NA} (\code{num_or_na},
 \code{coalesce_null(.., NA_character_)}, \code{iso_to_datetime} on a missing string) and
 the field may legitimately be absent in a real response. So that an empty
 result still satisfies its contract, each parser's empty branch returns the
-fully-typed zero-row table for its shape (see \verb{empty_*()} in
+fully-typed zero-row table for its shape (see \verb{empty_dt_*()} in
 R/helpers_parse.R) rather than a bare schemaless \code{data.table()}.
 
 Shapes: \code{Products}, \code{Ohlcv}, \code{Trades}, \code{Stats}, \code{ProductStats}, \code{BestBidAsk},

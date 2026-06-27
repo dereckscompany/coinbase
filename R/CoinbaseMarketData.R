@@ -340,11 +340,16 @@ CoinbaseMarketData <- R6::R6Class(
     #' @return (data.table | promise<data.table>) a single-row table with `iso`
     #'   and `epoch`, or a promise thereof.
     get_server_time = function() {
-      return(private$.request(
+      res <- private$.request(
         endpoint = "/time",
         auth = FALSE,
         base_url = private$.exchange_base_url,
         .parser = as_dt_row
+      )
+      return(connectcore::then_or_now(
+        res,
+        assert_return_CoinbaseMarketData__get_server_time,
+        is_async = private$.is_async
       ))
     }
   )

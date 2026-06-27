@@ -33,8 +33,9 @@
   the single sync/async branch point — so the resolved value is validated in
   both modes without touching the async path.
 * So that an empty result still satisfies its column contract, each fixed-shape
-  parser's empty branch now returns a fully-typed zero-row table (`empty_*()` in
-  `R/helpers_parse.R`) instead of a schemaless `data.table()`; datetime columns
+  parser's empty branch now returns a fully-typed zero-row table (`empty_dt_*()`
+  in `R/helpers_parse.R`, one per shape) instead of a schemaless `data.table()`;
+  datetime columns
   are built with the same `iso_to_datetime()` / `s_to_datetime()` helpers the
   populated path uses so class and tz match.
 * Adopted the `R/imports.R` convention (`@import assert` / `data.table` /

@@ -7,7 +7,7 @@
 # value and the resolved value of a promise (wired through
 # `connectcore::then_or_now()`). The internal parsers in R/helpers_parse.R build
 # the same shapes, and their empty branches return the fully-typed zero-row table
-# (`empty_*()`) so the method's column contract still holds on an empty result.
+# (`empty_dt_*()`) so the method's column contract still holds on an empty result.
 
 #' @title Coinbase return shapes
 #' @description Reusable roxyassert `@type` shapes for the parsed Coinbase
@@ -18,7 +18,7 @@
 #' `coalesce_null(.., NA_character_)`, `iso_to_datetime` on a missing string) and
 #' the field may legitimately be absent in a real response. So that an empty
 #' result still satisfies its contract, each parser's empty branch returns the
-#' fully-typed zero-row table for its shape (see `empty_*()` in
+#' fully-typed zero-row table for its shape (see `empty_dt_*()` in
 #' R/helpers_parse.R) rather than a bare schemaless `data.table()`.
 #'
 #' Shapes: `Products`, `Ohlcv`, `Trades`, `Stats`, `ProductStats`, `BestBidAsk`,
