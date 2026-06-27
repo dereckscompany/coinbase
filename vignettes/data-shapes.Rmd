@@ -24,12 +24,16 @@ box::use(
   ]
 )
 
-# httr2 exposes a global mock hook: `options(httr2_mock = ...)` intercepts every
-# req_perform / req_perform_promise call. Loading the shared router and setting
-# the option makes every chunk below execute against canned, deterministic
-# fixtures -- no network, no real credentials, no funds.
-box::use(../tests/testthat/mock_router[mock_router])
-options(httr2_mock = mock_router)
+# httr2 exposes a global mock hook that intercepts every req_perform /
+# req_perform_promise call. connectcore::local_mock_api installs the shared
+# router built from the coinbase route table, so every chunk below executes
+# against canned, deterministic fixtures -- no network, no real credentials, no
+# funds.
+box::use(
+  connectcore[local_mock_api],
+  ../tests/testthat/mock_router[.mock_routes]
+)
+local_mock_api(.mock_routes)
 
 # coinbase signs a JWT with the private key BEFORE the request is performed, so
 # the authenticated examples need a loadable key. We mint a THROWAWAY ephemeral
