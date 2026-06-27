@@ -1,7 +1,7 @@
 Package: coinbase
 Type: Package
 Title: API Wrapper to Coinbase Advanced Trade
-Version: 0.0.1
+Version: 0.1.0
 URL: https://dereckscompany.github.io/coinbase,
     https://github.com/dereckscompany/coinbase
 BugReports: https://github.com/dereckscompany/coinbase/issues
@@ -27,6 +27,7 @@ Imports:
     openssl,
     lubridate,
     assert,
+    connectcore,
     stats
 Suggests:
     box,
@@ -42,7 +43,8 @@ Suggests:
     rmarkdown,
     testthat (>= 3.0.0)
 Remotes:
-    dereckscompany/assert
+    dereckscompany/assert,
+    dereckscompany/connectcore@v0.1.0
 VignetteBuilder: knitr
 Config/testthat/edition: 3
 Config/roxygen2/version: 8.0.0

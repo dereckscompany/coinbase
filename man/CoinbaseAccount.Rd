@@ -37,8 +37,8 @@ account$get_fees()
 }
 
 }
-\section{Super class}{
-\code{\link[coinbase:CoinbaseBase]{CoinbaseBase}} -> \code{CoinbaseAccount}
+\section{Super classes}{
+\code{\link[connectcore:RestClient]{connectcore::RestClient}} -> \code{\link[coinbase:CoinbaseBase]{CoinbaseBase}} -> \code{CoinbaseAccount}
 }
 \section{Methods}{
 \subsection{Public methods}{

@@ -44,16 +44,22 @@ Default \code{identity}.}
 Parsed and post-processed API response data, or a promise thereof.
 }
 \description{
-Constructs an \link[httr2:request]{httr2::request}, optionally attaches a signed JWT, performs it
-via the supplied \code{.perform} function, and parses the JSON response. This is
-the single point through which all Coinbase API calls flow.
+Constructs an \link[httr2:request]{httr2::request}, optionally JWT-signs it, performs it (sync or
+async), and parses the Coinbase response envelope. This is the single point
+through which all Coinbase API calls flow; it is a thin Coinbase-specific
+wrapper over \code{\link[connectcore:build_request]{connectcore::build_request()}} that injects the two seams that
+differ per venue — JWT signing (the internal \code{coinbase_jwt_sign()}) and the
+Coinbase error/empty-body envelope (the internal \code{parse_coinbase_response()}).
+Everything else (the
+sync/async branch, NULL-field stripping, the JSON body, retry, throttle) comes
+from connectcore.
 }
 \details{
 \subsection{Sync vs Async}{
 
 The \code{.perform} argument controls execution mode:
 \itemize{
-\item \code{httr2::req_perform} (default): synchronous, returns an \link[httr2:response]{httr2::response}.
+\item \code{httr2::req_perform} (default): synchronous, returns the parsed data.
 \item \code{httr2::req_perform_promise}: asynchronous, returns a \link[promises:promise]{promises::promise}.
 }
 }

@@ -1,12 +1,20 @@
 # File: R/CoinbaseBase.R
-# Abstract R6 base class for all Coinbase API client classes.
+# Abstract R6 base class for all Coinbase API client classes. Inherits the
+# generic transport (sync/async funnel, retry, throttle) from
+# connectcore::RestClient and plugs in the two Coinbase-specific seams: JWT
+# signing (.sign) and the Coinbase error/empty-body envelope (.parse_envelope).
 
 #' CoinbaseBase: Abstract Base Class for Coinbase API Clients
 #'
-#' Provides shared infrastructure for all Coinbase R6 classes, including API
-#' credential management, sync/async execution mode, and a standardised method
-#' for executing API requests through the single [coinbase_build_request()]
-#' funnel.
+#' Provides shared infrastructure for all Coinbase R6 classes by extending
+#' [connectcore::RestClient]. It inherits the single `private$.request()` funnel
+#' (mode-transparent sync/async, NULL-field stripping, retry/throttle) and
+#' customises only the two venue-specific seams:
+#' - `.sign()` — attaches a Coinbase JWT (ES256 / EdDSA) to each authenticated
+#'   request (via the internal `coinbase_jwt_sign()`).
+#' - `.parse_envelope()` — reads the Coinbase error envelope and tolerates the
+#'   empty success bodies some endpoints return (via the internal
+#'   `parse_coinbase_response()`).
 #'
 #' ### Sync vs Async
 #' The `async` parameter controls execution mode for all API methods:
@@ -25,7 +33,8 @@
 #' `https://api.coinbase.com`); the public market-data endpoints with deep
 #' history live on the Exchange host ([get_exchange_base_url()],
 #' `https://api.exchange.coinbase.com`). Subclasses select the host per request
-#' via the `base_url` argument of `private$.request()`.
+#' via the `base_url` argument of `private$.request()` (this class extends the
+#' connectcore funnel with that argument).
 #'
 #' ### Design
 #' This class is not meant to be instantiated directly. Subclasses (e.g.
@@ -34,17 +43,15 @@
 #'
 #' @section Fields:
 #' All fields are private:
-#' - `.keys`: List; API credentials from [get_api_keys()].
-#' - `.base_url`: Character; Advanced Trade API base URL.
-#' - `.exchange_base_url`: Character; Exchange API base URL.
-#' - `.perform`: Function; either [httr2::req_perform] or [httr2::req_perform_promise].
-#' - `.is_async`: Logical; whether the instance is in async mode.
+#' - `.exchange_base_url`: Character; Exchange API base URL (the Advanced Trade
+#'   base, credentials, async flag, and perform function are held by the
+#'   [connectcore::RestClient] superclass).
 #'
 #' @importFrom R6 R6Class
-#' @importFrom httr2 req_perform
 #' @export
 CoinbaseBase <- R6::R6Class(
   "CoinbaseBase",
+  inherit = connectcore::RestClient,
   public = list(
     #' @description
     #' Initialise a CoinbaseBase object.
@@ -63,47 +70,39 @@ CoinbaseBase <- R6::R6Class(
       exchange_base_url = get_exchange_base_url(),
       async = FALSE
     ) {
-      private$.keys <- keys
-      private$.base_url <- base_url
+      super$initialize(
+        keys = keys,
+        base_url = base_url,
+        async = async,
+        body_format = "json",
+        user_agent = "dereckscompany/coinbase"
+      )
       private$.exchange_base_url <- exchange_base_url
-      private$.is_async <- isTRUE(async)
-
-      if (private$.is_async) {
-        if (!requireNamespace("promises", quietly = TRUE)) {
-          rlang::abort("Async mode requires the 'promises' package. Install it with install.packages(\"promises\").")
-        }
-        private$.perform <- httr2::req_perform_promise
-      } else {
-        private$.perform <- httr2::req_perform
-      }
-
       return(invisible(self))
     }
   ),
-  active = list(
-    #' @field is_async Logical; read-only flag indicating whether this instance
-    #'   operates in async mode.
-    is_async = function() {
-      return(private$.is_async)
-    }
-  ),
   private = list(
-    .keys = NULL,
-    .base_url = NULL,
     .exchange_base_url = NULL,
-    .perform = NULL,
-    .is_async = FALSE,
 
-    # Execute a Coinbase API Request
-    #
-    # Convenience wrapper around coinbase_build_request() that injects the
-    # instance's base URL, credentials, and perform function. Accepts a .parser
-    # callback so subclass methods define their data transformation without any
-    # sync/async awareness.
+    # ---- Coinbase-specific seams (override connectcore::RestClient) ----
+
+    # Authenticate a request with a Coinbase JWT. ctx (connectcore's timestamp
+    # source) is unused; the JWT stamps its own nbf/exp from the local clock.
+    .sign = function(req, keys, ctx) {
+      return(coinbase_jwt_sign(req, keys))
+    },
+
+    # Read the Coinbase error envelope and tolerate empty success bodies.
+    .parse_envelope = function(resp) {
+      return(parse_coinbase_response(resp))
+    },
+
+    # Execute a Coinbase API request. Extends connectcore's funnel with a
+    # per-request `base_url`: Coinbase splits across two hosts, so a subclass
+    # passes the Exchange host for public market-data endpoints and omits it
+    # (defaulting to the Advanced Trade host held by the superclass) otherwise.
     #
     # `auth = TRUE` signs the request with the instance's credentials.
-    # `base_url = NULL` uses the Advanced Trade host; pass the Exchange host for
-    # public market-data endpoints.
     .request = function(
       endpoint,
       method = "GET",
@@ -118,23 +117,24 @@ CoinbaseBase <- R6::R6Class(
       if (!is.null(base_url)) {
         effective_base <- base_url
       }
-      return(coinbase_build_request(
+      return(connectcore::build_request(
         base_url = effective_base,
         endpoint = endpoint,
         method = method,
         query = query,
         body = body,
-        keys = {
-          keys <- NULL
-          if (auth) {
-            keys <- private$.keys
-          }
-          keys
-        },
+        keys = if (auth) private$.keys else NULL,
+        sign = private$.sign,
+        parse_envelope = private$.parse_envelope,
+        body_format = private$.body_format,
         .perform = private$.perform,
         .parser = .parser,
         is_async = private$.is_async,
-        timeout = timeout
+        timeout = timeout,
+        user_agent = private$.user_agent,
+        max_tries = private$.max_tries,
+        throttle_rate = private$.throttle_rate,
+        ctx = list(get_timestamp_ms = private$.get_timestamp_ms)
       ))
     }
   )
