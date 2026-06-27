@@ -45,7 +45,10 @@ coinbase_fetch_trades_history <- function(
 
   combine <- function() {
     if (length(accumulator) == 0L) {
-      return(data.table::data.table()[])
+      # Return the fully-typed zero-row Trades table (not a schemaless
+      # data.table()) so a genuinely empty fetch still satisfies the 5-column
+      # Trades contract that get_trades_history()'s assert_return enforces.
+      return(empty_dt_trades())
     }
     dt <- data.table::rbindlist(accumulator, fill = TRUE)
     # The 1-trade cursor overlap between pages can repeat a trade; dedup by id.

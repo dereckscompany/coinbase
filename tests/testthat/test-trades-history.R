@@ -68,14 +68,39 @@ test_that("start bound stops the walk and filters older trades", {
   expect_equal(max(res$trade_id), 5000)
 })
 
-test_that("empty universe yields an empty data.table", {
-  res <- coinbase_fetch_trades_history(
-    product_id = "BTC-USD",
-    page_limit = 1000L,
-    .req_fn = function(endpoint, query, .parser) return(.parser(list())),
-    is_async = FALSE
+test_that("empty universe through get_trades_history() yields a typed empty Trades table", {
+  # Drive the PUBLIC method, not the bare impl: an empty fetch must still satisfy
+  # the 5-column Trades contract its assert_return enforces, so route an empty
+  # trades page (`[]`) for the product and assert the columns and their types.
+  empty_trades_mock <- function(req) {
+    return(httr2::response(
+      status_code = 200L,
+      headers = list(`Content-Type` = "application/json"),
+      body = charToRaw("[]")
+    ))
+  }
+  old <- options(httr2_mock = empty_trades_mock)
+  on.exit(options(old), add = TRUE)
+
+  # A throwaway EC P-256 key so the pre-request JWT signing succeeds; the mock
+  # ignores the Authorization header entirely.
+  sk <- openssl::ec_keygen("P-256")
+  keys <- list(
+    api_key_name = "organizations/o/apiKeys/k",
+    api_private_key = openssl::write_pem(sk)
   )
+  market <- CoinbaseMarketData$new(keys = keys)
+
+  res <- market$get_trades_history("BTC-USD", max_pages = 1)
+
+  expect_true(data.table::is.data.table(res))
   expect_equal(nrow(res), 0L)
+  expect_equal(names(res), c("trade_id", "side", "price", "size", "time"))
+  expect_type(res$trade_id, "double")
+  expect_type(res$side, "character")
+  expect_type(res$price, "double")
+  expect_type(res$size, "double")
+  expect_s3_class(res$time, "POSIXct")
 })
 
 test_that("end bound drops trades newer than `end`", {
