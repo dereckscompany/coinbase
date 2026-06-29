@@ -15,9 +15,8 @@ used as a tiebreaker if present.}
 for 1-minute bars).}
 }
 \value{
-(class<data.table>) columns \code{datetime}, \code{open}, \code{high}, \code{low},
-\code{close}, \code{volume}, sorted ascending by \code{datetime}. \code{datetime} is the floored
-start of each bar. Empty if \code{trades} is empty.
+(Ohlcv) one row per OHLCV bar, sorted ascending by \code{datetime};
+\code{datetime} is the floored start of each bar. Empty if \code{trades} is empty.
 }
 \description{
 Converts a table of raw tick trades (as returned by

@@ -110,6 +110,7 @@ CoinbaseFutures <- R6::R6Class(
     #'   USD to sweep.
     #' @return (data.table | promise<data.table>) a single-row table, or a promise
     #'   thereof.
+    #'   - success (logical) whether the sweep was scheduled.
     #' @noassert usd_amount
     schedule_sweep = function(usd_amount) {
       amount <- coerce_positive_string(usd_amount, "usd_amount")
@@ -146,6 +147,7 @@ CoinbaseFutures <- R6::R6Class(
     #' @description Cancel the pending futures sweep.
     #' @return (data.table | promise<data.table>) a single-row table, or a promise
     #'   thereof.
+    #'   - success (logical) whether the pending sweep was cancelled.
     cancel_sweep = function() {
       res <- private$.request(
         endpoint = "/api/v3/brokerage/cfm/sweeps",
@@ -163,6 +165,7 @@ CoinbaseFutures <- R6::R6Class(
     #' @description Retrieve the current intraday margin setting.
     #' @return (data.table | promise<data.table>) a single-row table, or a promise
     #'   thereof.
+    #'   - setting (character) the active intraday-margin setting.
     get_intraday_margin_setting = function() {
       res <- private$.request(
         endpoint = "/api/v3/brokerage/cfm/intraday/margin_setting",
@@ -182,6 +185,7 @@ CoinbaseFutures <- R6::R6Class(
     #' @return (data.table | promise<data.table>) a single-row table echoing the
     #'   applied `setting` (the API returns an empty body on success; a non-200
     #'   aborts), or a promise thereof.
+    #'   - setting (character) the applied intraday-margin setting.
     set_intraday_margin_setting = function(setting) {
       assert_args_CoinbaseFutures__set_intraday_margin_setting(setting)
       assert::assert_nonempty_strings(setting)

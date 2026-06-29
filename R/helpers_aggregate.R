@@ -40,9 +40,8 @@ verify_symbol <- function(product_id) {
 #'   used as a tiebreaker if present.
 #' @param interval (scalar<numeric in ]0, Inf[>) bar width in seconds (e.g. `60`
 #'   for 1-minute bars).
-#' @return (class<data.table>) columns `datetime`, `open`, `high`, `low`,
-#'   `close`, `volume`, sorted ascending by `datetime`. `datetime` is the floored
-#'   start of each bar. Empty if `trades` is empty.
+#' @return (Ohlcv) one row per OHLCV bar, sorted ascending by `datetime`;
+#'   `datetime` is the floored start of each bar. Empty if `trades` is empty.
 #'
 #' @examples
 #' \dontrun{
@@ -56,7 +55,7 @@ trades_to_ohlcv <- function(trades, interval = 60) {
   assert_args_trades_to_ohlcv(trades, interval)
 
   if (nrow(trades) == 0L) {
-    return(assert_return_trades_to_ohlcv(data.table::data.table()[]))
+    return(assert_return_trades_to_ohlcv(empty_dt_ohlcv()))
   }
 
   assert::assert_column_types(trades, "POSIXct", "time")

@@ -1,3 +1,10 @@
+# coinbase 0.2.2
+
+## Documented `data.table` column shapes
+
+* The handful of public methods that still returned a bare `(data.table)` now document their columns as typed nested bullets (the roxyassert convention), so the generated contracts enforce each column's presence and type at the public boundary. `CoinbaseAccount$get_portfolios()` and `get_key_permissions()`, `CoinbaseFutures$schedule_sweep()`, `cancel_sweep()`, `get_intraday_margin_setting()` and `set_intraday_margin_setting()`, and `CoinbaseMarketData$get_ticker()` and `get_server_time()` are all now column-typed. `CoinbaseMarketData$get_product()` now reuses the existing `Products` shape (it is the single-row form of the same record), and the exported `trades_to_ohlcv()` now returns the `Ohlcv` shape — its empty branch returns the fully-typed zero-row `Ohlcv` table so the column contract holds on an empty result.
+* `CoinbaseAccount$get_portfolio_breakdown()` (the stacked spot/futures/perp positions) and `CoinbaseMarketData$get_orderbook()` (whose fourth column is `num_orders` or `order_id` depending on the requested level) are left as bare `(data.table)`: their column sets are genuinely variable, so a fixed per-column contract would misrepresent them.
+
 # coinbase 0.2.1
 
 ## Shared mock test harness + real captured fixtures

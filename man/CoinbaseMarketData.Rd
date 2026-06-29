@@ -116,8 +116,8 @@ Retrieve metadata for a single product.
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
-(data.table | promise<data.table>) a single-row table, or a promise
-thereof.
+(Products | promise<Products>) a single-row table of product
+metadata, or a promise thereof.
 }
 }
 \if{html}{\out{<hr>}}
@@ -264,8 +264,17 @@ product.
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
-(data.table | promise<data.table>) a single-row table, or a promise
-thereof.
+(data.table | promise<data.table>) a single-row table (the
+\code{trade_id} and any \code{rfq_volume} columns are passed through untyped), or a
+promise thereof.
+\itemize{
+\item price (numeric) last trade price.
+\item size (numeric) last trade size in the base asset.
+\item time (POSIXct) last trade time (UTC).
+\item bid (numeric) best bid price.
+\item ask (numeric) best ask price.
+\item volume (numeric) 24-hour volume.
+}
 }
 }
 \if{html}{\out{<hr>}}
@@ -341,8 +350,12 @@ Retrieve the Coinbase Exchange server time.
 }
 
 \subsection{Returns}{
-(data.table | promise<data.table>) a single-row table with \code{iso}
-and \code{epoch}, or a promise thereof.
+(data.table | promise<data.table>) a single-row table, or a promise
+thereof.
+\itemize{
+\item iso (character) the server time as an ISO-8601 string.
+\item epoch (numeric) the server time as Unix epoch seconds.
+}
 }
 }
 \if{html}{\out{<hr>}}
