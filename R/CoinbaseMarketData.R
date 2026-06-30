@@ -247,12 +247,12 @@ CoinbaseMarketData <- R6::R6Class(
     #' @return (data.table | promise<data.table>) a single-row table (the
     #'   `trade_id` and any `rfq_volume` columns are passed through untyped), or a
     #'   promise thereof.
-    #'   - price (numeric) last trade price.
-    #'   - size (numeric) last trade size in the base asset.
+    #'   - price (numeric | NA) last trade price.
+    #'   - size (numeric | NA) last trade size in the base asset.
     #'   - time (POSIXct) last trade time (UTC).
-    #'   - bid (numeric) best bid price.
-    #'   - ask (numeric) best ask price.
-    #'   - volume (numeric) 24-hour volume.
+    #'   - bid (numeric | NA) best bid price.
+    #'   - ask (numeric | NA) best ask price.
+    #'   - volume (numeric | NA) 24-hour volume.
     #' @noassert product_id
     get_ticker = function(product_id) {
       validate_symbol(product_id)
