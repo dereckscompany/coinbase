@@ -268,12 +268,12 @@ product.
 \code{trade_id} and any \code{rfq_volume} columns are passed through untyped), or a
 promise thereof.
 \itemize{
-\item price (numeric) last trade price.
-\item size (numeric) last trade size in the base asset.
+\item price (numeric | NA) last trade price.
+\item size (numeric | NA) last trade size in the base asset.
 \item time (POSIXct) last trade time (UTC).
-\item bid (numeric) best bid price.
-\item ask (numeric) best ask price.
-\item volume (numeric) 24-hour volume.
+\item bid (numeric | NA) best bid price.
+\item ask (numeric | NA) best ask price.
+\item volume (numeric | NA) 24-hour volume.
 }
 }
 }

@@ -398,17 +398,12 @@ assert_return_CoinbaseMarketData__get_ticker <- function(value) {
   assert_data_table(value)
   assert_has_columns(value, c("price", "size", "time", "bid", "ask", "volume"))
   assert_double(value[["price"]])
-  assert_no_missing_values(value[["price"]])
   assert_double(value[["size"]])
-  assert_no_missing_values(value[["size"]])
   assert_datetime(value[["time"]])
   assert_no_missing_values(value[["time"]])
   assert_double(value[["bid"]])
-  assert_no_missing_values(value[["bid"]])
   assert_double(value[["ask"]])
-  assert_no_missing_values(value[["ask"]])
   assert_double(value[["volume"]])
-  assert_no_missing_values(value[["volume"]])
   return(value)
 }
 
