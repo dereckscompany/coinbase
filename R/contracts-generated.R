@@ -77,6 +77,11 @@ assert_return_CoinbaseAccount__get_fees <- function(value) {
 
 assert_return_CoinbaseAccount__get_portfolios <- function(value) {
   assert_data_table(value)
+  assert_has_columns(value, c("uuid", "name", "type", "deleted"))
+  assert_character(value[["uuid"]])
+  assert_character(value[["name"]])
+  assert_character(value[["type"]])
+  assert_logical(value[["deleted"]])
   return(value)
 }
 
@@ -119,6 +124,12 @@ assert_return_CoinbaseAccount__get_portfolio_summary <- function(value) {
 
 assert_return_CoinbaseAccount__get_key_permissions <- function(value) {
   assert_data_table(value)
+  assert_has_columns(value, c("can_view", "can_trade", "can_transfer", "portfolio_uuid", "portfolio_type"))
+  assert_logical(value[["can_view"]])
+  assert_logical(value[["can_trade"]])
+  assert_logical(value[["can_transfer"]])
+  assert_character(value[["portfolio_uuid"]])
+  assert_character(value[["portfolio_type"]])
   return(value)
 }
 
@@ -185,6 +196,9 @@ assert_return_CoinbaseFutures__get_position <- function(value) {
 
 assert_return_CoinbaseFutures__schedule_sweep <- function(value) {
   assert_data_table(value)
+  assert_has_columns(value, c("success"))
+  assert_logical(value[["success"]])
+  assert_no_missing_values(value[["success"]])
   return(value)
 }
 
@@ -201,11 +215,17 @@ assert_return_CoinbaseFutures__get_sweeps <- function(value) {
 
 assert_return_CoinbaseFutures__cancel_sweep <- function(value) {
   assert_data_table(value)
+  assert_has_columns(value, c("success"))
+  assert_logical(value[["success"]])
+  assert_no_missing_values(value[["success"]])
   return(value)
 }
 
 assert_return_CoinbaseFutures__get_intraday_margin_setting <- function(value) {
   assert_data_table(value)
+  assert_has_columns(value, c("setting"))
+  assert_character(value[["setting"]])
+  assert_no_missing_values(value[["setting"]])
   return(value)
 }
 
@@ -216,6 +236,9 @@ assert_args_CoinbaseFutures__set_intraday_margin_setting <- function(setting) {
 
 assert_return_CoinbaseFutures__set_intraday_margin_setting <- function(value) {
   assert_data_table(value)
+  assert_has_columns(value, c("setting"))
+  assert_character(value[["setting"]])
+  assert_no_missing_values(value[["setting"]])
   return(value)
 }
 
@@ -260,6 +283,25 @@ assert_return_CoinbaseMarketData__get_products <- function(value) {
 
 assert_return_CoinbaseMarketData__get_product <- function(value) {
   assert_data_table(value)
+  assert_has_columns(value, c("id", "base_currency", "quote_currency", "quote_increment", "base_increment", "display_name", "min_market_funds", "margin_enabled", "post_only", "limit_only", "cancel_only", "status", "status_message", "trading_disabled", "fx_stablecoin", "max_slippage_percentage", "auction_mode", "high_bid_limit_percentage"))
+  assert_character(value[["id"]])
+  assert_character(value[["base_currency"]])
+  assert_character(value[["quote_currency"]])
+  assert_character(value[["quote_increment"]])
+  assert_character(value[["base_increment"]])
+  assert_character(value[["display_name"]])
+  assert_character(value[["min_market_funds"]])
+  assert_logical(value[["margin_enabled"]])
+  assert_logical(value[["post_only"]])
+  assert_logical(value[["limit_only"]])
+  assert_logical(value[["cancel_only"]])
+  assert_character(value[["status"]])
+  assert_character(value[["status_message"]])
+  assert_logical(value[["trading_disabled"]])
+  assert_logical(value[["fx_stablecoin"]])
+  assert_character(value[["max_slippage_percentage"]])
+  assert_logical(value[["auction_mode"]])
+  assert_character(value[["high_bid_limit_percentage"]])
   return(value)
 }
 
@@ -345,6 +387,14 @@ assert_return_CoinbaseMarketData__get_orderbook <- function(value) {
 
 assert_return_CoinbaseMarketData__get_ticker <- function(value) {
   assert_data_table(value)
+  assert_has_columns(value, c("price", "size", "time", "bid", "ask", "volume"))
+  assert_double(value[["price"]])
+  assert_double(value[["size"]])
+  assert_datetime(value[["time"]])
+  assert_no_missing_values(value[["time"]])
+  assert_double(value[["bid"]])
+  assert_double(value[["ask"]])
+  assert_double(value[["volume"]])
   return(value)
 }
 
@@ -399,6 +449,11 @@ assert_return_CoinbaseMarketData__get_best_bid_ask <- function(value) {
 
 assert_return_CoinbaseMarketData__get_server_time <- function(value) {
   assert_data_table(value)
+  assert_has_columns(value, c("iso", "epoch"))
+  assert_character(value[["iso"]])
+  assert_no_missing_values(value[["iso"]])
+  assert_double(value[["epoch"]])
+  assert_no_missing_values(value[["epoch"]])
   return(value)
 }
 
@@ -767,7 +822,14 @@ assert_args_trades_to_ohlcv <- function(trades, interval) {
 }
 
 assert_return_trades_to_ohlcv <- function(value) {
-  assert_class(value, "data.table")
+  assert_data_table(value)
+  assert_has_columns(value, c("datetime", "open", "high", "low", "close", "volume"))
+  assert_datetime(value[["datetime"]])
+  assert_double(value[["open"]])
+  assert_double(value[["high"]])
+  assert_double(value[["low"]])
+  assert_double(value[["close"]])
+  assert_double(value[["volume"]])
   return(value)
 }
 

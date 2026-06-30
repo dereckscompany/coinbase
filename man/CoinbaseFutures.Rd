@@ -153,6 +153,9 @@ USD to sweep.}
 \subsection{Returns}{
 (data.table | promise<data.table>) a single-row table, or a promise
 thereof.
+\itemize{
+\item success (logical) whether the sweep was scheduled.
+}
 }
 }
 \if{html}{\out{<hr>}}
@@ -181,6 +184,9 @@ Cancel the pending futures sweep.
 \subsection{Returns}{
 (data.table | promise<data.table>) a single-row table, or a promise
 thereof.
+\itemize{
+\item success (logical) whether the pending sweep was cancelled.
+}
 }
 }
 \if{html}{\out{<hr>}}
@@ -195,6 +201,9 @@ Retrieve the current intraday margin setting.
 \subsection{Returns}{
 (data.table | promise<data.table>) a single-row table, or a promise
 thereof.
+\itemize{
+\item setting (character) the active intraday-margin setting.
+}
 }
 }
 \if{html}{\out{<hr>}}
@@ -218,6 +227,9 @@ or \code{"INTRADAY_MARGIN_SETTING_INTRADAY"}.}
 (data.table | promise<data.table>) a single-row table echoing the
 applied \code{setting} (the API returns an empty body on success; a non-200
 aborts), or a promise thereof.
+\itemize{
+\item setting (character) the applied intraday-margin setting.
+}
 }
 }
 \if{html}{\out{<hr>}}

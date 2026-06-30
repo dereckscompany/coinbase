@@ -86,8 +86,8 @@ CoinbaseMarketData <- R6::R6Class(
 
     #' @description Retrieve metadata for a single product.
     #' @param product_id (scalar<character>) the pair symbol, e.g. `"BTC-USD"`.
-    #' @return (data.table | promise<data.table>) a single-row table, or a promise
-    #'   thereof.
+    #' @return (Products | promise<Products>) a single-row table of product
+    #'   metadata, or a promise thereof.
     #' @noassert product_id
     get_product = function(product_id) {
       validate_symbol(product_id)
@@ -244,8 +244,15 @@ CoinbaseMarketData <- R6::R6Class(
     #' @description Retrieve the latest ticker (best bid/ask, last trade) for a
     #'   product.
     #' @param product_id (scalar<character>) the pair symbol, e.g. `"BTC-USD"`.
-    #' @return (data.table | promise<data.table>) a single-row table, or a promise
-    #'   thereof.
+    #' @return (data.table | promise<data.table>) a single-row table (the
+    #'   `trade_id` and any `rfq_volume` columns are passed through untyped), or a
+    #'   promise thereof.
+    #'   - price (numeric | NA) last trade price.
+    #'   - size (numeric | NA) last trade size in the base asset.
+    #'   - time (POSIXct) last trade time (UTC).
+    #'   - bid (numeric | NA) best bid price.
+    #'   - ask (numeric | NA) best ask price.
+    #'   - volume (numeric | NA) 24-hour volume.
     #' @noassert product_id
     get_ticker = function(product_id) {
       validate_symbol(product_id)
@@ -338,8 +345,10 @@ CoinbaseMarketData <- R6::R6Class(
     },
 
     #' @description Retrieve the Coinbase Exchange server time.
-    #' @return (data.table | promise<data.table>) a single-row table with `iso`
-    #'   and `epoch`, or a promise thereof.
+    #' @return (data.table | promise<data.table>) a single-row table, or a promise
+    #'   thereof.
+    #'   - iso (character) the server time as an ISO-8601 string.
+    #'   - epoch (numeric) the server time as Unix epoch seconds.
     get_server_time = function() {
       res <- private$.request(
         endpoint = "/time",

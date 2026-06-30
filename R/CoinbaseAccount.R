@@ -105,6 +105,10 @@ CoinbaseAccount <- R6::R6Class(
     #' @description Retrieve the user's portfolios.
     #' @return (data.table | promise<data.table>) the portfolios, or a promise
     #'   thereof.
+    #'   - uuid (character | NA) the portfolio UUID.
+    #'   - name (character | NA) the portfolio's display name.
+    #'   - type (character | NA) the portfolio type, e.g. `"DEFAULT"`.
+    #'   - deleted (logical | NA) whether the portfolio has been deleted.
     get_portfolios = function() {
       res <- private$.request(
         endpoint = "/api/v3/brokerage/portfolios",
@@ -178,6 +182,11 @@ CoinbaseAccount <- R6::R6Class(
     #' @description Retrieve the calling API key's permissions.
     #' @return (data.table | promise<data.table>) a single-row table, or a promise
     #'   thereof.
+    #'   - can_view (logical | NA) whether the key may read account data.
+    #'   - can_trade (logical | NA) whether the key may place and cancel orders.
+    #'   - can_transfer (logical | NA) whether the key may move funds.
+    #'   - portfolio_uuid (character | NA) the key's portfolio UUID.
+    #'   - portfolio_type (character | NA) the portfolio type, e.g. `"DEFAULT"`.
     get_key_permissions = function() {
       res <- private$.request(
         endpoint = "/api/v3/brokerage/key_permissions",

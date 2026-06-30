@@ -144,6 +144,12 @@ Retrieve the user's portfolios.
 \subsection{Returns}{
 (data.table | promise<data.table>) the portfolios, or a promise
 thereof.
+\itemize{
+\item uuid (character | NA) the portfolio UUID.
+\item name (character | NA) the portfolio's display name.
+\item type (character | NA) the portfolio type, e.g. \code{"DEFAULT"}.
+\item deleted (logical | NA) whether the portfolio has been deleted.
+}
 }
 }
 \if{html}{\out{<hr>}}
@@ -217,6 +223,13 @@ Retrieve the calling API key's permissions.
 \subsection{Returns}{
 (data.table | promise<data.table>) a single-row table, or a promise
 thereof.
+\itemize{
+\item can_view (logical | NA) whether the key may read account data.
+\item can_trade (logical | NA) whether the key may place and cancel orders.
+\item can_transfer (logical | NA) whether the key may move funds.
+\item portfolio_uuid (character | NA) the key's portfolio UUID.
+\item portfolio_type (character | NA) the portfolio type, e.g. \code{"DEFAULT"}.
+}
 }
 }
 \if{html}{\out{<hr>}}
