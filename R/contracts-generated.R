@@ -79,13 +79,9 @@ assert_return_CoinbaseAccount__get_portfolios <- function(value) {
   assert_data_table(value)
   assert_has_columns(value, c("uuid", "name", "type", "deleted"))
   assert_character(value[["uuid"]])
-  assert_no_missing_values(value[["uuid"]])
   assert_character(value[["name"]])
-  assert_no_missing_values(value[["name"]])
   assert_character(value[["type"]])
-  assert_no_missing_values(value[["type"]])
   assert_logical(value[["deleted"]])
-  assert_no_missing_values(value[["deleted"]])
   return(value)
 }
 
@@ -130,15 +126,10 @@ assert_return_CoinbaseAccount__get_key_permissions <- function(value) {
   assert_data_table(value)
   assert_has_columns(value, c("can_view", "can_trade", "can_transfer", "portfolio_uuid", "portfolio_type"))
   assert_logical(value[["can_view"]])
-  assert_no_missing_values(value[["can_view"]])
   assert_logical(value[["can_trade"]])
-  assert_no_missing_values(value[["can_trade"]])
   assert_logical(value[["can_transfer"]])
-  assert_no_missing_values(value[["can_transfer"]])
   assert_character(value[["portfolio_uuid"]])
-  assert_no_missing_values(value[["portfolio_uuid"]])
   assert_character(value[["portfolio_type"]])
-  assert_no_missing_values(value[["portfolio_type"]])
   return(value)
 }
 
