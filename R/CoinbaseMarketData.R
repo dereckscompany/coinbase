@@ -249,7 +249,7 @@ CoinbaseMarketData <- R6::R6Class(
     #'   promise thereof.
     #'   - price (numeric | NA) last trade price.
     #'   - size (numeric | NA) last trade size in the base asset.
-    #'   - time (POSIXct) last trade time (UTC).
+    #'   - timestamp (POSIXct) last trade time (UTC).
     #'   - bid (numeric | NA) best bid price.
     #'   - ask (numeric | NA) best ask price.
     #'   - volume (numeric | NA) 24-hour volume.
@@ -268,7 +268,7 @@ CoinbaseMarketData <- R6::R6Class(
           num_cols <- intersect(c("ask", "bid", "price", "size", "volume", "rfq_volume"), names(dt))
           dt[, (num_cols) := lapply(.SD, as.numeric), .SDcols = num_cols]
           if ("time" %in% names(dt)) {
-            dt[, time := iso_to_datetime(time)]
+            dt[, timestamp := iso_to_datetime(time)][, time := NULL]
           }
           return(dt[])
         }

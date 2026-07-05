@@ -28,12 +28,6 @@ test_that("as_dt_row never emits a list column (nested/multi-element collapse to
   expect_true(grepl("session", dt$details))
 })
 
-test_that("to_snake_case converts camelCase and leaves snake_case intact", {
-  expect_equal(to_snake_case("productId"), "product_id")
-  expect_equal(to_snake_case("bestBidAsk"), "best_bid_ask")
-  expect_equal(to_snake_case("product_id"), "product_id")
-})
-
 test_that("parse_candles reorders to canonical OHLCV and sorts ascending", {
   # Exchange shape: [time, low, high, open, close, volume], newest first.
   raw <- list(
@@ -58,10 +52,10 @@ test_that("parse_trades coerces types and has no list columns", {
     list(trade_id = 1, side = "sell", size = "1.0", price = "100.0", time = "2026-01-01T00:00:00Z")
   )
   dt <- parse_trades(raw)
-  expect_equal(names(dt), c("trade_id", "side", "price", "size", "time"))
+  expect_equal(names(dt), c("trade_id", "side", "price", "size", "timestamp"))
   expect_type(dt$price, "double")
   expect_type(dt$size, "double")
-  expect_true(inherits(dt$time, "POSIXct"))
+  expect_true(inherits(dt$timestamp, "POSIXct"))
   expect_false(any(vapply(dt, is.list, logical(1))))
 })
 
@@ -84,7 +78,7 @@ test_that("trades_to_ohlcv aggregates ticks into bars", {
     price = c(10, 12, 11, 20),
     size = c(1, 1, 2, 3),
     # two trades in the first minute, two in the second
-    time = lubridate::as_datetime(c(0, 30, 60, 90), tz = "UTC")
+    timestamp = lubridate::as_datetime(c(0, 30, 60, 90), tz = "UTC")
   )
   bars <- trades_to_ohlcv(trades, interval = 60)
   expect_equal(names(bars), c("datetime", "open", "high", "low", "close", "volume"))
@@ -104,7 +98,7 @@ test_that("trades_to_ohlcv returns an empty data.table for empty input", {
     side = character(0),
     price = numeric(0),
     size = numeric(0),
-    time = lubridate::as_datetime(numeric(0))
+    timestamp = lubridate::as_datetime(numeric(0))
   )
   expect_equal(nrow(trades_to_ohlcv(empty)), 0L)
 })
@@ -166,9 +160,9 @@ test_that("parse_best_bid_ask flattens pricebooks to one row per product", {
     )
   ))
   expect_equal(nrow(dt), 2L)
-  expect_equal(names(dt), c("product_id", "bid_price", "bid_size", "ask_price", "ask_size", "time"))
+  expect_equal(names(dt), c("product_id", "bid_price", "bid_size", "ask_price", "ask_size", "timestamp"))
   expect_equal(dt[product_id == "BTC-USD"]$ask_price, 101)
-  expect_true(inherits(dt$time, "POSIXct"))
+  expect_true(inherits(dt$timestamp, "POSIXct"))
   expect_false(any(vapply(dt, is.list, logical(1))))
   expect_equal(nrow(parse_best_bid_ask(list(pricebooks = list()))), 0L)
 })

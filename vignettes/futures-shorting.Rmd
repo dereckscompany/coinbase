@@ -181,7 +181,7 @@ scheduled[]
 
 # List scheduled and pending sweeps
 sweeps <- futures$get_sweeps()
-sweeps[, .(id, requested_amount, should_sweep_all, status, schedule_time)]
+sweeps[, .(id, requested_amount, should_sweep_all, status, timestamp)]
 
 # Cancel the pending sweep
 futures$cancel_sweep()[]
@@ -331,7 +331,7 @@ open_shorts <- trading$get_orders(
   order_status = "OPEN",
   limit = 50
 )
-open_shorts[, .(order_id, product_id, side, status, base_size, limit_price, created_time)]
+open_shorts[, .(order_id, product_id, side, status, base_size, limit_price, timestamp)]
 ```
 
 ### Fills
@@ -344,7 +344,7 @@ fills <- trading$get_fills(
   product_ids = "BIT-31OCT26-CDE",
   sort_by = "TRADE_TIME"
 )
-fills[, .(trade_id, order_id, product_id, side, price, size, commission, trade_time)]
+fills[, .(trade_id, order_id, product_id, side, price, size, commission, timestamp)]
 ```
 
 ### Edit or Cancel

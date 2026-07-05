@@ -149,7 +149,7 @@ candles[]
 
 ### Recent Trades
 
-Recent tick trades, with columns `trade_id`, `side`, `price`, `size`, `time`:
+Recent tick trades, with columns `trade_id`, `side`, `price`, `size`, `timestamp`:
 
 ```{r trades}
 trades <- market$get_trades(product_id = "BTC-USD", limit = 100)
@@ -223,7 +223,7 @@ market_auth$get_best_bid_ask(c("BTC-USD", "ETH-USD"))[]
 Coinbase's candle endpoint is shallow, so complete OHLCV at any timeframe is
 built from ticks. `get_trades_history()` pages the trades endpoint backwards
 from the most recent trade toward `start`, deduplicates, and returns the trades
-sorted ascending by `time`:
+sorted ascending by `timestamp`:
 
 ```{r trades-history}
 ticks <- market$get_trades_history(

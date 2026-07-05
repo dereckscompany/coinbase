@@ -57,6 +57,11 @@ reference:
       - time_convert_from_coinbase
       - time_convert_to_coinbase
 
+  - title: Return Shapes
+    desc: The data.table shape every method returns
+    contents:
+      - coinbase_shapes
+
 articles:
   - title: Getting Started
     navbar: ~

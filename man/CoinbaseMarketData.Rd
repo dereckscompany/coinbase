@@ -270,7 +270,7 @@ promise thereof.
 \itemize{
 \item price (numeric | NA) last trade price.
 \item size (numeric | NA) last trade size in the base asset.
-\item time (POSIXct) last trade time (UTC).
+\item timestamp (POSIXct) last trade time (UTC).
 \item bid (numeric | NA) best bid price.
 \item ask (numeric | NA) best ask price.
 \item volume (numeric | NA) 24-hour volume.

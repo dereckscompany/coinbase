@@ -1,6 +1,17 @@
 # File: R/utils_time.R
 # Time conversion helpers. All Coinbase timestamps are handled in UTC and
 # converted via lubridate.
+#
+# CONSTRAINT: these are the coinbase-domain time helpers, deliberately NOT the
+# connectcore epoch toolkit (`epoch_to_datetime`/`datetime_to_epoch`/
+# `ms_to_datetime`). Coinbase speaks two forms connectcore does not model as a
+# pair: ISO 8601 strings (`iso_to_datetime`, no connectcore equivalent) and
+# Exchange epoch *seconds* with the whole-second flooring / `NULL`-passthrough
+# the candle-bounds query needs (`datetime_to_epoch` here diverges from
+# `connectcore::datetime_to_epoch`, which is ms-default, unfloored, and rejects
+# `NULL`). `s_to_datetime` tolerates an all-`NA` input (the candle parser feeds
+# it `nth_num()` output), whereas `connectcore::epoch_to_datetime` asserts
+# no-missing. Each divergence is covered by test-auth-utils.R.
 
 #' Convert an ISO 8601 Timestamp to POSIXct
 #'

@@ -130,7 +130,7 @@ ticker
 > `while (!loop_empty()) run_now()`.
 
 The resolved value is a single-row `data.table` with numeric `ask`, `bid`,
-`price`, `size`, `volume`, and a POSIXct `time`.
+`price`, `size`, `volume`, and a POSIXct `timestamp`.
 
 ---
 

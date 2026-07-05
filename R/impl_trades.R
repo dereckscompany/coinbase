@@ -21,8 +21,8 @@
 # @param .req_fn Function(endpoint, query, .parser) -> data.table (or promise);
 #   performs one request through the owning client.
 # @param is_async Logical; whether .req_fn returns promises.
-# @return A data.table of trades (trade_id, side, price, size, time) sorted
-#   ascending by time, or a promise thereof.
+# @return A data.table of trades (trade_id, side, price, size, timestamp) sorted
+#   ascending by timestamp, or a promise thereof.
 coinbase_fetch_trades_history <- function(
   product_id,
   start = NULL,
@@ -54,12 +54,12 @@ coinbase_fetch_trades_history <- function(
     # The 1-trade cursor overlap between pages can repeat a trade; dedup by id.
     dt <- unique(dt, by = "trade_id")
     if (!is.null(start_s)) {
-      dt <- dt[as.numeric(time) >= start_s]
+      dt <- dt[as.numeric(timestamp) >= start_s]
     }
     if (!is.null(end_s)) {
-      dt <- dt[as.numeric(time) <= end_s]
+      dt <- dt[as.numeric(timestamp) <= end_s]
     }
-    data.table::setorder(dt, time, trade_id)
+    data.table::setorder(dt, timestamp, trade_id)
     return(dt[])
   }
 
@@ -87,7 +87,7 @@ coinbase_fetch_trades_history <- function(
     if (nrow(dt) > 0L) {
       min_id <- min(dt$trade_id)
     }
-    reached_start <- !is.null(start_s) && nrow(dt) > 0L && min(as.numeric(dt$time)) <= start_s
+    reached_start <- !is.null(start_s) && nrow(dt) > 0L && min(as.numeric(dt$timestamp)) <= start_s
     exhausted <- nrow(dt) < page_limit
     reached_cap <- page_no >= max_pages
     done <- nrow(dt) == 0L || exhausted || reached_start || reached_cap || min_id <= 1

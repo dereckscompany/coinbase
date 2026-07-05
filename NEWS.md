@@ -1,4 +1,18 @@
-# coinbase 0.2.2
+# coinbase 0.3.0
+
+## Breaking: event-time columns renamed to `timestamp`
+
+* The event/transaction parsers now emit their primary time under the fleet-standard `timestamp` name (convention I.2.5), so a consumer reads the same column name across connectors. This is a breaking rename: `get_trades()` / `get_trades_history()` and the backfill (`coinbase_backfill_trades()`) return `timestamp` where they previously returned `time`; `get_orders()` returns `timestamp` (order creation time) where it returned `created_time`; `get_fills()` returns `timestamp` where it returned `trade_time`; `get_best_bid_ask()` and `get_ticker()` return `timestamp` where they returned `time`; and `CoinbaseFutures$get_sweeps()` returns `timestamp` where it returned `schedule_time`. `trades_to_ohlcv()` now expects its input trades table to carry a `timestamp` column (still emitting the bar reference time as `datetime`). On-disk trade files written by an earlier version carry the old `time` column and are no longer resume-compatible; remove or migrate them.
+* Venue-meaningful secondary times keep their native names and are documented as such: an order's `end_time` (good-till), a position's `expiration_time`, a margin window's `end_time`, and a portfolio holding's `expiry`. Account records keep both `created_at` and `updated_at` — two symmetric lifecycle times with no single canonical event time, so neither is renamed (matching the kucoin connector).
+
+## De-inlined the connectcore toolkit
+
+* `to_snake_case()` is now imported from connectcore rather than defined locally (it was byte-identical). The record-flattening helpers (`as_dt_row()` / `as_dt_list()`) and the coinbase time helpers (`iso_to_datetime()`, `s_to_datetime()`, `datetime_to_epoch()`) stay local because each has a coinbase-specific behaviour that connectcore's toolkit does not provide — the no-list-column JSON collapse, ISO-8601 parsing, `NA`-tolerant epoch-seconds, and the whole-second-floored / `NULL`-passthrough candle-bounds conversion — each proven by a test and documented as a constraint at the definition.
+
+## Dependencies and infrastructure
+
+* Requires `connectcore (>= 0.3.0)`. The `renv.lock` is regenerated with connectcore 0.3.0 and the previously-unrecorded runtime dependency `uuid`, restoring a green CI gate (the lock had drifted out of sync with `DESCRIPTION`). The `.cruft.json` template pin is refreshed to the current templates-cookiecutter master.
+* Adds `tests/testthat/test-empty-constructors.R`, proving every `empty_dt_*()` constructor returns a zero-row, fully-typed, list-column-free table and that each fixed-shape parser returns its typed empty on empty input.
 
 ## Documented `data.table` column shapes
 

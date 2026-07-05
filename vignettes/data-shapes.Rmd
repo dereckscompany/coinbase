@@ -223,7 +223,7 @@ return one row per tick trade, with exactly five typed columns:
 | `side` | `character` | |
 | `price` | `numeric` | |
 | `size` | `numeric` | |
-| `time` | `POSIXct` (UTC) | |
+| `timestamp` | `POSIXct` (UTC) | trade time |
 
 ```{r trades}
 trades <- market$get_trades("BTC-USD", limit = 1000L)
@@ -279,8 +279,8 @@ l3[, .(side, price, size, order_id)]
 
 `get_ticker()` returns a single row; the numeric fields (`ask`, `bid`,
 `price`, `size`, `volume`, `rfq_volume` where present) are cast to
-`numeric` and `time` to `POSIXct`, with any other fields (e.g.
-`trade_id`) left as the API sends them.
+`numeric` and the last-trade time to `POSIXct` in a `timestamp` column,
+with any other fields (e.g. `trade_id`) left as the API sends them.
 
 ```{r ticker}
 market$get_ticker("BTC-USD")[]
@@ -452,7 +452,7 @@ via `flatten_order_config`. Exactly these columns, one row per order:
 | `order_type` | `character` | coarse API enum, e.g. `"LIMIT"` |
 | `config_type` | `character` | detailed config key, e.g. `"limit_limit_gtc"` |
 | `time_in_force` | `character` | |
-| `created_time` | `POSIXct` (UTC) | |
+| `timestamp` | `POSIXct` (UTC) | order creation time (primary event time) |
 | `completion_percentage` | `numeric` | |
 | `filled_size` | `numeric` | |
 | `average_filled_price` | `numeric` | |
@@ -492,7 +492,7 @@ Parser `parse_fills`, one row per fill, exactly:
 | `order_id` | `character` |
 | `product_id` | `character` |
 | `side` | `character` |
-| `trade_time` | `POSIXct` (UTC) |
+| `timestamp` | `POSIXct` (UTC) |
 | `trade_type` | `character` |
 | `price` | `numeric` |
 | `size` | `numeric` |
@@ -672,7 +672,7 @@ Parser `parse_futures_sweeps`, one row per sweep:
 | `requested_amount` | `numeric` (flattened) |
 | `should_sweep_all` | `logical` |
 | `status` | `character` |
-| `schedule_time` | `POSIXct` (UTC) |
+| `timestamp` | `POSIXct` (UTC) |
 
 ```{r futures-sweeps}
 futures$get_sweeps()[]
@@ -747,7 +747,7 @@ coinbase_backfill_trades(
 This is the deep-history path. Coinbase's `/candles` endpoint is
 shallow, so complete OHLCV at any timeframe is built from ticks:
 download trades, then aggregate. `trades_to_ohlcv()` takes a
-`data.table` with `time` (`POSIXct`), `price` (`numeric`), and `size`
+`data.table` with `timestamp` (`POSIXct`), `price` (`numeric`), and `size`
 (`numeric`) columns — exactly what `get_trades()` /
 `get_trades_history()` return — plus an `interval` in seconds, and
 returns the canonical six-column OHLCV table:

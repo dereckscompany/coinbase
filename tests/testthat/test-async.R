@@ -102,5 +102,5 @@ test_that("coinbase_fetch_trades_history agrees sync vs async", {
   expect_true(inherits(async, "promise"))
   res <- resolve_promise(async)
   expect_equal(nrow(res), 2500L)
-  expect_false(is.unsorted(res$time))
+  expect_false(is.unsorted(res$timestamp))
 })
