@@ -1,5 +1,4 @@
 Package: coinbase
-Type: Package
 Title: API Wrapper to Coinbase Advanced Trade
 Version: 0.2.2
 URL: https://dereckscompany.github.io/coinbase,
@@ -50,5 +49,5 @@ Remotes:
     dereckscompany/roxyassert
 VignetteBuilder: knitr
 Config/testthat/edition: 3
-Config/roxygen2/version: 8.0.0
+Config/roxygen2/version: 7.3.3
 RoxygenNote: 7.3.3
