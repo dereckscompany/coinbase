@@ -3120,7 +3120,7 @@
     },
     "uuid": {
       "Package": "uuid",
-      "Version": "1.2.2",
+      "Version": "1.2-2",
       "Source": "Repository",
       "Repository": "CRAN"
     },
