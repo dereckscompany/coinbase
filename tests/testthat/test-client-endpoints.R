@@ -29,7 +29,7 @@ test_that("CoinbaseMarketData public methods round-trip through the router", {
   expect_true(all(c("datetime", "open", "high", "low", "close", "volume") %in% names(ohlcv)))
 
   trades <- market$get_trades("BTC-USD")
-  expect_true(all(c("trade_id", "side", "price", "size", "time") %in% names(trades)))
+  expect_true(all(c("trade_id", "side", "price", "size", "timestamp") %in% names(trades)))
 
   # Drives the (now iterative) synchronous paginator end-to-end.
   hist <- market$get_trades_history("BTC-USD", max_pages = 1)

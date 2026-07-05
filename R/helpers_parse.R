@@ -211,25 +211,6 @@ collapse_errors <- function(errs) {
   return(assert_return_collapse_errors(paste(parts, collapse = "; ")))
 }
 
-#' Convert camelCase Names to snake_case
-#'
-#' Converts response field names to R's snake_case convention. Coinbase fields
-#' are predominantly snake_case already, so this is largely a pass-through; it
-#' exists to guarantee the convention holds for any camelCase outliers.
-#'
-#' @param names (character) names to convert.
-#' @return (character) converted snake_case names.
-#'
-#' @keywords internal
-#' @noRd
-to_snake_case <- function(names) {
-  assert_args_to_snake_case(names)
-  out <- gsub("([a-z0-9])([A-Z])", "\\1_\\2", names)
-  out <- gsub("([A-Z])([A-Z][a-z])", "\\1_\\2", out)
-  out <- tolower(out)
-  return(assert_return_to_snake_case(out))
-}
-
 #' Convert a Named List to a Single-Row data.table
 #'
 #' Converts a flat named list (from a Coinbase JSON object) into a single-row
@@ -237,6 +218,14 @@ to_snake_case <- function(names) {
 #' object/array or multi-element value is collapsed to a single JSON string, so
 #' the result is guaranteed to contain no list columns (and never row-recycles)
 #' even if the API returns an unexpectedly nested field.
+#'
+#' CONSTRAINT: this is deliberately NOT [connectcore::as_dt_row()]. The
+#' connectcore version wraps a nested value as a one-element list column
+#' (`list(val)`); coinbase's no-list-column contract (org discussion #2, ratified
+#' area I.2.1) requires nested/multi-element values to collapse to a scalar JSON
+#' string instead. The divergence is proven by test-helpers.R
+#' ("as_dt_row never emits a list column"). Column-name snake_casing IS delegated
+#' to [connectcore::to_snake_case()] (identical behaviour, no divergence).
 #'
 #' @param x (list | NULL) a named list.
 #' @return (class<data.table>) a single-row [data.table::data.table] with
@@ -264,7 +253,7 @@ as_dt_row <- function(x) {
     return(val)
   })
   dt <- data.table::as.data.table(x)
-  data.table::setnames(dt, to_snake_case(names(dt)))
+  data.table::setnames(dt, connectcore::to_snake_case(names(dt)))
   return(assert_return_as_dt_row(dt[]))
 }
 
@@ -272,6 +261,10 @@ as_dt_row <- function(x) {
 #'
 #' Row-binds a list whose elements are named lists (a JSON array of objects)
 #' into a [data.table::data.table] with snake_case columns.
+#'
+#' CONSTRAINT: kept local rather than imported from [connectcore::as_dt_list()]
+#' because it row-binds coinbase's no-list-column [as_dt_row()] (see that
+#' function's constraint note), not connectcore's list-column variant.
 #'
 #' @param items (list | NULL) a list of named lists, or NULL.
 #' @return (class<data.table>) the row-bound table; empty if `items` is NULL or
@@ -346,7 +339,7 @@ empty_dt_trades <- function() {
     side = character(0),
     price = numeric(0),
     size = numeric(0),
-    time = iso_to_datetime(character(0))
+    timestamp = iso_to_datetime(character(0))
   ))
 }
 
@@ -400,7 +393,7 @@ empty_dt_orders <- function() {
     order_type = character(0),
     config_type = character(0),
     time_in_force = character(0),
-    created_time = iso_to_datetime(character(0)),
+    timestamp = iso_to_datetime(character(0)),
     completion_percentage = numeric(0),
     filled_size = numeric(0),
     average_filled_price = numeric(0),
@@ -428,7 +421,7 @@ empty_dt_fills <- function() {
     order_id = character(0),
     product_id = character(0),
     side = character(0),
-    trade_time = iso_to_datetime(character(0)),
+    timestamp = iso_to_datetime(character(0)),
     trade_type = character(0),
     price = numeric(0),
     size = numeric(0),
@@ -570,7 +563,7 @@ empty_dt_futures_sweeps <- function() {
     requested_amount = numeric(0),
     should_sweep_all = logical(0),
     status = character(0),
-    schedule_time = iso_to_datetime(character(0))
+    timestamp = iso_to_datetime(character(0))
   ))
 }
 
@@ -617,7 +610,7 @@ empty_dt_best_bid_ask <- function() {
     bid_size = numeric(0),
     ask_price = numeric(0),
     ask_size = numeric(0),
-    time = iso_to_datetime(character(0))
+    timestamp = iso_to_datetime(character(0))
   ))
 }
 
@@ -717,7 +710,7 @@ parse_candles <- function(data) {
 #' @param data (list | NULL) a list of trade objects (`trade_id`, `side`,
 #'   `size`, `price`, `time`), or NULL.
 #' @return (class<data.table>) columns `trade_id`, `side`, `price`, `size`,
-#'   `time`. Empty if `data` is NULL or empty.
+#'   `timestamp`. Empty if `data` is NULL or empty.
 #'
 #' @keywords internal
 #' @noRd
@@ -731,7 +724,7 @@ parse_trades <- function(data) {
     side = vapply(data, function(t) as.character(coalesce_null(t$side, NA_character_)), character(1)),
     price = vapply(data, function(t) num_or_na(t$price), numeric(1)),
     size = vapply(data, function(t) num_or_na(t$size), numeric(1)),
-    time = iso_to_datetime(vapply(data, function(t) coalesce_null(t$time, NA_character_), character(1)))
+    timestamp = iso_to_datetime(vapply(data, function(t) coalesce_null(t$time, NA_character_), character(1)))
   )
   return(assert_return_parse_trades(dt[]))
 }
@@ -872,7 +865,7 @@ parse_orders <- function(items) {
       order_type = coalesce_null(o$order_type, NA_character_),
       config_type = cfg$config_type,
       time_in_force = coalesce_null(o$time_in_force, NA_character_),
-      created_time = iso_to_datetime(coalesce_null(o$created_time, NA_character_)),
+      timestamp = iso_to_datetime(coalesce_null(o$created_time, NA_character_)),
       completion_percentage = num_or_na(o$completion_percentage),
       filled_size = num_or_na(o$filled_size),
       average_filled_price = num_or_na(o$average_filled_price),
@@ -912,7 +905,7 @@ parse_fills <- function(items) {
       order_id = coalesce_null(f$order_id, NA_character_),
       product_id = coalesce_null(f$product_id, NA_character_),
       side = coalesce_null(f$side, NA_character_),
-      trade_time = iso_to_datetime(coalesce_null(f$trade_time, NA_character_)),
+      timestamp = iso_to_datetime(coalesce_null(f$trade_time, NA_character_)),
       trade_type = coalesce_null(f$trade_type, NA_character_),
       price = num_or_na(f$price),
       size = num_or_na(f$size),
@@ -1159,7 +1152,7 @@ parse_futures_sweeps <- function(items) {
       requested_amount = flex_num(s$requested_amount),
       should_sweep_all = coalesce_null(s$should_sweep_all, NA),
       status = coalesce_null(s$status, NA_character_),
-      schedule_time = iso_to_datetime(coalesce_null(s$schedule_time, NA_character_))
+      timestamp = iso_to_datetime(coalesce_null(s$schedule_time, NA_character_))
     ))
   })
   return(assert_return_parse_futures_sweeps(data.table::rbindlist(rows, fill = TRUE)[]))
@@ -1303,7 +1296,7 @@ parse_best_bid_ask <- function(data) {
       bid_size = num_or_na(bid$size),
       ask_price = num_or_na(ask$price),
       ask_size = num_or_na(ask$size),
-      time = iso_to_datetime(coalesce_null(pb$time, NA_character_))
+      timestamp = iso_to_datetime(coalesce_null(pb$time, NA_character_))
     ))
   })
   return(assert_return_parse_best_bid_ask(data.table::rbindlist(rows, fill = TRUE)[]))

@@ -82,7 +82,7 @@ test_that("parse_orders flattens config into columns with no list columns", {
   expect_equal(dt$config_type, c("limit_limit_gtc", "market_market_ioc"))
   expect_equal(dt$limit_price, c(50000, NA))
   expect_equal(dt$quote_size, c(NA, 25))
-  expect_true(inherits(dt$created_time, "POSIXct"))
+  expect_true(inherits(dt$timestamp, "POSIXct"))
   expect_false(any(vapply(dt, is.list, logical(1))))
 })
 
@@ -106,7 +106,7 @@ test_that("parse_fills coerces types with no list columns", {
   expect_equal(nrow(dt), 1L)
   expect_type(dt$price, "double")
   expect_equal(dt$commission, 0.3)
-  expect_true(inherits(dt$trade_time, "POSIXct"))
+  expect_true(inherits(dt$timestamp, "POSIXct"))
   expect_false(any(vapply(dt, is.list, logical(1))))
 })
 

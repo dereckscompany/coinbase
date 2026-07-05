@@ -72,7 +72,7 @@
 #' - side (character | NA) aggressor side (`"buy"`/`"sell"`).
 #' - price (numeric | NA) trade price.
 #' - size (numeric | NA) trade size in the base asset.
-#' - time (POSIXct | NA) trade time (UTC).
+#' - timestamp (POSIXct | NA) trade time (UTC).
 #'
 #' @type Stats (data.table) one row per product, the bulk 24h/30d stats scan:
 #' - product_id (character | NA) the product id.
@@ -101,7 +101,7 @@
 #' - bid_size (numeric | NA) best bid size.
 #' - ask_price (numeric | NA) best ask price.
 #' - ask_size (numeric | NA) best ask size.
-#' - time (POSIXct | NA) snapshot time (UTC).
+#' - timestamp (POSIXct | NA) snapshot time (UTC).
 #'
 #' @type Accounts (data.table) one row per trading account:
 #' - uuid (character | NA) account UUID.
@@ -115,7 +115,10 @@
 #' - type (character | NA) account type, e.g. `"ACCOUNT_TYPE_CRYPTO"`.
 #' - platform (character | NA) platform, e.g. `"ACCOUNT_PLATFORM_CONSUMER"`.
 #' - retail_portfolio_id (character | NA) owning portfolio UUID.
-#' - created_at (POSIXct | NA) creation time (UTC).
+#' - created_at (POSIXct | NA) account creation time (UTC). An account carries two
+#'   symmetric lifecycle times with no single canonical event time, so both keep
+#'   their venue-native names (as kucoin does) rather than one being renamed to
+#'   `timestamp`.
 #' - updated_at (POSIXct | NA) last update time (UTC).
 #'
 #' @type Fees (data.table) one row, the transaction/fee summary with the current
@@ -152,7 +155,7 @@
 #' - order_type (character | NA) coarse API order type, e.g. `"LIMIT"`.
 #' - config_type (character | NA) detailed order-type key from `order_configuration`.
 #' - time_in_force (character | NA) time-in-force policy.
-#' - created_time (POSIXct | NA) creation time (UTC).
+#' - timestamp (POSIXct | NA) order creation time (UTC); the primary event time.
 #' - completion_percentage (numeric | NA) percent filled.
 #' - filled_size (numeric | NA) base amount filled.
 #' - average_filled_price (numeric | NA) VWAP of fills.
@@ -165,7 +168,8 @@
 #' - stop_price (numeric | NA) configured stop price.
 #' - stop_trigger_price (numeric | NA) configured bracket trigger price.
 #' - stop_direction (character | NA) configured stop direction.
-#' - end_time (POSIXct | NA) configured good-till time (UTC).
+#' - end_time (POSIXct | NA) configured good-till time (UTC); a venue-meaningful
+#'   secondary time kept under its native name.
 #' - post_only (logical | NA) configured post-only flag.
 #'
 #' @type Fills (data.table) one row per fill:
@@ -174,7 +178,7 @@
 #' - order_id (character | NA) the order this fill belongs to.
 #' - product_id (character | NA) the product id.
 #' - side (character | NA) order side (`"BUY"`/`"SELL"`).
-#' - trade_time (POSIXct | NA) fill time (UTC).
+#' - timestamp (POSIXct | NA) fill time (UTC).
 #' - trade_type (character | NA) trade type, e.g. `"FILL"`.
 #' - price (numeric | NA) fill price.
 #' - size (numeric | NA) fill size in the base asset.
@@ -264,7 +268,7 @@
 #' - requested_amount (numeric | NA) requested USD amount.
 #' - should_sweep_all (logical | NA) whether the full balance is swept.
 #' - status (character | NA) sweep status, e.g. `"PENDING"`.
-#' - schedule_time (POSIXct | NA) when the sweep is scheduled (UTC).
+#' - timestamp (POSIXct | NA) when the sweep is scheduled (UTC).
 #'
 #' @type PortfolioSummary (data.table) one row, a portfolio's aggregate totals:
 #' - uuid (character | NA) the portfolio UUID.

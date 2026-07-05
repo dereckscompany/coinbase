@@ -35,7 +35,7 @@ verify_symbol <- function(product_id) {
 #' `trade_id` as a tiebreaker when present); high/low are the extremes; volume is
 #' the summed trade size. Empty intervals produce no row.
 #'
-#' @param trades (class<data.table>) trades with at least `time` (POSIXct),
+#' @param trades (class<data.table>) trades with at least `timestamp` (POSIXct),
 #'   `price` (numeric), and `size` (numeric) columns; `trade_id` (numeric) is
 #'   used as a tiebreaker if present.
 #' @param interval (scalar<numeric in ]0, Inf[>) bar width in seconds (e.g. `60`
@@ -58,20 +58,20 @@ trades_to_ohlcv <- function(trades, interval = 60) {
     return(assert_return_trades_to_ohlcv(empty_dt_ohlcv()))
   }
 
-  assert::assert_column_types(trades, "POSIXct", "time")
+  assert::assert_column_types(trades, "POSIXct", "timestamp")
   assert::assert_column_types(trades, "numeric", c("price", "size"))
 
   dt <- data.table::copy(trades)
 
   # Stable chronological order; trade_id breaks ties within identical timestamps.
   if ("trade_id" %in% names(dt)) {
-    data.table::setorder(dt, time, trade_id)
+    data.table::setorder(dt, timestamp, trade_id)
   } else {
-    data.table::setorder(dt, time)
+    data.table::setorder(dt, timestamp)
   }
 
   # Floor each trade's epoch-seconds to its bar start.
-  epoch <- as.numeric(dt$time)
+  epoch <- as.numeric(dt$timestamp)
   dt[, datetime := s_to_datetime(floor(epoch / interval) * interval)]
 
   bars <- dt[,

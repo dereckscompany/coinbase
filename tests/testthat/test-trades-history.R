@@ -38,7 +38,7 @@ test_that("cursor-walk pages back to the first trade and returns a sorted, dedup
   )
   expect_equal(nrow(res), 2500L)
   expect_equal(length(unique(res$trade_id)), 2500L)
-  expect_false(is.unsorted(res$time))
+  expect_false(is.unsorted(res$timestamp))
   expect_equal(min(res$trade_id), 1)
   expect_equal(max(res$trade_id), 2500)
 })
@@ -64,7 +64,7 @@ test_that("start bound stops the walk and filters older trades", {
     is_async = FALSE
   )
   # ids 4000..5000 inclusive => 1001 trades, none older than start
-  expect_true(min(as.numeric(res$time)) >= 4000)
+  expect_true(min(as.numeric(res$timestamp)) >= 4000)
   expect_equal(max(res$trade_id), 5000)
 })
 
@@ -90,12 +90,12 @@ test_that("empty universe through get_trades_history() yields a typed empty Trad
 
   expect_true(data.table::is.data.table(res))
   expect_equal(nrow(res), 0L)
-  expect_equal(names(res), c("trade_id", "side", "price", "size", "time"))
+  expect_equal(names(res), c("trade_id", "side", "price", "size", "timestamp"))
   expect_type(res$trade_id, "double")
   expect_type(res$side, "character")
   expect_type(res$price, "double")
   expect_type(res$size, "double")
-  expect_s3_class(res$time, "POSIXct")
+  expect_s3_class(res$timestamp, "POSIXct")
 })
 
 test_that("end bound drops trades newer than `end`", {
@@ -106,7 +106,7 @@ test_that("end bound drops trades newer than `end`", {
     .req_fn = make_mock_req_fn(5000L),
     is_async = FALSE
   )
-  expect_true(max(as.numeric(res$time)) <= 3000)
+  expect_true(max(as.numeric(res$timestamp)) <= 3000)
 })
 
 test_that("a short final page (fewer than page_limit) ends the walk", {

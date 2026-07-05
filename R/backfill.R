@@ -100,9 +100,9 @@ coinbase_backfill_trades <- function(
   resumable <- FALSE
   if (file_exists) {
     existing <- data.table::fread(file)
-    if (nrow(existing) > 0L && all(c("symbol", "time", "trade_id") %in% names(existing))) {
-      existing[, time := lubridate::as_datetime(time, tz = "UTC")]
-      maxes <- existing[, list(max_time = max(time)), by = symbol]
+    if (nrow(existing) > 0L && all(c("symbol", "timestamp", "trade_id") %in% names(existing))) {
+      existing[, timestamp := lubridate::as_datetime(timestamp, tz = "UTC")]
+      maxes <- existing[, list(max_time = max(timestamp)), by = symbol]
       last_times <- stats::setNames(as.list(maxes$max_time), maxes$symbol)
       ids <- existing[, list(ids = list(unique(trade_id))), by = symbol]
       existing_ids <- stats::setNames(ids$ids, ids$symbol)
@@ -114,7 +114,7 @@ coinbase_backfill_trades <- function(
         "Output file '",
         file,
         "' exists but lacks the required columns ",
-        "(symbol, trade_id, time). Refusing to append; remove or fix the file."
+        "(symbol, trade_id, timestamp). Refusing to append; remove or fix the file."
       ))
     }
   }
@@ -174,7 +174,7 @@ coinbase_backfill_trades <- function(
     }
 
     result[, symbol := sym]
-    data.table::setcolorder(result, c("symbol", "trade_id", "side", "price", "size", "time"))
+    data.table::setcolorder(result, c("symbol", "trade_id", "side", "price", "size", "timestamp"))
     data.table::fwrite(result, file, append = wrote_any)
     wrote_any <- TRUE
 

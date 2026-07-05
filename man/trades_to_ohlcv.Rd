@@ -7,7 +7,7 @@
 trades_to_ohlcv(trades, interval = 60)
 }
 \arguments{
-\item{trades}{(class<data.table>) trades with at least \code{time} (POSIXct),
+\item{trades}{(class<data.table>) trades with at least \code{timestamp} (POSIXct),
 \code{price} (numeric), and \code{size} (numeric) columns; \code{trade_id} (numeric) is
 used as a tiebreaker if present.}
 
