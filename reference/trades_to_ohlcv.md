@@ -16,29 +16,29 @@ trades_to_ohlcv(trades, interval = 60)
 
 - trades:
 
-  A
-  [data.table::data.table](https://rdrr.io/pkg/data.table/man/data.table.html)
-  of trades with at least `time` (POSIXct), `price` (numeric), and
-  `size` (numeric) columns; `trade_id` (numeric) is used as a tiebreaker
-  if present.
+  (class\<data.table\>) trades with at least `timestamp` (POSIXct),
+  `price` (numeric), and `size` (numeric) columns; `trade_id` (numeric)
+  is used as a tiebreaker if present.
 
 - interval:
 
-  Numeric; bar width in seconds (e.g. `60` for 1-minute bars).
+  (scalar\<numeric in \]0, Inf\[\>) bar width in seconds (e.g. `60` for
+  1-minute bars).
 
 ## Value
 
-A
-[data.table::data.table](https://rdrr.io/pkg/data.table/man/data.table.html)
-with columns `datetime`, `open`, `high`, `low`, `close`, `volume`,
-sorted ascending by `datetime`. `datetime` is the floored start of each
-bar. Empty if `trades` is empty.
+(Ohlcv) one row per OHLCV bar, sorted ascending by `datetime`;
+`datetime` is the floored start of each bar. Empty if `trades` is empty.
 
 ## Details
 
-Open/close are the first/last trade price within each bar (by time, with
-`trade_id` as a tiebreaker when present); high/low are the extremes;
-volume is the summed trade size. Empty intervals produce no row.
+Each trade is assigned to a bar by **flooring** its timestamp to the
+nearest lower multiple of `interval` seconds, so a bar's `datetime` is
+its inclusive start (left-closed, right-open) and sub-`interval`
+precision is discarded. Open/close are the first/last trade price within
+each bar (by time, with `trade_id` as a tiebreaker when present);
+high/low are the extremes; volume is the summed trade size. Empty
+intervals produce no row.
 
 ## Examples
 

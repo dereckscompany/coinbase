@@ -13,7 +13,7 @@ is shallow, so complete OHLCV at any timeframe is built from ticks."></head><bod
 
     <a class="navbar-brand me-2" href="../index.html">coinbase</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -41,7 +41,7 @@ is shallow, so complete OHLCV at any timeframe is built from ticks."></head><bod
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Aggregate Tick Trades into OHLCV Bars</h1>
-      <small class="dont-index">Source: <a href="https://github.com/dereckscompany/coinbase/blob/v0.0.1/R/helpers_aggregate.R" class="external-link"><code>R/helpers_aggregate.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/dereckscompany/coinbase/blob/master/R/helpers_aggregate.R" class="external-link"><code>R/helpers_aggregate.R</code></a></small>
       <div class="d-none name"><code>trades_to_ohlcv.Rd</code></div>
     </div>
 
@@ -62,24 +62,27 @@ is shallow, so complete OHLCV at any timeframe is built from ticks.</p>
 
 
 <dl><dt id="arg-trades">trades<a class="anchor" aria-label="anchor" href="#arg-trades"></a></dt>
-<dd><p>A <a href="https://rdrr.io/pkg/data.table/man/data.table.html" class="external-link">data.table::data.table</a> of trades with at least <code>time</code>
-(POSIXct), <code>price</code> (numeric), and <code>size</code> (numeric) columns; <code>trade_id</code>
-(numeric) is used as a tiebreaker if present.</p></dd>
+<dd><p>(class&lt;data.table&gt;) trades with at least <code>timestamp</code> (POSIXct),
+<code>price</code> (numeric), and <code>size</code> (numeric) columns; <code>trade_id</code> (numeric) is
+used as a tiebreaker if present.</p></dd>
 
 
 <dt id="arg-interval">interval<a class="anchor" aria-label="anchor" href="#arg-interval"></a></dt>
-<dd><p>Numeric; bar width in seconds (e.g. <code>60</code> for 1-minute bars).</p></dd>
+<dd><p>(scalar&lt;numeric in ]0, Inf[&gt;) bar width in seconds (e.g. <code>60</code>
+for 1-minute bars).</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A <a href="https://rdrr.io/pkg/data.table/man/data.table.html" class="external-link">data.table::data.table</a> with columns <code>datetime</code>, <code>open</code>, <code>high</code>,
-<code>low</code>, <code>close</code>, <code>volume</code>, sorted ascending by <code>datetime</code>. <code>datetime</code> is the
-floored start of each bar. Empty if <code>trades</code> is empty.</p>
+    <p>(Ohlcv) one row per OHLCV bar, sorted ascending by <code>datetime</code>;
+<code>datetime</code> is the floored start of each bar. Empty if <code>trades</code> is empty.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>Open/close are the first/last trade price within each bar (by time, with
+    <p>Each trade is assigned to a bar by <strong>flooring</strong> its timestamp to the nearest
+lower multiple of <code>interval</code> seconds, so a bar's <code>datetime</code> is its inclusive
+start (left-closed, right-open) and sub-<code>interval</code> precision is discarded.
+Open/close are the first/last trade price within each bar (by time, with
 <code>trade_id</code> as a tiebreaker when present); high/low are the extremes; volume is
 the summed trade size. Empty intervals produce no row.</p>
     </div>

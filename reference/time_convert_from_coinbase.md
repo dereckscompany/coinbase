@@ -14,16 +14,17 @@ time_convert_from_coinbase(time_value, unit = c("iso", "s"))
 
 - time_value:
 
-  Character ISO 8601 timestamp(s), or numeric epoch seconds.
+  (character \| numeric) ISO 8601 timestamp(s), or numeric epoch
+  seconds.
 
 - unit:
 
-  Character; the input form: `"iso"` (ISO 8601 string, default) or `"s"`
-  (epoch seconds).
+  (scalar\<character in c("iso", "s")\>) the input form: `"iso"` (ISO
+  8601 string, default) or `"s"` (epoch seconds).
 
 ## Value
 
-POSIXct vector in UTC.
+(POSIXct \| NA) vector in UTC.
 
 ## Examples
 

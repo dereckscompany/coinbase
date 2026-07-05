@@ -56,3 +56,10 @@ Time conversion helpers
   : Convert a Coinbase Timestamp to POSIXct
 - [`time_convert_to_coinbase()`](https://dereckscompany.github.io/coinbase/reference/time_convert_to_coinbase.md)
   : Convert a POSIXct to a Coinbase Timestamp
+
+## Return Shapes
+
+The data.table shape every method returns
+
+- [`coinbase_shapes`](https://dereckscompany.github.io/coinbase/reference/coinbase_shapes.md)
+  : Coinbase return shapes

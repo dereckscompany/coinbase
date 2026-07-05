@@ -1,5 +1,11 @@
 # CoinbaseAccount: Account, Balance, and Fee Information
 
+CoinbaseAccount: Account, Balance, and Fee Information
+
+CoinbaseAccount: Account, Balance, and Fee Information
+
+## Details
+
 Retrieves authenticated account data from the Coinbase Advanced Trade
 API: trading accounts (balances), the transaction/fee summary,
 portfolios, and the API key's permissions. All endpoints require
@@ -28,9 +34,11 @@ depending on the `async` argument at construction.
 | get_portfolio_summary   | GET /api/v3/brokerage/portfolios/{uuid}   | Yes  |
 | get_key_permissions     | GET /api/v3/brokerage/key_permissions     | Yes  |
 
-## Super class
+## Super classes
 
-[`CoinbaseBase`](https://dereckscompany.github.io/coinbase/reference/CoinbaseBase.md)
+[`connectcore::RestClient`](https://rdrr.io/pkg/connectcore/man/RestClient.html)
+-\>
+[`coinbase::CoinbaseBase`](https://dereckscompany.github.io/coinbase/reference/CoinbaseBase.md)
 -\> `CoinbaseAccount`
 
 ## Methods
@@ -55,11 +63,11 @@ depending on the `async` argument at construction.
 
 Inherited methods
 
-- [`CoinbaseBase$initialize()`](https://dereckscompany.github.io/coinbase/reference/CoinbaseBase.html#method-initialize)
+- [`coinbase::CoinbaseBase$initialize()`](https://dereckscompany.github.io/coinbase/reference/CoinbaseBase.html#method-initialize)
 
 ------------------------------------------------------------------------
 
-### `CoinbaseAccount$get_accounts()`
+### Method `get_accounts()`
 
 Retrieve all trading accounts (balances), paginating over the cursor
 until exhausted.
@@ -72,21 +80,19 @@ until exhausted.
 
 - `limit`:
 
-  Integer or NULL; page size. Optional.
+  (scalar\<count in \[1, Inf\[\> \| NULL) page size. Optional.
 
 - `max_pages`:
 
-  Numeric; cap on pages fetched. Default `Inf`.
+  (scalar\<numeric in \[1, Inf\]\>) cap on pages fetched. Default `Inf`.
 
 #### Returns
 
-A
-[data.table::data.table](https://rdrr.io/pkg/data.table/man/data.table.html)
-of accounts, or a promise thereof.
+(Accounts \| promise\<Accounts\>) the accounts, or a promise thereof.
 
 ------------------------------------------------------------------------
 
-### `CoinbaseAccount$get_account()`
+### Method `get_account()`
 
 Retrieve a single account by its UUID.
 
@@ -98,17 +104,16 @@ Retrieve a single account by its UUID.
 
 - `account_uuid`:
 
-  Character; the account UUID.
+  (scalar\<character\>) the account UUID.
 
 #### Returns
 
-A single-row
-[data.table::data.table](https://rdrr.io/pkg/data.table/man/data.table.html),
-or a promise thereof.
+(Accounts \| promise\<Accounts\>) a single-row table, or a promise
+thereof.
 
 ------------------------------------------------------------------------
 
-### `CoinbaseAccount$get_fees()`
+### Method `get_fees()`
 
 Retrieve the transaction/fee summary, including the current maker/taker
 fee tier.
@@ -121,18 +126,16 @@ fee tier.
 
 - `product_type`:
 
-  Character or NULL; `"SPOT"` or `"FUTURE"` to scope the summary.
-  Optional.
+  (scalar\<character\> \| NULL) `"SPOT"` or `"FUTURE"` to scope the
+  summary. Optional.
 
 #### Returns
 
-A single-row
-[data.table::data.table](https://rdrr.io/pkg/data.table/man/data.table.html),
-or a promise thereof.
+(Fees \| promise\<Fees\>) a single-row table, or a promise thereof.
 
 ------------------------------------------------------------------------
 
-### `CoinbaseAccount$get_portfolios()`
+### Method `get_portfolios()`
 
 Retrieve the user's portfolios.
 
@@ -142,13 +145,20 @@ Retrieve the user's portfolios.
 
 #### Returns
 
-A
-[data.table::data.table](https://rdrr.io/pkg/data.table/man/data.table.html)
-of portfolios, or a promise thereof.
+(data.table \| promise\<data.table\>) the portfolios, or a promise
+thereof.
+
+- uuid (character \| NA) the portfolio UUID.
+
+- name (character \| NA) the portfolio's display name.
+
+- type (character \| NA) the portfolio type, e.g. `"DEFAULT"`.
+
+- deleted (logical \| NA) whether the portfolio has been deleted.
 
 ------------------------------------------------------------------------
 
-### `CoinbaseAccount$get_portfolio_breakdown()`
+### Method `get_portfolio_breakdown()`
 
 Retrieve a single portfolio's positions: its spot, futures, and
 perpetual holdings stacked into one `data.table`, one row per holding,
@@ -166,21 +176,21 @@ same endpoint).
 
 - `portfolio_uuid`:
 
-  Character; the portfolio UUID (from `get_portfolios()`).
+  (scalar\<character\>) the portfolio UUID (from `get_portfolios()`).
 
 - `currency`:
 
-  Character or NULL; quote currency for fiat values. Optional.
+  (scalar\<character\> \| NULL) quote currency for fiat values.
+  Optional.
 
 #### Returns
 
-A
-[data.table::data.table](https://rdrr.io/pkg/data.table/man/data.table.html)
-of positions, or a promise thereof.
+(data.table \| promise\<data.table\>) the positions, or a promise
+thereof.
 
 ------------------------------------------------------------------------
 
-### `CoinbaseAccount$get_portfolio_summary()`
+### Method `get_portfolio_summary()`
 
 Retrieve a single portfolio's aggregate balance totals (total balance,
 futures/crypto/cash-equivalent balances, and futures/perp unrealized
@@ -195,21 +205,21 @@ the same endpoint.
 
 - `portfolio_uuid`:
 
-  Character; the portfolio UUID (from `get_portfolios()`).
+  (scalar\<character\>) the portfolio UUID (from `get_portfolios()`).
 
 - `currency`:
 
-  Character or NULL; quote currency for fiat values. Optional.
+  (scalar\<character\> \| NULL) quote currency for fiat values.
+  Optional.
 
 #### Returns
 
-A single-row
-[data.table::data.table](https://rdrr.io/pkg/data.table/man/data.table.html)
-of totals, or a promise thereof.
+(PortfolioSummary \| promise\<PortfolioSummary\>) a single-row table of
+totals, or a promise thereof.
 
 ------------------------------------------------------------------------
 
-### `CoinbaseAccount$get_key_permissions()`
+### Method `get_key_permissions()`
 
 Retrieve the calling API key's permissions.
 
@@ -219,13 +229,22 @@ Retrieve the calling API key's permissions.
 
 #### Returns
 
-A single-row
-[data.table::data.table](https://rdrr.io/pkg/data.table/man/data.table.html),
-or a promise thereof.
+(data.table \| promise\<data.table\>) a single-row table, or a promise
+thereof.
+
+- can_view (logical \| NA) whether the key may read account data.
+
+- can_trade (logical \| NA) whether the key may place and cancel orders.
+
+- can_transfer (logical \| NA) whether the key may move funds.
+
+- portfolio_uuid (character \| NA) the key's portfolio UUID.
+
+- portfolio_type (character \| NA) the portfolio type, e.g. `"DEFAULT"`.
 
 ------------------------------------------------------------------------
 
-### `CoinbaseAccount$clone()`
+### Method `clone()`
 
 The objects of this class are cloneable with this method.
 

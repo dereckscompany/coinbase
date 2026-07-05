@@ -1,5 +1,11 @@
 # CoinbaseFutures: US Futures (CFM) Account, Positions, and Margin
 
+CoinbaseFutures: US Futures (CFM) Account, Positions, and Margin
+
+CoinbaseFutures: US Futures (CFM) Account, Positions, and Margin
+
+## Details
+
 Manages the Coinbase Financial Markets (CFM) US futures account: balance
 summary, open positions, cash sweeps between the spot (CBI) and futures
 (CFM) accounts, and intraday margin settings. All endpoints require
@@ -41,9 +47,11 @@ customers trade the CFM futures covered by this class.
 | set_intraday_margin_setting | POST /api/v3/brokerage/cfm/intraday/margin_setting | Yes |
 | get_current_margin_window | GET /api/v3/brokerage/cfm/intraday/current_margin_window | Yes |
 
-## Super class
+## Super classes
 
-[`CoinbaseBase`](https://dereckscompany.github.io/coinbase/reference/CoinbaseBase.md)
+[`connectcore::RestClient`](https://rdrr.io/pkg/connectcore/man/RestClient.html)
+-\>
+[`coinbase::CoinbaseBase`](https://dereckscompany.github.io/coinbase/reference/CoinbaseBase.md)
 -\> `CoinbaseFutures`
 
 ## Methods
@@ -72,11 +80,11 @@ customers trade the CFM futures covered by this class.
 
 Inherited methods
 
-- [`CoinbaseBase$initialize()`](https://dereckscompany.github.io/coinbase/reference/CoinbaseBase.html#method-initialize)
+- [`coinbase::CoinbaseBase$initialize()`](https://dereckscompany.github.io/coinbase/reference/CoinbaseBase.html#method-initialize)
 
 ------------------------------------------------------------------------
 
-### `CoinbaseFutures$get_balance_summary()`
+### Method `get_balance_summary()`
 
 Retrieve the CFM futures balance summary (buying power, margin,
 unrealised PnL, liquidation thresholds).
@@ -87,13 +95,12 @@ unrealised PnL, liquidation thresholds).
 
 #### Returns
 
-A single-row
-[data.table::data.table](https://rdrr.io/pkg/data.table/man/data.table.html),
-or a promise thereof.
+(FuturesBalance \| promise\<FuturesBalance\>) a single-row table, or a
+promise thereof.
 
 ------------------------------------------------------------------------
 
-### `CoinbaseFutures$get_positions()`
+### Method `get_positions()`
 
 Retrieve all open CFM futures positions.
 
@@ -103,13 +110,12 @@ Retrieve all open CFM futures positions.
 
 #### Returns
 
-A
-[data.table::data.table](https://rdrr.io/pkg/data.table/man/data.table.html)
-of positions, or a promise thereof.
+(FuturesPositions \| promise\<FuturesPositions\>) the positions, or a
+promise thereof.
 
 ------------------------------------------------------------------------
 
-### `CoinbaseFutures$get_position()`
+### Method `get_position()`
 
 Retrieve a single CFM futures position by product.
 
@@ -121,17 +127,16 @@ Retrieve a single CFM futures position by product.
 
 - `product_id`:
 
-  Character; the futures product ID.
+  (scalar\<character\>) the futures product ID.
 
 #### Returns
 
-A single-row
-[data.table::data.table](https://rdrr.io/pkg/data.table/man/data.table.html),
-or a promise thereof.
+(FuturesPositions \| promise\<FuturesPositions\>) a single-row table, or
+a promise thereof.
 
 ------------------------------------------------------------------------
 
-### `CoinbaseFutures$schedule_sweep()`
+### Method `schedule_sweep()`
 
 Schedule a cash sweep from the CFM futures account to the spot (CBI) USD
 wallet.
@@ -144,17 +149,19 @@ wallet.
 
 - `usd_amount`:
 
-  Character/numeric; positive amount in USD to sweep.
+  (scalar\<numeric\> \| scalar\<character\>) positive amount in USD to
+  sweep.
 
 #### Returns
 
-A single-row
-[data.table::data.table](https://rdrr.io/pkg/data.table/man/data.table.html),
-or a promise thereof.
+(data.table \| promise\<data.table\>) a single-row table, or a promise
+thereof.
+
+- success (logical) whether the sweep was scheduled.
 
 ------------------------------------------------------------------------
 
-### `CoinbaseFutures$get_sweeps()`
+### Method `get_sweeps()`
 
 Retrieve scheduled and pending futures sweeps.
 
@@ -164,13 +171,12 @@ Retrieve scheduled and pending futures sweeps.
 
 #### Returns
 
-A
-[data.table::data.table](https://rdrr.io/pkg/data.table/man/data.table.html)
-of sweeps, or a promise thereof.
+(FuturesSweeps \| promise\<FuturesSweeps\>) the sweeps, or a promise
+thereof.
 
 ------------------------------------------------------------------------
 
-### `CoinbaseFutures$cancel_sweep()`
+### Method `cancel_sweep()`
 
 Cancel the pending futures sweep.
 
@@ -180,13 +186,14 @@ Cancel the pending futures sweep.
 
 #### Returns
 
-A single-row
-[data.table::data.table](https://rdrr.io/pkg/data.table/man/data.table.html),
-or a promise thereof.
+(data.table \| promise\<data.table\>) a single-row table, or a promise
+thereof.
+
+- success (logical) whether the pending sweep was cancelled.
 
 ------------------------------------------------------------------------
 
-### `CoinbaseFutures$get_intraday_margin_setting()`
+### Method `get_intraday_margin_setting()`
 
 Retrieve the current intraday margin setting.
 
@@ -196,13 +203,14 @@ Retrieve the current intraday margin setting.
 
 #### Returns
 
-A single-row
-[data.table::data.table](https://rdrr.io/pkg/data.table/man/data.table.html),
-or a promise thereof.
+(data.table \| promise\<data.table\>) a single-row table, or a promise
+thereof.
+
+- setting (character) the active intraday-margin setting.
 
 ------------------------------------------------------------------------
 
-### `CoinbaseFutures$set_intraday_margin_setting()`
+### Method `set_intraday_margin_setting()`
 
 Set the intraday margin setting.
 
@@ -214,19 +222,20 @@ Set the intraday margin setting.
 
 - `setting`:
 
-  Character; e.g. `"INTRADAY_MARGIN_SETTING_STANDARD"` or
+  (scalar\<character\>) e.g. `"INTRADAY_MARGIN_SETTING_STANDARD"` or
   `"INTRADAY_MARGIN_SETTING_INTRADAY"`.
 
 #### Returns
 
-A single-row
-[data.table::data.table](https://rdrr.io/pkg/data.table/man/data.table.html)
-echoing the applied `setting` (the API returns an empty body on success;
-a non-200 aborts), or a promise thereof.
+(data.table \| promise\<data.table\>) a single-row table echoing the
+applied `setting` (the API returns an empty body on success; a non-200
+aborts), or a promise thereof.
+
+- setting (character) the applied intraday-margin setting.
 
 ------------------------------------------------------------------------
 
-### `CoinbaseFutures$get_current_margin_window()`
+### Method `get_current_margin_window()`
 
 Retrieve the current margin window.
 
@@ -238,19 +247,17 @@ Retrieve the current margin window.
 
 - `margin_profile_type`:
 
-  Character; the margin profile type (required by the API), e.g.
-  `"MARGIN_PROFILE_TYPE_RETAIL_INTRADAY_MARGIN_1"`.
+  (scalar\<character\>) the margin profile type (required by the API),
+  e.g. `"MARGIN_PROFILE_TYPE_RETAIL_INTRADAY_MARGIN_1"`.
 
 #### Returns
 
-A single-row
-[data.table::data.table](https://rdrr.io/pkg/data.table/man/data.table.html)
-with `margin_window_type`, `end_time`, and the killswitch flags, or a
+(MarginWindow \| promise\<MarginWindow\>) a single-row table, or a
 promise thereof.
 
 ------------------------------------------------------------------------
 
-### `CoinbaseFutures$clone()`
+### Method `clone()`
 
 The objects of this class are cloneable with this method.
 

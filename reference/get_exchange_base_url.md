@@ -19,12 +19,12 @@ get_exchange_base_url(url = Sys.getenv("COINBASE_EXCHANGE_API_ENDPOINT"))
 
 - url:
 
-  Character string; explicit base URL. Defaults to
+  (scalar\<character\>) explicit base URL. Defaults to
   `Sys.getenv("COINBASE_EXCHANGE_API_ENDPOINT")`.
 
 ## Value
 
-Character string; the Exchange API base URL.
+(scalar\<character\>) the Exchange API base URL.
 
 ## Details
 

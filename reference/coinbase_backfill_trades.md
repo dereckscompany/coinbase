@@ -28,48 +28,50 @@ coinbase_backfill_trades(
 
 - symbols:
 
-  Character vector of product symbols (e.g. `c("BTC-USD", "ETH-USD")`).
-  Must not be NULL or empty.
+  (character) product symbols (e.g. `c("BTC-USD", "ETH-USD")`). Must not
+  be NULL or empty.
 
 - from:
 
-  POSIXct or numeric; start of the backfill window. Defaults to one week
-  ago. Tick volume is large, so widen this deliberately.
+  (POSIXct \| numeric) start of the backfill window. Defaults to one
+  week ago. Tick volume is large, so widen this deliberately.
 
 - to:
 
-  POSIXct or numeric; end of the window. Defaults to the current time.
+  (POSIXct \| numeric) end of the window. Defaults to the current time.
 
 - file:
 
-  Character; path to the output CSV. Data is appended incrementally so
-  progress survives interruption.
+  (scalar\<character\>) path to the output CSV. Data is appended
+  incrementally so progress survives interruption.
 
 - base_url:
 
-  Character; Advanced Trade API base URL.
+  (scalar\<character\>) Advanced Trade API base URL.
 
 - exchange_base_url:
 
-  Character; Exchange API base URL.
+  (scalar\<character\>) Exchange API base URL.
 
 - max_pages:
 
-  Numeric; per-symbol cap on pages fetched. Default `Inf`.
+  (scalar\<numeric in \[1, Inf\]\>) per-symbol cap on pages fetched.
+  Default `Inf`.
 
 - sleep:
 
-  Numeric; seconds to sleep between symbols to respect rate limits.
+  (scalar\<numeric in \[0, Inf\[\>) seconds to sleep between symbols to
+  respect rate limits.
 
 - verbose:
 
-  Logical; if `TRUE`, prints progress via
+  (scalar\<logical\>) if `TRUE`, prints progress via
   [`rlang::inform()`](https://rlang.r-lib.org/reference/abort.html).
 
 ## Value
 
-The file path (invisibly). If any symbols failed, a `"failures"`
-attribute is attached: a
+(scalar\<character\>) the file path (invisibly). If any symbols failed,
+a `"failures"` attribute is attached: a
 [data.table::data.table](https://rdrr.io/pkg/data.table/man/data.table.html)
 with columns `symbol` and `error`.
 

@@ -15,11 +15,11 @@ verify_symbol(product_id)
 
 - product_id:
 
-  Character string; the symbol to verify.
+  (scalar\<character\>) the symbol to verify.
 
 ## Value
 
-Logical; `TRUE` if valid, `FALSE` otherwise.
+(scalar\<logical\>) `TRUE` if valid, `FALSE` otherwise.
 
 ## Examples
 

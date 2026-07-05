@@ -18,19 +18,22 @@ get_api_keys(
 
 - api_key_name:
 
-  Character string; the credential `name`, e.g.
+  (scalar\<character\>) the credential `name`, e.g.
   `"organizations/<org-uuid>/apiKeys/<key-uuid>"`. Defaults to
   `Sys.getenv("COINBASE_API_KEY_NAME")`.
 
 - api_private_key:
 
-  Character string; the credential `privateKey`. Defaults to
+  (scalar\<character\>) the credential `privateKey`. Defaults to
   `Sys.getenv("COINBASE_API_PRIVATE_KEY")`.
 
 ## Value
 
-Named list with `api_key_name` and `api_private_key` (newlines
-unescaped).
+(list) named credentials, with newlines unescaped:
+
+- api_key_name (scalar\<character\>) the credential `name`.
+
+- api_private_key (scalar\<character\>) the credential `privateKey`.
 
 ## Details
 

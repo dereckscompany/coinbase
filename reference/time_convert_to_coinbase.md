@@ -14,16 +14,24 @@ time_convert_to_coinbase(datetime, unit = c("iso", "s"))
 
 - datetime:
 
-  POSIXct object(s) to convert.
+  (POSIXct) object(s) to convert.
 
 - unit:
 
-  Character; the output form: `"iso"` (default) or `"s"`.
+  (scalar\<character in c("iso", "s")\>) the output form: `"iso"`
+  (default) or `"s"`.
 
 ## Value
 
-A character ISO 8601 timestamp (`"iso"`) or numeric epoch seconds
-(`"s"`).
+(character \| numeric) an ISO 8601 timestamp (`"iso"`) or numeric epoch
+seconds (`"s"`).
+
+## Details
+
+For `unit = "s"` the value is **floored** to the whole second
+(sub-second precision is truncated towards the past, not rounded); the
+`"iso"` form is likewise formatted to whole-second resolution (`%S`
+drops fractional seconds).
 
 ## Examples
 

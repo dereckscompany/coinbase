@@ -1,5 +1,11 @@
 # CoinbaseTrading: Order Placement and Management
 
+CoinbaseTrading: Order Placement and Management
+
+CoinbaseTrading: Order Placement and Management
+
+## Details
+
 Places, previews, edits, cancels, and queries orders and fills on the
 Coinbase Advanced Trade API. All endpoints require credentials.
 
@@ -42,9 +48,11 @@ configuration before submitting.
 | preview_edit_order | POST /api/v3/brokerage/orders/edit_preview    | Yes  |
 | cancel_orders      | POST /api/v3/brokerage/orders/batch_cancel    | Yes  |
 
-## Super class
+## Super classes
 
-[`CoinbaseBase`](https://dereckscompany.github.io/coinbase/reference/CoinbaseBase.md)
+[`connectcore::RestClient`](https://rdrr.io/pkg/connectcore/man/RestClient.html)
+-\>
+[`coinbase::CoinbaseBase`](https://dereckscompany.github.io/coinbase/reference/CoinbaseBase.md)
 -\> `CoinbaseTrading`
 
 ## Methods
@@ -73,11 +81,11 @@ configuration before submitting.
 
 Inherited methods
 
-- [`CoinbaseBase$initialize()`](https://dereckscompany.github.io/coinbase/reference/CoinbaseBase.html#method-initialize)
+- [`coinbase::CoinbaseBase$initialize()`](https://dereckscompany.github.io/coinbase/reference/CoinbaseBase.html#method-initialize)
 
 ------------------------------------------------------------------------
 
-### `CoinbaseTrading$add_order()`
+### Method `add_order()`
 
 Place a new order. The order is live and may execute; use
 `preview_order()` first to validate.
@@ -99,48 +107,48 @@ Place a new order. The order is live and may execute; use
 
 - `product_id`:
 
-  Character; e.g. `"BTC-USD"`.
+  (scalar\<character\>) e.g. `"BTC-USD"`.
 
 - `side`:
 
-  Character; `"BUY"` or `"SELL"`.
+  (scalar\<character\>) `"BUY"` or `"SELL"`.
 
 - `order_configuration`:
 
-  Named list; the one-key order configuration.
+  (list) the one-key order configuration.
 
 - `client_order_id`:
 
-  Character; idempotency key. Defaults to a fresh UUID via
+  (scalar\<character\>) idempotency key. Defaults to a fresh UUID via
   [`generate_client_order_id()`](https://dereckscompany.github.io/coinbase/reference/generate_client_order_id.md).
 
 - `self_trade_prevention_id`:
 
-  Character or NULL; self-trade-prevention group id. Optional.
+  (scalar\<character\> \| NULL) self-trade-prevention group id.
+  Optional.
 
 - `leverage`:
 
-  Character or NULL; leverage for the order (e.g. `"2"`). Optional.
+  (scalar\<character\> \| NULL) leverage for the order (e.g. `"2"`).
+  Optional.
 
 - `margin_type`:
 
-  Character or NULL; `"CROSS"` or `"ISOLATED"`. Optional.
+  (scalar\<character\> \| NULL) `"CROSS"` or `"ISOLATED"`. Optional.
 
 - `retail_portfolio_id`:
 
-  Character or NULL; portfolio to route the order to. Optional.
+  (scalar\<character\> \| NULL) portfolio to route the order to.
+  Optional.
 
 #### Returns
 
-A single-row
-[data.table::data.table](https://rdrr.io/pkg/data.table/man/data.table.html)
-with `success`, the scalar `order_id`, `product_id`, `side`,
-`client_order_id`, `failure_reason`, and flattened order-configuration
-columns, or a promise thereof.
+(CreateOrderAck \| promise\<CreateOrderAck\>) a single-row create-order
+acknowledgement, or a promise thereof.
 
 ------------------------------------------------------------------------
 
-### `CoinbaseTrading$preview_order()`
+### Method `preview_order()`
 
 Preview an order without placing it (dry run; executes nothing). Returns
 the estimated total, commission, sizes, and any validation errors.
@@ -160,37 +168,37 @@ the estimated total, commission, sizes, and any validation errors.
 
 - `product_id`:
 
-  Character; e.g. `"BTC-USD"`.
+  (scalar\<character\>) e.g. `"BTC-USD"`.
 
 - `side`:
 
-  Character; `"BUY"` or `"SELL"`.
+  (scalar\<character\>) `"BUY"` or `"SELL"`.
 
 - `order_configuration`:
 
-  Named list; the one-key order configuration.
+  (list) the one-key order configuration.
 
 - `leverage`:
 
-  Character or NULL; leverage for the order. Optional.
+  (scalar\<character\> \| NULL) leverage for the order. Optional.
 
 - `margin_type`:
 
-  Character or NULL; `"CROSS"` or `"ISOLATED"`. Optional.
+  (scalar\<character\> \| NULL) `"CROSS"` or `"ISOLATED"`. Optional.
 
 - `retail_portfolio_id`:
 
-  Character or NULL; portfolio to scope the preview to. Optional.
+  (scalar\<character\> \| NULL) portfolio to scope the preview to.
+  Optional.
 
 #### Returns
 
-A single-row
-[data.table::data.table](https://rdrr.io/pkg/data.table/man/data.table.html),
-or a promise thereof.
+(Preview \| promise\<Preview\>) a single-row preview estimate, or a
+promise thereof.
 
 ------------------------------------------------------------------------
 
-### `CoinbaseTrading$get_order()`
+### Method `get_order()`
 
 Retrieve a single order by its ID.
 
@@ -202,17 +210,16 @@ Retrieve a single order by its ID.
 
 - `order_id`:
 
-  Character; the order ID.
+  (scalar\<character\>) the order ID.
 
 #### Returns
 
-A single-row
-[data.table::data.table](https://rdrr.io/pkg/data.table/man/data.table.html),
-or a promise thereof.
+(Orders \| promise\<Orders\>) a single-row order table, or a promise
+thereof.
 
 ------------------------------------------------------------------------
 
-### `CoinbaseTrading$get_orders()`
+### Method `get_orders()`
 
 Retrieve historical orders, paginating over the cursor.
 
@@ -241,73 +248,77 @@ Retrieve historical orders, paginating over the cursor.
 
 - `product_ids`:
 
-  Character vector or NULL; filter by product(s).
+  (character \| NULL) filter by product(s).
 
 - `order_status`:
 
-  Character vector or NULL; e.g. `"OPEN"`, `"FILLED"`, `"CANCELLED"`.
+  (character \| NULL) e.g. `"OPEN"`, `"FILLED"`, `"CANCELLED"`.
 
 - `order_side`:
 
-  Character or NULL; `"BUY"` or `"SELL"`.
+  (scalar\<character\> \| NULL) `"BUY"` or `"SELL"`.
 
 - `limit`:
 
-  Integer or NULL; page size.
+  (scalar\<count in \[1, Inf\[\> \| NULL) page size.
 
 - `order_ids`:
 
-  Character vector or NULL; filter by specific order id(s).
+  (character \| NULL) filter by specific order id(s).
 
-- `start_date, end_date`:
+- `start_date`:
 
-  Character or NULL; RFC 3339 bounds on order creation time.
+  (scalar\<character\> \| NULL) RFC 3339 lower bound on order creation
+  time.
+
+- `end_date`:
+
+  (scalar\<character\> \| NULL) RFC 3339 upper bound on order creation
+  time.
 
 - `order_types`:
 
-  Character vector or NULL; e.g. `"LIMIT"`, `"MARKET"`.
+  (character \| NULL) e.g. `"LIMIT"`, `"MARKET"`.
 
 - `product_type`:
 
-  Character or NULL; `"SPOT"` or `"FUTURE"`.
+  (scalar\<character\> \| NULL) `"SPOT"` or `"FUTURE"`.
 
 - `order_placement_source`:
 
-  Character or NULL; e.g. `"RETAIL_ADVANCED"`.
+  (scalar\<character\> \| NULL) e.g. `"RETAIL_ADVANCED"`.
 
 - `contract_expiry_type`:
 
-  Character or NULL; e.g. `"EXPIRING"`.
+  (scalar\<character\> \| NULL) e.g. `"EXPIRING"`.
 
 - `asset_filters`:
 
-  Character vector or NULL; filter by asset.
+  (character \| NULL) filter by asset.
 
 - `retail_portfolio_id`:
 
-  Character or NULL; scope to a portfolio.
+  (scalar\<character\> \| NULL) scope to a portfolio.
 
 - `time_in_forces`:
 
-  Character vector or NULL; e.g. `"GOOD_UNTIL_CANCELLED"`.
+  (character \| NULL) e.g. `"GOOD_UNTIL_CANCELLED"`.
 
 - `sort_by`:
 
-  Character or NULL; sort field, e.g. `"LAST_FILL_TIME"`.
+  (scalar\<character\> \| NULL) sort field, e.g. `"LAST_FILL_TIME"`.
 
 - `max_pages`:
 
-  Numeric; cap on pages fetched. Default `Inf`.
+  (scalar\<numeric in \[1, Inf\]\>) cap on pages fetched. Default `Inf`.
 
 #### Returns
 
-A
-[data.table::data.table](https://rdrr.io/pkg/data.table/man/data.table.html)
-of orders, or a promise thereof.
+(Orders \| promise\<Orders\>) the orders, or a promise thereof.
 
 ------------------------------------------------------------------------
 
-### `CoinbaseTrading$get_fills()`
+### Method `get_fills()`
 
 Retrieve historical fills, paginating over the cursor.
 
@@ -329,45 +340,49 @@ Retrieve historical fills, paginating over the cursor.
 
 - `order_ids`:
 
-  Character vector or NULL; filter by order id(s).
+  (character \| NULL) filter by order id(s).
 
 - `trade_ids`:
 
-  Character vector or NULL; filter by trade id(s).
+  (character \| NULL) filter by trade id(s).
 
 - `product_ids`:
 
-  Character vector or NULL; filter by product(s).
+  (character \| NULL) filter by product(s).
 
-- `start_sequence_timestamp, end_sequence_timestamp`:
+- `start_sequence_timestamp`:
 
-  Character or NULL; RFC 3339 bounds on fill sequence time.
+  (scalar\<character\> \| NULL) RFC 3339 lower bound on fill sequence
+  time.
+
+- `end_sequence_timestamp`:
+
+  (scalar\<character\> \| NULL) RFC 3339 upper bound on fill sequence
+  time.
 
 - `retail_portfolio_id`:
 
-  Character or NULL; scope to a portfolio.
+  (scalar\<character\> \| NULL) scope to a portfolio.
 
 - `limit`:
 
-  Integer or NULL; page size.
+  (scalar\<count in \[1, Inf\[\> \| NULL) page size.
 
 - `sort_by`:
 
-  Character or NULL; sort field, e.g. `"TRADE_TIME"`.
+  (scalar\<character\> \| NULL) sort field, e.g. `"TRADE_TIME"`.
 
 - `max_pages`:
 
-  Numeric; cap on pages fetched. Default `Inf`.
+  (scalar\<numeric in \[1, Inf\]\>) cap on pages fetched. Default `Inf`.
 
 #### Returns
 
-A
-[data.table::data.table](https://rdrr.io/pkg/data.table/man/data.table.html)
-of fills, or a promise thereof.
+(Fills \| promise\<Fills\>) the fills, or a promise thereof.
 
 ------------------------------------------------------------------------
 
-### `CoinbaseTrading$edit_order()`
+### Method `edit_order()`
 
 Edit an open order's price and/or size.
 
@@ -379,25 +394,24 @@ Edit an open order's price and/or size.
 
 - `order_id`:
 
-  Character; the order ID.
+  (scalar\<character\>) the order ID.
 
 - `price`:
 
-  Character/numeric or NULL; new limit price.
+  (scalar\<numeric\> \| scalar\<character\> \| NULL) new limit price.
 
 - `size`:
 
-  Character/numeric or NULL; new size.
+  (scalar\<numeric\> \| scalar\<character\> \| NULL) new size.
 
 #### Returns
 
-A single-row
-[data.table::data.table](https://rdrr.io/pkg/data.table/man/data.table.html),
-or a promise thereof.
+(EditOrderAck \| promise\<EditOrderAck\>) a single-row edit
+acknowledgement, or a promise thereof.
 
 ------------------------------------------------------------------------
 
-### `CoinbaseTrading$preview_edit_order()`
+### Method `preview_edit_order()`
 
 Preview an order edit without applying it (dry run).
 
@@ -409,25 +423,25 @@ Preview an order edit without applying it (dry run).
 
 - `order_id`:
 
-  Character; the order ID.
+  (scalar\<character\>) the order ID.
 
 - `price`:
 
-  Character/numeric or NULL; proposed limit price.
+  (scalar\<numeric\> \| scalar\<character\> \| NULL) proposed limit
+  price.
 
 - `size`:
 
-  Character/numeric or NULL; proposed size.
+  (scalar\<numeric\> \| scalar\<character\> \| NULL) proposed size.
 
 #### Returns
 
-A single-row
-[data.table::data.table](https://rdrr.io/pkg/data.table/man/data.table.html),
-or a promise thereof.
+(EditPreview \| promise\<EditPreview\>) a single-row edit-preview
+estimate, or a promise thereof.
 
 ------------------------------------------------------------------------
 
-### `CoinbaseTrading$cancel_orders()`
+### Method `cancel_orders()`
 
 Cancel one or more open orders.
 
@@ -439,17 +453,16 @@ Cancel one or more open orders.
 
 - `order_ids`:
 
-  Character vector; the order IDs to cancel.
+  (character) the order IDs to cancel.
 
 #### Returns
 
-A
-[data.table::data.table](https://rdrr.io/pkg/data.table/man/data.table.html)
-of per-order cancel results, or a promise thereof.
+(CancelResults \| promise\<CancelResults\>) per-order cancel results, or
+a promise thereof.
 
 ------------------------------------------------------------------------
 
-### `CoinbaseTrading$close_position()`
+### Method `close_position()`
 
 Place an order to close an open position for a product. This is the
 idiomatic way to flatten a position – e.g. the short leg of a futures
@@ -467,28 +480,26 @@ pair – without hand-constructing an opposing order.
 
 - `product_id`:
 
-  Character; the product whose position to close.
+  (scalar\<character\>) the product whose position to close.
 
 - `size`:
 
-  Character/numeric or NULL; the amount (contracts / base size) to
-  close. `NULL` closes the entire position.
+  (scalar\<numeric\> \| scalar\<character\> \| NULL) the amount
+  (contracts / base size) to close. `NULL` closes the entire position.
 
 - `client_order_id`:
 
-  Character; idempotency key. Defaults to a fresh UUID via
+  (scalar\<character\>) idempotency key. Defaults to a fresh UUID via
   [`generate_client_order_id()`](https://dereckscompany.github.io/coinbase/reference/generate_client_order_id.md).
 
 #### Returns
 
-A single-row
-[data.table::data.table](https://rdrr.io/pkg/data.table/man/data.table.html)
-with `success`, the scalar `order_id`, and flattened order details, or a
-promise thereof.
+(CreateOrderAck \| promise\<CreateOrderAck\>) a single-row create-order
+acknowledgement, or a promise thereof.
 
 ------------------------------------------------------------------------
 
-### `CoinbaseTrading$clone()`
+### Method `clone()`
 
 The objects of this class are cloneable with this method.
 

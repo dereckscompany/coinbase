@@ -1,10 +1,23 @@
 # CoinbaseBase: Abstract Base Class for Coinbase API Clients
 
-Provides shared infrastructure for all Coinbase R6 classes, including
-API credential management, sync/async execution mode, and a standardised
-method for executing API requests through the single
-[`coinbase_build_request()`](https://dereckscompany.github.io/coinbase/reference/coinbase_build_request.md)
-funnel.
+CoinbaseBase: Abstract Base Class for Coinbase API Clients
+
+CoinbaseBase: Abstract Base Class for Coinbase API Clients
+
+## Details
+
+Provides shared infrastructure for all Coinbase R6 classes by extending
+[connectcore::RestClient](https://rdrr.io/pkg/connectcore/man/RestClient.html).
+It inherits the single `private$.request()` funnel (mode-transparent
+sync/async, NULL-field stripping, retry/throttle) and customises only
+the two venue-specific seams:
+
+- `.sign()` — attaches a Coinbase JWT (ES256 / EdDSA) to each
+  authenticated request (via the internal `coinbase_jwt_sign()`).
+
+- `.parse_envelope()` — reads the Coinbase error envelope and tolerates
+  the empty success bodies some endpoints return (via the internal
+  `parse_coinbase_response()`).
 
 ### Sync vs Async
 
@@ -33,7 +46,8 @@ endpoints live on the Advanced Trade host
 history live on the Exchange host
 ([`get_exchange_base_url()`](https://dereckscompany.github.io/coinbase/reference/get_exchange_base_url.md),
 `https://api.exchange.coinbase.com`). Subclasses select the host per
-request via the `base_url` argument of `private$.request()`.
+request via the `base_url` argument of `private$.request()` (this class
+extends the connectcore funnel with that argument).
 
 ### Design
 
@@ -45,38 +59,28 @@ public methods that delegate to `private$.request()`.
 
 All fields are private:
 
-- `.keys`: List; API credentials from
-  [`get_api_keys()`](https://dereckscompany.github.io/coinbase/reference/get_api_keys.md).
+- `.exchange_base_url`: Character; Exchange API base URL (the Advanced
+  Trade base, credentials, async flag, and perform function are held by
+  the
+  [connectcore::RestClient](https://rdrr.io/pkg/connectcore/man/RestClient.html)
+  superclass).
 
-- `.base_url`: Character; Advanced Trade API base URL.
+## Super class
 
-- `.exchange_base_url`: Character; Exchange API base URL.
-
-- `.perform`: Function; either
-  [httr2::req_perform](https://httr2.r-lib.org/reference/req_perform.html)
-  or
-  [httr2::req_perform_promise](https://httr2.r-lib.org/reference/req_perform_promise.html).
-
-- `.is_async`: Logical; whether the instance is in async mode.
-
-## Active bindings
-
-- `is_async`:
-
-  Logical; read-only flag indicating whether this instance operates in
-  async mode.
+[`connectcore::RestClient`](https://rdrr.io/pkg/connectcore/man/RestClient.html)
+-\> `CoinbaseBase`
 
 ## Methods
 
 ### Public methods
 
-- [`CoinbaseBase$new()`](#method-CoinbaseBase-initialize)
+- [`CoinbaseBase$new()`](#method-CoinbaseBase-new)
 
 - [`CoinbaseBase$clone()`](#method-CoinbaseBase-clone)
 
 ------------------------------------------------------------------------
 
-### `CoinbaseBase$new()`
+### Method `new()`
 
 Initialise a CoinbaseBase object.
 
@@ -93,32 +97,33 @@ Initialise a CoinbaseBase object.
 
 - `keys`:
 
-  List; API credentials from
+  (list \| NULL) API credentials from
   [`get_api_keys()`](https://dereckscompany.github.io/coinbase/reference/get_api_keys.md).
   Defaults to
   [`get_api_keys()`](https://dereckscompany.github.io/coinbase/reference/get_api_keys.md).
 
 - `base_url`:
 
-  Character; Advanced Trade API base URL. Defaults to
+  (scalar\<character\>) Advanced Trade API base URL. Defaults to
   [`get_base_url()`](https://dereckscompany.github.io/coinbase/reference/get_base_url.md).
 
 - `exchange_base_url`:
 
-  Character; Exchange API base URL. Defaults to
+  (scalar\<character\>) Exchange API base URL. Defaults to
   [`get_exchange_base_url()`](https://dereckscompany.github.io/coinbase/reference/get_exchange_base_url.md).
 
 - `async`:
 
-  Logical; if `TRUE`, methods return promises. Default `FALSE`.
+  (scalar\<logical\>) if `TRUE`, methods return promises. Default
+  `FALSE`.
 
 #### Returns
 
-Invisible self.
+(class\<CoinbaseBase\>) invisibly, self.
 
 ------------------------------------------------------------------------
 
-### `CoinbaseBase$clone()`
+### Method `clone()`
 
 The objects of this class are cloneable with this method.
 

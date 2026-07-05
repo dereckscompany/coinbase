@@ -167,7 +167,7 @@ scheduled[]
 
 # List scheduled and pending sweeps
 sweeps <- futures$get_sweeps()
-sweeps[, .(id, requested_amount, should_sweep_all, status, schedule_time)]
+sweeps[, .(id, requested_amount, should_sweep_all, status, timestamp)]
 
 # Cancel the pending sweep
 futures$cancel_sweep()[]
@@ -176,9 +176,9 @@ futures$cancel_sweep()[]
     #>    success
     #>     <lgcl>
     #> 1:    TRUE
-    #>            id requested_amount should_sweep_all  status schedule_time
-    #>        <char>            <num>           <lgcl>  <char>        <POSc>
-    #> 1: sweep-0001              500            FALSE PENDING    2026-05-31
+    #>            id requested_amount should_sweep_all  status  timestamp
+    #>        <char>            <num>           <lgcl>  <char>     <POSc>
+    #> 1: sweep-0001              500            FALSE PENDING 2026-05-31
     #>    success
     #>     <lgcl>
     #> 1:    TRUE
@@ -227,9 +227,9 @@ window[, .(
 )]
 ```
 
-    #>                  margin_window_type            end_time
-    #>                              <char>              <POSc>
-    #> 1: FCM_MARGIN_WINDOW_TYPE_OVERNIGHT 2026-05-31 13:30:00
+    #>              margin_window_type            end_time
+    #>                          <char>              <POSc>
+    #> 1: MARGIN_WINDOW_TYPE_OVERNIGHT 2026-06-28 22:00:00
     #>    is_intraday_margin_killswitch_enabled
     #>                                   <lgcl>
     #> 1:                                 FALSE
@@ -251,11 +251,40 @@ products <- market$get_products()
 products[, .(id, status)]
 ```
 
-    #>         id status
-    #>     <char> <char>
-    #> 1: BTC-USD online
-    #> 2: ETH-USD online
-    #> 3: SOL-USD online
+    #>               id   status
+    #>           <char>   <char>
+    #>  1:      SOL-USD   online
+    #>  2:      BTC-USD   online
+    #>  3:      ETH-USD   online
+    #>  4:      AVT-USD   online
+    #>  5:      XYO-BTC delisted
+    #>  6:     SHIB-GBP   online
+    #>  7:     TREE-USD   online
+    #>  8:     BLUR-USD   online
+    #>  9:     FLOW-USD   online
+    #> 10:       B3-USD   online
+    #> 11:    SUSHI-EUR delisted
+    #> 12:      FET-USD   online
+    #> 13:    LINK-USDT   online
+    #> 14:     WCFG-BTC delisted
+    #> 15:      DOT-EUR   online
+    #> 16:      OMG-GBP delisted
+    #> 17:     LRC-USDT delisted
+    #> 18:     BOBA-USD   online
+    #> 19:    SUKU-USDT delisted
+    #> 20:     DYP-USDT delisted
+    #> 21:    MASK-USDT delisted
+    #> 22:     USDC-CAD   online
+    #> 23: FARTCOIN-USD   online
+    #> 24:     OMNI-USD   online
+    #> 25:      PNG-USD   online
+    #> 26:     APE-USDT   online
+    #> 27:    WLUNA-GBP delisted
+    #> 28:    DOGE-USDT   online
+    #> 29:     GEOD-USD   online
+    #> 30:      REQ-BTC delisted
+    #>               id   status
+    #>           <char>   <char>
 
 Inspect a single contract’s metadata before trading it. The same
 `get_product()` call works for an expiring CFM contract by passing its
@@ -375,17 +404,19 @@ open_shorts <- trading$get_orders(
   order_status = "OPEN",
   limit = 50
 )
-open_shorts[, .(order_id, product_id, side, status, base_size, limit_price, created_time)]
+open_shorts[, .(order_id, product_id, side, status, base_size, limit_price, timestamp)]
 ```
 
-    #>                                order_id product_id   side status base_size
-    #>                                  <char>     <char> <char> <char>     <num>
-    #> 1: 1111aaaa-2222-bbbb-3333-cccccccccccc    BTC-USD    BUY   OPEN     0.001
-    #> 2: 4444dddd-5555-eeee-6666-ffffffffffff    ETH-USD   SELL FILLED     0.500
-    #>    limit_price        created_time
+    #>                                order_id product_id   side    status base_size
+    #>                                  <char>     <char> <char>    <char>     <num>
+    #> 1: 00000000-0000-4000-8000-00000000001c    LTC-USD    BUY CANCELLED        10
+    #> 2: 00000000-0000-4000-8000-00000000001e    LTC-USD    BUY CANCELLED        10
+    #> 3: 00000000-0000-4000-8000-000000000020   LTC-USDC    BUY CANCELLED        10
+    #>    limit_price           timestamp
     #>          <num>              <POSc>
-    #> 1:       70000 2026-05-30 18:30:00
-    #> 2:          NA 2026-05-30 18:31:00
+    #> 1:          10 2025-02-03 02:45:09
+    #> 2:          10 2025-02-03 02:38:33
+    #> 3:          10 2025-02-03 02:33:31
 
 ### Fills
 
@@ -398,14 +429,14 @@ fills <- trading$get_fills(
   product_ids = "BIT-31OCT26-CDE",
   sort_by = "TRADE_TIME"
 )
-fills[, .(trade_id, order_id, product_id, side, price, size, commission, trade_time)]
+fills[, .(trade_id, order_id, product_id, side, price, size, commission, timestamp)]
 ```
 
     #>      trade_id                             order_id product_id   side  price
     #>        <char>                               <char>     <char> <char>  <num>
     #> 1: trade-0001 4444dddd-5555-eeee-6666-ffffffffffff    ETH-USD   SELL 3850.2
     #> 2: trade-0002 4444dddd-5555-eeee-6666-ffffffffffff    ETH-USD   SELL 3850.2
-    #>     size commission          trade_time
+    #>     size commission           timestamp
     #>    <num>      <num>              <POSc>
     #> 1:   0.3       4.62 2026-05-30 18:31:02
     #> 2:   0.2       3.08 2026-05-30 18:31:03

@@ -2,9 +2,15 @@
 
 Constructs an
 [httr2::request](https://httr2.r-lib.org/reference/request.html),
-optionally attaches a signed JWT, performs it via the supplied
-`.perform` function, and parses the JSON response. This is the single
-point through which all Coinbase API calls flow.
+optionally JWT-signs it, performs it (sync or async), and parses the
+Coinbase response envelope. This is the single point through which all
+Coinbase API calls flow; it is a thin Coinbase-specific wrapper over
+[`connectcore::build_request()`](https://rdrr.io/pkg/connectcore/man/build_request.html)
+that injects the two seams that differ per venue — JWT signing (the
+internal `coinbase_jwt_sign()`) and the Coinbase error/empty-body
+envelope (the internal `parse_coinbase_response()`). Everything else
+(the sync/async branch, NULL-field stripping, the JSON body, retry,
+throttle) comes from connectcore.
 
 ## Usage
 
@@ -27,51 +33,54 @@ coinbase_build_request(
 
 - base_url:
 
-  Character; the API base URL (scheme + host).
+  (scalar\<character\>) the API base URL (scheme + host).
 
 - endpoint:
 
-  Character; the API path.
+  (scalar\<character\>) the API path.
 
 - method:
 
-  Character; HTTP method. Default `"GET"`.
+  (scalar\<character\>) HTTP method. Default `"GET"`.
 
 - query:
 
-  Named list; query parameters. Default
+  (list) query parameters. Default
   [`list()`](https://rdrr.io/r/base/list.html).
 
 - body:
 
-  Named list or NULL; request body. Default `NULL`.
+  (list \| NULL) request body. Default `NULL`.
 
 - keys:
 
-  List or NULL; API credentials. When non-NULL the request is signed.
+  (list \| NULL) API credentials. When non-NULL the request is signed.
   Default `NULL`.
 
 - .perform:
 
-  Function; the httr2 perform function. Default
+  (function) the httr2 perform function. Default
   [`httr2::req_perform`](https://httr2.r-lib.org/reference/req_perform.html).
 
 - .parser:
 
-  Function; post-processing applied to the parsed response body. Default
-  `identity`.
+  (function) post-processing applied to the parsed response body.
+  Default `identity`.
 
 - is_async:
 
-  Logical; whether `.perform` returns promises. Default `FALSE`.
+  (scalar\<logical\>) whether `.perform` returns promises. Default
+  `FALSE`.
 
 - timeout:
 
-  Numeric; request timeout in seconds. Default `30`.
+  (scalar\<numeric in \]0, Inf\[\>) request timeout in seconds. Default
+  `30`.
 
 ## Value
 
-Parsed and post-processed API response data, or a promise thereof.
+(any \| promise\<any\>) parsed and post-processed API response data, or
+a promise thereof.
 
 ## Details
 
@@ -80,8 +89,7 @@ Parsed and post-processed API response data, or a promise thereof.
 The `.perform` argument controls execution mode:
 
 - [`httr2::req_perform`](https://httr2.r-lib.org/reference/req_perform.html)
-  (default): synchronous, returns an
-  [httr2::response](https://httr2.r-lib.org/reference/response.html).
+  (default): synchronous, returns the parsed data.
 
 - [`httr2::req_perform_promise`](https://httr2.r-lib.org/reference/req_perform_promise.html):
   asynchronous, returns a

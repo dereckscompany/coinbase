@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">coinbase</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -61,7 +61,7 @@
       <h1>Package Tour and Data-Shape Conventions</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/dereckscompany/coinbase/blob/v0.0.1/vignettes/data-shapes.Rmd" class="external-link"><code>vignettes/data-shapes.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/dereckscompany/coinbase/blob/master/vignettes/data-shapes.Rmd" class="external-link"><code>vignettes/data-shapes.Rmd</code></a></small>
       <div class="d-none name"><code>data-shapes.Rmd</code></div>
     </div>
 
@@ -297,26 +297,142 @@ the point of use.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">products</span> <span class="op">&lt;-</span> <span class="va">market</span><span class="op">$</span><span class="fu">get_products</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">products</span><span class="op">[</span><span class="op">]</span></span></code></pre></div>
-<pre><code><span><span class="co">#&gt;         id base_currency quote_currency quote_increment base_increment</span></span>
-<span><span class="co">#&gt;     &lt;char&gt;        &lt;char&gt;         &lt;char&gt;          &lt;char&gt;         &lt;char&gt;</span></span>
-<span><span class="co">#&gt; 1: BTC-USD           BTC            USD            0.01     0.00000001</span></span>
-<span><span class="co">#&gt; 2: ETH-USD           ETH            USD            0.01     0.00000001</span></span>
-<span><span class="co">#&gt; 3: SOL-USD           SOL            USD            0.01     0.00000001</span></span>
-<span><span class="co">#&gt;    display_name min_market_funds margin_enabled post_only limit_only</span></span>
-<span><span class="co">#&gt;          &lt;char&gt;           &lt;char&gt;         &lt;lgcl&gt;    &lt;lgcl&gt;     &lt;lgcl&gt;</span></span>
-<span><span class="co">#&gt; 1:      BTC-USD                1          FALSE     FALSE      FALSE</span></span>
-<span><span class="co">#&gt; 2:      ETH-USD                1          FALSE     FALSE      FALSE</span></span>
-<span><span class="co">#&gt; 3:      SOL-USD                1          FALSE     FALSE      FALSE</span></span>
-<span><span class="co">#&gt;    cancel_only status status_message trading_disabled fx_stablecoin</span></span>
-<span><span class="co">#&gt;         &lt;lgcl&gt; &lt;char&gt;         &lt;char&gt;           &lt;lgcl&gt;        &lt;lgcl&gt;</span></span>
-<span><span class="co">#&gt; 1:       FALSE online                           FALSE         FALSE</span></span>
-<span><span class="co">#&gt; 2:       FALSE online                           FALSE         FALSE</span></span>
-<span><span class="co">#&gt; 3:       FALSE online                           FALSE         FALSE</span></span>
-<span><span class="co">#&gt;    max_slippage_percentage auction_mode high_bid_limit_percentage</span></span>
-<span><span class="co">#&gt;                     &lt;char&gt;       &lt;lgcl&gt;                    &lt;char&gt;</span></span>
-<span><span class="co">#&gt; 1:              0.02000000        FALSE                          </span></span>
-<span><span class="co">#&gt; 2:              0.02000000        FALSE                          </span></span>
-<span><span class="co">#&gt; 3:              0.02000000        FALSE</span></span></code></pre>
+<pre><code><span><span class="co">#&gt;               id base_currency quote_currency quote_increment base_increment</span></span>
+<span><span class="co">#&gt;           &lt;char&gt;        &lt;char&gt;         &lt;char&gt;          &lt;char&gt;         &lt;char&gt;</span></span>
+<span><span class="co">#&gt;  1:      SOL-USD           SOL            USD            0.01     0.00000001</span></span>
+<span><span class="co">#&gt;  2:      BTC-USD           BTC            USD            0.01     0.00000001</span></span>
+<span><span class="co">#&gt;  3:      ETH-USD           ETH            USD            0.01     0.00000001</span></span>
+<span><span class="co">#&gt;  4:      AVT-USD           AVT            USD            0.01           0.01</span></span>
+<span><span class="co">#&gt;  5:      XYO-BTC           XYO            BTC      0.00000001            0.1</span></span>
+<span><span class="co">#&gt;  6:     SHIB-GBP          SHIB            GBP      0.00000001              1</span></span>
+<span><span class="co">#&gt;  7:     TREE-USD          TREE            USD          0.0001           0.01</span></span>
+<span><span class="co">#&gt;  8:     BLUR-USD          BLUR            USD          0.0001            0.1</span></span>
+<span><span class="co">#&gt;  9:     FLOW-USD          FLOW            USD         0.00001          0.001</span></span>
+<span><span class="co">#&gt; 10:       B3-USD            B3            USD        0.000001              1</span></span>
+<span><span class="co">#&gt; 11:    SUSHI-EUR         SUSHI            EUR          0.0001           0.01</span></span>
+<span><span class="co">#&gt; 12:      FET-USD           FET            USD          0.0001            0.1</span></span>
+<span><span class="co">#&gt; 13:    LINK-USDT          LINK           USDT            0.01          0.001</span></span>
+<span><span class="co">#&gt; 14:     WCFG-BTC          WCFG            BTC      0.00000001           0.01</span></span>
+<span><span class="co">#&gt; 15:      DOT-EUR           DOT            EUR            0.01          0.001</span></span>
+<span><span class="co">#&gt; 16:      OMG-GBP           OMG            GBP          0.0001            0.1</span></span>
+<span><span class="co">#&gt; 17:     LRC-USDT           LRC           USDT          0.0001           0.01</span></span>
+<span><span class="co">#&gt; 18:     BOBA-USD          BOBA            USD          0.0001            0.1</span></span>
+<span><span class="co">#&gt; 19:    SUKU-USDT          SUKU           USDT          0.0001            0.1</span></span>
+<span><span class="co">#&gt; 20:     DYP-USDT           DYP           USDT         0.00001            0.1</span></span>
+<span><span class="co">#&gt; 21:    MASK-USDT          MASK           USDT            0.01           0.01</span></span>
+<span><span class="co">#&gt; 22:     USDC-CAD          USDC            CAD          0.0001           0.01</span></span>
+<span><span class="co">#&gt; 23: FARTCOIN-USD      FARTCOIN            USD          0.0001           0.01</span></span>
+<span><span class="co">#&gt; 24:     OMNI-USD          OMNI            USD           0.001           0.01</span></span>
+<span><span class="co">#&gt; 25:      PNG-USD           PNG            USD         0.00001              1</span></span>
+<span><span class="co">#&gt; 26:     APE-USDT           APE           USDT           0.001           0.01</span></span>
+<span><span class="co">#&gt; 27:    WLUNA-GBP         WLUNA            GBP      0.00000001          0.001</span></span>
+<span><span class="co">#&gt; 28:    DOGE-USDT          DOGE           USDT          0.0001            0.1</span></span>
+<span><span class="co">#&gt; 29:     GEOD-USD          GEOD            USD          0.0001            0.1</span></span>
+<span><span class="co">#&gt; 30:      REQ-BTC           REQ            BTC      0.00000001              1</span></span>
+<span><span class="co">#&gt;               id base_currency quote_currency quote_increment base_increment</span></span>
+<span><span class="co">#&gt;           &lt;char&gt;        &lt;char&gt;         &lt;char&gt;          &lt;char&gt;         &lt;char&gt;</span></span>
+<span><span class="co">#&gt;     display_name min_market_funds margin_enabled post_only limit_only</span></span>
+<span><span class="co">#&gt;           &lt;char&gt;           &lt;char&gt;         &lt;lgcl&gt;    &lt;lgcl&gt;     &lt;lgcl&gt;</span></span>
+<span><span class="co">#&gt;  1:      SOL-USD                1          FALSE     FALSE      FALSE</span></span>
+<span><span class="co">#&gt;  2:      BTC-USD                1          FALSE     FALSE      FALSE</span></span>
+<span><span class="co">#&gt;  3:      ETH-USD                1          FALSE     FALSE      FALSE</span></span>
+<span><span class="co">#&gt;  4:      AVT-USD                1          FALSE     FALSE      FALSE</span></span>
+<span><span class="co">#&gt;  5:      XYO-BTC         0.000016          FALSE     FALSE      FALSE</span></span>
+<span><span class="co">#&gt;  6:     SHIB-GBP             0.72          FALSE     FALSE      FALSE</span></span>
+<span><span class="co">#&gt;  7:     TREE/USD                1          FALSE     FALSE      FALSE</span></span>
+<span><span class="co">#&gt;  8:     BLUR-USD                1          FALSE     FALSE      FALSE</span></span>
+<span><span class="co">#&gt;  9:     FLOW-USD                1          FALSE     FALSE      FALSE</span></span>
+<span><span class="co">#&gt; 10:       B3/USD                1          FALSE     FALSE      FALSE</span></span>
+<span><span class="co">#&gt; 11:    SUSHI-EUR             0.84          FALSE     FALSE      FALSE</span></span>
+<span><span class="co">#&gt; 12:      FET-USD                1          FALSE     FALSE      FALSE</span></span>
+<span><span class="co">#&gt; 13:    LINK-USDT                1          FALSE     FALSE      FALSE</span></span>
+<span><span class="co">#&gt; 14:     WCFG-BTC         0.000016          FALSE     FALSE      FALSE</span></span>
+<span><span class="co">#&gt; 15:      DOT-EUR             0.84          FALSE     FALSE      FALSE</span></span>
+<span><span class="co">#&gt; 16:      OMG-GBP             0.72          FALSE     FALSE      FALSE</span></span>
+<span><span class="co">#&gt; 17:     LRC-USDT                1          FALSE     FALSE      FALSE</span></span>
+<span><span class="co">#&gt; 18:     BOBA-USD                1          FALSE     FALSE      FALSE</span></span>
+<span><span class="co">#&gt; 19:    SUKU-USDT                1          FALSE     FALSE      FALSE</span></span>
+<span><span class="co">#&gt; 20:     DYP-USDT                1          FALSE     FALSE      FALSE</span></span>
+<span><span class="co">#&gt; 21:    MASK-USDT                1          FALSE     FALSE      FALSE</span></span>
+<span><span class="co">#&gt; 22:     USDC/CAD                1          FALSE     FALSE      FALSE</span></span>
+<span><span class="co">#&gt; 23: FARTCOIN/USD                1          FALSE     FALSE      FALSE</span></span>
+<span><span class="co">#&gt; 24:     OMNI/USD                1          FALSE     FALSE      FALSE</span></span>
+<span><span class="co">#&gt; 25:      PNG-USD                1          FALSE     FALSE      FALSE</span></span>
+<span><span class="co">#&gt; 26:     APE-USDT                1          FALSE     FALSE      FALSE</span></span>
+<span><span class="co">#&gt; 27:    WLUNA-GBP             0.72          FALSE     FALSE      FALSE</span></span>
+<span><span class="co">#&gt; 28:    DOGE-USDT                1          FALSE     FALSE      FALSE</span></span>
+<span><span class="co">#&gt; 29:     GEOD/USD                1          FALSE     FALSE      FALSE</span></span>
+<span><span class="co">#&gt; 30:      REQ-BTC         0.000016          FALSE     FALSE      FALSE</span></span>
+<span><span class="co">#&gt;     display_name min_market_funds margin_enabled post_only limit_only</span></span>
+<span><span class="co">#&gt;           &lt;char&gt;           &lt;char&gt;         &lt;lgcl&gt;    &lt;lgcl&gt;     &lt;lgcl&gt;</span></span>
+<span><span class="co">#&gt;     cancel_only   status status_message trading_disabled fx_stablecoin</span></span>
+<span><span class="co">#&gt;          &lt;lgcl&gt;   &lt;char&gt;         &lt;char&gt;           &lt;lgcl&gt;        &lt;lgcl&gt;</span></span>
+<span><span class="co">#&gt;  1:       FALSE   online                           FALSE         FALSE</span></span>
+<span><span class="co">#&gt;  2:       FALSE   online                           FALSE         FALSE</span></span>
+<span><span class="co">#&gt;  3:       FALSE   online                           FALSE         FALSE</span></span>
+<span><span class="co">#&gt;  4:       FALSE   online                           FALSE         FALSE</span></span>
+<span><span class="co">#&gt;  5:       FALSE delisted                            TRUE         FALSE</span></span>
+<span><span class="co">#&gt;  6:       FALSE   online                           FALSE         FALSE</span></span>
+<span><span class="co">#&gt;  7:       FALSE   online                           FALSE         FALSE</span></span>
+<span><span class="co">#&gt;  8:       FALSE   online                           FALSE         FALSE</span></span>
+<span><span class="co">#&gt;  9:       FALSE   online                           FALSE         FALSE</span></span>
+<span><span class="co">#&gt; 10:       FALSE   online                           FALSE         FALSE</span></span>
+<span><span class="co">#&gt; 11:       FALSE delisted                            TRUE         FALSE</span></span>
+<span><span class="co">#&gt; 12:       FALSE   online                           FALSE         FALSE</span></span>
+<span><span class="co">#&gt; 13:       FALSE   online                           FALSE         FALSE</span></span>
+<span><span class="co">#&gt; 14:       FALSE delisted                            TRUE         FALSE</span></span>
+<span><span class="co">#&gt; 15:       FALSE   online                           FALSE         FALSE</span></span>
+<span><span class="co">#&gt; 16:       FALSE delisted                            TRUE         FALSE</span></span>
+<span><span class="co">#&gt; 17:       FALSE delisted                            TRUE         FALSE</span></span>
+<span><span class="co">#&gt; 18:       FALSE   online                           FALSE         FALSE</span></span>
+<span><span class="co">#&gt; 19:       FALSE delisted                            TRUE         FALSE</span></span>
+<span><span class="co">#&gt; 20:       FALSE delisted                            TRUE         FALSE</span></span>
+<span><span class="co">#&gt; 21:       FALSE delisted                            TRUE         FALSE</span></span>
+<span><span class="co">#&gt; 22:       FALSE   online                           FALSE          TRUE</span></span>
+<span><span class="co">#&gt; 23:       FALSE   online                           FALSE         FALSE</span></span>
+<span><span class="co">#&gt; 24:       FALSE   online                           FALSE         FALSE</span></span>
+<span><span class="co">#&gt; 25:       FALSE   online                           FALSE         FALSE</span></span>
+<span><span class="co">#&gt; 26:       FALSE   online                           FALSE         FALSE</span></span>
+<span><span class="co">#&gt; 27:       FALSE delisted                            TRUE         FALSE</span></span>
+<span><span class="co">#&gt; 28:       FALSE   online                           FALSE         FALSE</span></span>
+<span><span class="co">#&gt; 29:       FALSE   online                           FALSE         FALSE</span></span>
+<span><span class="co">#&gt; 30:       FALSE delisted                            TRUE         FALSE</span></span>
+<span><span class="co">#&gt;     cancel_only   status status_message trading_disabled fx_stablecoin</span></span>
+<span><span class="co">#&gt;          &lt;lgcl&gt;   &lt;char&gt;         &lt;char&gt;           &lt;lgcl&gt;        &lt;lgcl&gt;</span></span>
+<span><span class="co">#&gt;     max_slippage_percentage auction_mode high_bid_limit_percentage</span></span>
+<span><span class="co">#&gt;                      &lt;char&gt;       &lt;lgcl&gt;                    &lt;char&gt;</span></span>
+<span><span class="co">#&gt;  1:              0.03000000        FALSE                          </span></span>
+<span><span class="co">#&gt;  2:              0.02000000        FALSE                          </span></span>
+<span><span class="co">#&gt;  3:              0.02000000        FALSE                          </span></span>
+<span><span class="co">#&gt;  4:              0.05000000        FALSE                          </span></span>
+<span><span class="co">#&gt;  5:              0.03000000        FALSE                          </span></span>
+<span><span class="co">#&gt;  6:              0.03000000        FALSE                          </span></span>
+<span><span class="co">#&gt;  7:              0.03000000        FALSE                          </span></span>
+<span><span class="co">#&gt;  8:              0.03000000        FALSE                          </span></span>
+<span><span class="co">#&gt;  9:              0.03000000        FALSE                          </span></span>
+<span><span class="co">#&gt; 10:              0.03000000        FALSE                          </span></span>
+<span><span class="co">#&gt; 11:              0.03000000        FALSE                          </span></span>
+<span><span class="co">#&gt; 12:              0.03000000        FALSE                          </span></span>
+<span><span class="co">#&gt; 13:              0.03000000        FALSE                          </span></span>
+<span><span class="co">#&gt; 14:              0.03000000        FALSE                          </span></span>
+<span><span class="co">#&gt; 15:              0.03000000        FALSE                          </span></span>
+<span><span class="co">#&gt; 16:              0.03000000        FALSE                          </span></span>
+<span><span class="co">#&gt; 17:              0.03000000        FALSE                          </span></span>
+<span><span class="co">#&gt; 18:              0.03000000        FALSE                          </span></span>
+<span><span class="co">#&gt; 19:              0.03000000        FALSE                          </span></span>
+<span><span class="co">#&gt; 20:              0.03000000        FALSE                          </span></span>
+<span><span class="co">#&gt; 21:              0.05000000        FALSE                          </span></span>
+<span><span class="co">#&gt; 22:              0.01000000        FALSE                0.03000000</span></span>
+<span><span class="co">#&gt; 23:              0.03000000        FALSE                          </span></span>
+<span><span class="co">#&gt; 24:              0.03000000        FALSE                          </span></span>
+<span><span class="co">#&gt; 25:              0.05000000        FALSE                          </span></span>
+<span><span class="co">#&gt; 26:              0.03000000        FALSE                          </span></span>
+<span><span class="co">#&gt; 27:              0.10000000        FALSE                          </span></span>
+<span><span class="co">#&gt; 28:              0.03000000        FALSE                          </span></span>
+<span><span class="co">#&gt; 29:              0.03000000        FALSE                          </span></span>
+<span><span class="co">#&gt; 30:              0.03000000        FALSE                          </span></span>
+<span><span class="co">#&gt;     max_slippage_percentage auction_mode high_bid_limit_percentage</span></span>
+<span><span class="co">#&gt;                      &lt;char&gt;       &lt;lgcl&gt;                    &lt;char&gt;</span></span></code></pre>
 <p>A single product is the same row shape:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">market</span><span class="op">$</span><span class="fu">get_product</span><span class="op">(</span><span class="st">"BTC-USD"</span><span class="op">)</span><span class="op">[</span><span class="op">]</span></span></code></pre></div>
@@ -382,12 +498,19 @@ into the canonical layout and sorts ascending. Exactly six columns:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">candles</span> <span class="op">&lt;-</span> <span class="va">market</span><span class="op">$</span><span class="fu">get_ohlcv</span><span class="op">(</span><span class="st">"BTC-USD"</span>, granularity <span class="op">=</span> <span class="st">"1min"</span><span class="op">)</span></span>
 <span><span class="va">candles</span><span class="op">[</span>, <span class="fu">.</span><span class="op">(</span><span class="va">datetime</span>, <span class="va">open</span>, <span class="va">high</span>, <span class="va">low</span>, <span class="va">close</span>, <span class="va">volume</span><span class="op">)</span><span class="op">]</span></span></code></pre></div>
-<pre><code><span><span class="co">#&gt;               datetime     open     high      low    close volume</span></span>
-<span><span class="co">#&gt;                 &lt;POSc&gt;    &lt;num&gt;    &lt;num&gt;    &lt;num&gt;    &lt;num&gt;  &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1: 2026-05-31 04:53:00 74055.40 74070.12 74050.00 74067.15 1.4820</span></span>
-<span><span class="co">#&gt; 2: 2026-05-31 04:54:00 74113.49 74113.49 74067.15 74068.26 3.0535</span></span>
-<span><span class="co">#&gt; 3: 2026-05-31 04:55:00 74068.26 74093.61 74068.26 74093.60 0.9691</span></span>
-<span><span class="co">#&gt; 4: 2026-05-31 04:56:00 74093.60 74099.83 74093.59 74099.83 0.1151</span></span></code></pre>
+<pre><code><span><span class="co">#&gt;                 datetime     open     high      low    close    volume</span></span>
+<span><span class="co">#&gt;                   &lt;POSc&gt;    &lt;num&gt;    &lt;num&gt;    &lt;num&gt;    &lt;num&gt;     &lt;num&gt;</span></span>
+<span><span class="co">#&gt;   1: 2026-06-27 11:53:00 60239.24 60259.03 60237.18 60254.55 0.5974811</span></span>
+<span><span class="co">#&gt;   2: 2026-06-27 11:54:00 60254.55 60259.22 60245.28 60253.71 1.3447478</span></span>
+<span><span class="co">#&gt;   3: 2026-06-27 11:55:00 60253.71 60277.48 60253.35 60261.37 1.9928412</span></span>
+<span><span class="co">#&gt;   4: 2026-06-27 11:56:00 60261.37 60271.22 60261.37 60267.93 0.5881228</span></span>
+<span><span class="co">#&gt;   5: 2026-06-27 11:57:00 60267.94 60275.14 60267.93 60275.14 1.4672205</span></span>
+<span><span class="co">#&gt;  ---                                                                  </span></span>
+<span><span class="co">#&gt; 346: 2026-06-27 17:38:00 60488.71 60542.10 60486.43 60531.97 0.8154508</span></span>
+<span><span class="co">#&gt; 347: 2026-06-27 17:39:00 60531.98 60557.40 60490.84 60498.00 3.7195266</span></span>
+<span><span class="co">#&gt; 348: 2026-06-27 17:40:00 60499.25 60510.05 60490.08 60506.00 0.6947636</span></span>
+<span><span class="co">#&gt; 349: 2026-06-27 17:41:00 60506.00 60509.35 60494.01 60500.51 0.9226553</span></span>
+<span><span class="co">#&gt; 350: 2026-06-27 17:42:00 60500.51 60510.05 60500.51 60510.04 0.0020467</span></span></code></pre>
 <p><code>granularity</code> is one of <code>"1min"</code>,
 <code>"5min"</code>, <code>"15min"</code>, <code>"1hour"</code>,
 <code>"6hour"</code>, <code>"1day"</code>.</p>
@@ -426,22 +549,120 @@ exactly five typed columns:</p>
 <td></td>
 </tr>
 <tr class="odd">
-<td><code>time</code></td>
+<td><code>timestamp</code></td>
 <td>
 <code>POSIXct</code> (UTC)</td>
-<td></td>
+<td>trade time</td>
 </tr>
 </tbody>
 </table>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">trades</span> <span class="op">&lt;-</span> <span class="va">market</span><span class="op">$</span><span class="fu">get_trades</span><span class="op">(</span><span class="st">"BTC-USD"</span>, limit <span class="op">=</span> <span class="fl">1000L</span><span class="op">)</span></span>
 <span><span class="va">trades</span><span class="op">[</span><span class="op">]</span></span></code></pre></div>
-<pre><code><span><span class="co">#&gt;      trade_id   side    price       size                time</span></span>
-<span><span class="co">#&gt;         &lt;num&gt; &lt;char&gt;    &lt;num&gt;      &lt;num&gt;              &lt;POSc&gt;</span></span>
-<span><span class="co">#&gt; 1: 1026942323   sell 74101.53 0.00000052 2026-05-31 04:58:29</span></span>
-<span><span class="co">#&gt; 2: 1026942322   sell 74101.53 0.00000240 2026-05-31 04:58:29</span></span>
-<span><span class="co">#&gt; 3: 1026942321    buy 74101.54 0.00058315 2026-05-31 04:58:29</span></span>
-<span><span class="co">#&gt; 4: 1026942320    buy 74100.98 0.01200000 2026-05-31 04:58:28</span></span></code></pre>
+<pre><code><span><span class="co">#&gt;        trade_id   side    price       size           timestamp</span></span>
+<span><span class="co">#&gt;           &lt;num&gt; &lt;char&gt;    &lt;num&gt;      &lt;num&gt;              &lt;POSc&gt;</span></span>
+<span><span class="co">#&gt;   1: 1045278643    buy 60488.38 0.00856426 2026-06-27 17:45:13</span></span>
+<span><span class="co">#&gt;   2: 1045278642    buy 60488.38 0.02143574 2026-06-27 17:45:13</span></span>
+<span><span class="co">#&gt;   3: 1045278641    buy 60488.40 0.00576070 2026-06-27 17:45:13</span></span>
+<span><span class="co">#&gt;   4: 1045278640    buy 60488.40 0.00888583 2026-06-27 17:45:13</span></span>
+<span><span class="co">#&gt;   5: 1045278639    buy 60488.40 0.00888601 2026-06-27 17:45:13</span></span>
+<span><span class="co">#&gt;   6: 1045278638    buy 60488.40 0.00058961 2026-06-27 17:45:13</span></span>
+<span><span class="co">#&gt;   7: 1045278637    buy 60488.40 0.03000000 2026-06-27 17:45:13</span></span>
+<span><span class="co">#&gt;   8: 1045278636    buy 60488.40 0.00028771 2026-06-27 17:45:13</span></span>
+<span><span class="co">#&gt;   9: 1045278635   sell 60487.02 0.00001900 2026-06-27 17:45:12</span></span>
+<span><span class="co">#&gt;  10: 1045278634   sell 60484.45 0.00980494 2026-06-27 17:45:12</span></span>
+<span><span class="co">#&gt;  11: 1045278633   sell 60484.44 0.02650802 2026-06-27 17:45:12</span></span>
+<span><span class="co">#&gt;  12: 1045278632   sell 60484.44 0.01280134 2026-06-27 17:45:12</span></span>
+<span><span class="co">#&gt;  13: 1045278631   sell 60484.44 0.14964316 2026-06-27 17:45:12</span></span>
+<span><span class="co">#&gt;  14: 1045278630   sell 60484.44 0.02194518 2026-06-27 17:45:12</span></span>
+<span><span class="co">#&gt;  15: 1045278629   sell 60484.44 0.02959940 2026-06-27 17:45:12</span></span>
+<span><span class="co">#&gt;  16: 1045278628   sell 60484.43 0.01564455 2026-06-27 17:45:12</span></span>
+<span><span class="co">#&gt;  17: 1045278627    buy 60483.95 0.00000005 2026-06-27 17:45:12</span></span>
+<span><span class="co">#&gt;  18: 1045278626   sell 60483.96 0.00068672 2026-06-27 17:45:12</span></span>
+<span><span class="co">#&gt;  19: 1045278625   sell 60483.96 0.00001900 2026-06-27 17:45:12</span></span>
+<span><span class="co">#&gt;  20: 1045278624    buy 60483.95 0.00000006 2026-06-27 17:45:12</span></span>
+<span><span class="co">#&gt;  21: 1045278623    buy 60483.95 0.00000007 2026-06-27 17:45:11</span></span>
+<span><span class="co">#&gt;  22: 1045278622   sell 60475.98 0.00082677 2026-06-27 17:45:11</span></span>
+<span><span class="co">#&gt;  23: 1045278621   sell 60475.88 0.00248032 2026-06-27 17:45:11</span></span>
+<span><span class="co">#&gt;  24: 1045278620    buy 60475.87 0.00000016 2026-06-27 17:45:11</span></span>
+<span><span class="co">#&gt;  25: 1045278619    buy 60475.87 0.00000043 2026-06-27 17:45:10</span></span>
+<span><span class="co">#&gt;  26: 1045278618   sell 60478.00 0.00446795 2026-06-27 17:45:10</span></span>
+<span><span class="co">#&gt;  27: 1045278617   sell 60476.07 0.00082678 2026-06-27 17:45:10</span></span>
+<span><span class="co">#&gt;  28: 1045278616   sell 60476.00 0.00560000 2026-06-27 17:45:10</span></span>
+<span><span class="co">#&gt;  29: 1045278615   sell 60475.37 0.00248034 2026-06-27 17:45:10</span></span>
+<span><span class="co">#&gt;  30: 1045278614   sell 60475.37 0.00298868 2026-06-27 17:45:10</span></span>
+<span><span class="co">#&gt;  31: 1045278613    buy 60475.36 0.00000003 2026-06-27 17:45:10</span></span>
+<span><span class="co">#&gt;  32: 1045278612    buy 60475.36 0.00000006 2026-06-27 17:45:09</span></span>
+<span><span class="co">#&gt;  33: 1045278611    buy 60475.36 0.00000006 2026-06-27 17:45:09</span></span>
+<span><span class="co">#&gt;  34: 1045278610   sell 60475.37 0.00570965 2026-06-27 17:45:08</span></span>
+<span><span class="co">#&gt;  35: 1045278609   sell 60475.37 0.00232489 2026-06-27 17:45:08</span></span>
+<span><span class="co">#&gt;  36: 1045278608    buy 60475.36 0.00000011 2026-06-27 17:45:08</span></span>
+<span><span class="co">#&gt;  37: 1045278607    buy 60475.36 0.00000004 2026-06-27 17:45:08</span></span>
+<span><span class="co">#&gt;  38: 1045278606    buy 60475.36 0.00000019 2026-06-27 17:45:07</span></span>
+<span><span class="co">#&gt;  39: 1045278605    buy 60475.36 0.00000037 2026-06-27 17:45:07</span></span>
+<span><span class="co">#&gt;  40: 1045278604    buy 60475.36 0.00000004 2026-06-27 17:45:06</span></span>
+<span><span class="co">#&gt;  41: 1045278603    buy 60475.36 0.00000019 2026-06-27 17:45:05</span></span>
+<span><span class="co">#&gt;  42: 1045278602   sell 60475.37 0.00015545 2026-06-27 17:45:05</span></span>
+<span><span class="co">#&gt;  43: 1045278601    buy 60475.36 0.00000018 2026-06-27 17:45:05</span></span>
+<span><span class="co">#&gt;  44: 1045278600    buy 60475.36 0.00691324 2026-06-27 17:45:04</span></span>
+<span><span class="co">#&gt;  45: 1045278599    buy 60475.36 0.00000024 2026-06-27 17:45:04</span></span>
+<span><span class="co">#&gt;  46: 1045278598    buy 60475.36 0.00000006 2026-06-27 17:45:04</span></span>
+<span><span class="co">#&gt;  47: 1045278597   sell 60475.37 0.00157425 2026-06-27 17:45:04</span></span>
+<span><span class="co">#&gt;  48: 1045278596   sell 60475.37 0.00171634 2026-06-27 17:45:04</span></span>
+<span><span class="co">#&gt;  49: 1045278595   sell 60475.37 0.00080334 2026-06-27 17:45:03</span></span>
+<span><span class="co">#&gt;  50: 1045278594    buy 60475.36 0.00138159 2026-06-27 17:45:03</span></span>
+<span><span class="co">#&gt;  51: 1045278593    buy 60475.36 0.00001413 2026-06-27 17:45:03</span></span>
+<span><span class="co">#&gt;  52: 1045278592    buy 60475.36 0.00000005 2026-06-27 17:45:03</span></span>
+<span><span class="co">#&gt;  53: 1045278591    buy 60475.36 0.00000006 2026-06-27 17:45:02</span></span>
+<span><span class="co">#&gt;  54: 1045278590   sell 60475.37 0.00094070 2026-06-27 17:45:02</span></span>
+<span><span class="co">#&gt;  55: 1045278589    buy 60475.36 0.00000014 2026-06-27 17:45:01</span></span>
+<span><span class="co">#&gt;  56: 1045278588   sell 60475.37 0.00068000 2026-06-27 17:45:01</span></span>
+<span><span class="co">#&gt;  57: 1045278587    buy 60475.37 0.00254302 2026-06-27 17:45:01</span></span>
+<span><span class="co">#&gt;  58: 1045278586    buy 60477.84 0.00035980 2026-06-27 17:45:01</span></span>
+<span><span class="co">#&gt;  59: 1045278585    buy 60477.84 0.00001885 2026-06-27 17:45:01</span></span>
+<span><span class="co">#&gt;  60: 1045278584   sell 60477.85 0.00435294 2026-06-27 17:45:01</span></span>
+<span><span class="co">#&gt;  61: 1045278583    buy 60477.84 0.00000015 2026-06-27 17:45:01</span></span>
+<span><span class="co">#&gt;  62: 1045278582    buy 60480.00 0.00076067 2026-06-27 17:45:00</span></span>
+<span><span class="co">#&gt;  63: 1045278581    buy 60480.90 0.00001900 2026-06-27 17:45:00</span></span>
+<span><span class="co">#&gt;  64: 1045278580    buy 60483.96 0.00001900 2026-06-27 17:45:00</span></span>
+<span><span class="co">#&gt;  65: 1045278579    buy 60487.02 0.00001900 2026-06-27 17:45:00</span></span>
+<span><span class="co">#&gt;  66: 1045278578    buy 60490.08 0.00001862 2026-06-27 17:45:00</span></span>
+<span><span class="co">#&gt;  67: 1045278577    buy 60493.14 0.00001900 2026-06-27 17:45:00</span></span>
+<span><span class="co">#&gt;  68: 1045278576    buy 60493.15 0.00770661 2026-06-27 17:45:00</span></span>
+<span><span class="co">#&gt;  69: 1045278575    buy 60493.16 0.00009918 2026-06-27 17:45:00</span></span>
+<span><span class="co">#&gt;  70: 1045278574    buy 60496.20 0.00007008 2026-06-27 17:45:00</span></span>
+<span><span class="co">#&gt;  71: 1045278573    buy 60496.20 0.00001889 2026-06-27 17:45:00</span></span>
+<span><span class="co">#&gt;  72: 1045278572    buy 60499.26 0.00001317 2026-06-27 17:45:00</span></span>
+<span><span class="co">#&gt;  73: 1045278571    buy 60499.26 0.00001236 2026-06-27 17:45:00</span></span>
+<span><span class="co">#&gt;  74: 1045278570    buy 60499.26 0.00018764 2026-06-27 17:45:00</span></span>
+<span><span class="co">#&gt;  75: 1045278569    buy 60499.26 0.00000723 2026-06-27 17:45:00</span></span>
+<span><span class="co">#&gt;  76: 1045278568    buy 60499.26 0.00003303 2026-06-27 17:45:00</span></span>
+<span><span class="co">#&gt;  77: 1045278567    buy 60499.26 0.00001784 2026-06-27 17:45:00</span></span>
+<span><span class="co">#&gt;  78: 1045278566    buy 60499.26 0.00000006 2026-06-27 17:44:59</span></span>
+<span><span class="co">#&gt;  79: 1045278565    buy 60499.26 0.00000009 2026-06-27 17:44:59</span></span>
+<span><span class="co">#&gt;  80: 1045278564   sell 60499.27 0.00862134 2026-06-27 17:44:59</span></span>
+<span><span class="co">#&gt;  81: 1045278563    buy 60499.26 0.00000013 2026-06-27 17:44:58</span></span>
+<span><span class="co">#&gt;  82: 1045278562    buy 60499.26 0.00000011 2026-06-27 17:44:58</span></span>
+<span><span class="co">#&gt;  83: 1045278561    buy 60499.26 0.00000012 2026-06-27 17:44:57</span></span>
+<span><span class="co">#&gt;  84: 1045278560    buy 60499.26 0.00000020 2026-06-27 17:44:57</span></span>
+<span><span class="co">#&gt;  85: 1045278559    buy 60499.26 0.00000003 2026-06-27 17:44:56</span></span>
+<span><span class="co">#&gt;  86: 1045278558    buy 60499.26 0.00000042 2026-06-27 17:44:55</span></span>
+<span><span class="co">#&gt;  87: 1045278557    buy 60502.32 0.00001900 2026-06-27 17:44:55</span></span>
+<span><span class="co">#&gt;  88: 1045278556    buy 60502.77 0.00116532 2026-06-27 17:44:55</span></span>
+<span><span class="co">#&gt;  89: 1045278555    buy 60502.77 0.00020098 2026-06-27 17:44:55</span></span>
+<span><span class="co">#&gt;  90: 1045278554    buy 60502.78 0.00369139 2026-06-27 17:44:55</span></span>
+<span><span class="co">#&gt;  91: 1045278553    buy 60502.78 0.03953848 2026-06-27 17:44:55</span></span>
+<span><span class="co">#&gt;  92: 1045278552    buy 60502.78 0.04293421 2026-06-27 17:44:55</span></span>
+<span><span class="co">#&gt;  93: 1045278551    buy 60502.78 0.02047379 2026-06-27 17:44:55</span></span>
+<span><span class="co">#&gt;  94: 1045278550    buy 60502.78 0.00062552 2026-06-27 17:44:55</span></span>
+<span><span class="co">#&gt;  95: 1045278549    buy 60502.78 0.02513157 2026-06-27 17:44:55</span></span>
+<span><span class="co">#&gt;  96: 1045278548    buy 60502.78 0.00213807 2026-06-27 17:44:55</span></span>
+<span><span class="co">#&gt;  97: 1045278547    buy 60502.78 0.00318947 2026-06-27 17:44:55</span></span>
+<span><span class="co">#&gt;  98: 1045278546    buy 60502.78 0.00002820 2026-06-27 17:44:55</span></span>
+<span><span class="co">#&gt;  99: 1045278545    buy 60502.78 0.00184746 2026-06-27 17:44:55</span></span>
+<span><span class="co">#&gt; 100: 1045278544    buy 60502.78 0.01564371 2026-06-27 17:44:55</span></span>
+<span><span class="co">#&gt;        trade_id   side    price       size           timestamp</span></span>
+<span><span class="co">#&gt;           &lt;num&gt; &lt;char&gt;    &lt;num&gt;      &lt;num&gt;              &lt;POSc&gt;</span></span></code></pre>
 <p>To page deeper into history with <code>get_trades()</code>, pass the
 smallest <code>trade_id</code> seen so far as <code>after</code>;
 <code>get_trades_history()</code> does this loop for you and returns a
@@ -449,12 +670,110 @@ single de-duplicated, ascending table:</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ticks</span> <span class="op">&lt;-</span> <span class="va">market</span><span class="op">$</span><span class="fu">get_trades_history</span><span class="op">(</span><span class="st">"BTC-USD"</span><span class="op">)</span></span>
 <span><span class="va">ticks</span><span class="op">[</span><span class="op">]</span></span></code></pre></div>
-<pre><code><span><span class="co">#&gt;      trade_id   side    price       size                time</span></span>
-<span><span class="co">#&gt;         &lt;num&gt; &lt;char&gt;    &lt;num&gt;      &lt;num&gt;              &lt;POSc&gt;</span></span>
-<span><span class="co">#&gt; 1: 1026942320    buy 74100.98 0.01200000 2026-05-31 04:58:28</span></span>
-<span><span class="co">#&gt; 2: 1026942321    buy 74101.54 0.00058315 2026-05-31 04:58:29</span></span>
-<span><span class="co">#&gt; 3: 1026942322   sell 74101.53 0.00000240 2026-05-31 04:58:29</span></span>
-<span><span class="co">#&gt; 4: 1026942323   sell 74101.53 0.00000052 2026-05-31 04:58:29</span></span></code></pre>
+<pre><code><span><span class="co">#&gt;        trade_id   side    price       size           timestamp</span></span>
+<span><span class="co">#&gt;           &lt;num&gt; &lt;char&gt;    &lt;num&gt;      &lt;num&gt;              &lt;POSc&gt;</span></span>
+<span><span class="co">#&gt;   1: 1045278544    buy 60502.78 0.01564371 2026-06-27 17:44:55</span></span>
+<span><span class="co">#&gt;   2: 1045278545    buy 60502.78 0.00184746 2026-06-27 17:44:55</span></span>
+<span><span class="co">#&gt;   3: 1045278546    buy 60502.78 0.00002820 2026-06-27 17:44:55</span></span>
+<span><span class="co">#&gt;   4: 1045278547    buy 60502.78 0.00318947 2026-06-27 17:44:55</span></span>
+<span><span class="co">#&gt;   5: 1045278548    buy 60502.78 0.00213807 2026-06-27 17:44:55</span></span>
+<span><span class="co">#&gt;   6: 1045278549    buy 60502.78 0.02513157 2026-06-27 17:44:55</span></span>
+<span><span class="co">#&gt;   7: 1045278550    buy 60502.78 0.00062552 2026-06-27 17:44:55</span></span>
+<span><span class="co">#&gt;   8: 1045278551    buy 60502.78 0.02047379 2026-06-27 17:44:55</span></span>
+<span><span class="co">#&gt;   9: 1045278552    buy 60502.78 0.04293421 2026-06-27 17:44:55</span></span>
+<span><span class="co">#&gt;  10: 1045278553    buy 60502.78 0.03953848 2026-06-27 17:44:55</span></span>
+<span><span class="co">#&gt;  11: 1045278554    buy 60502.78 0.00369139 2026-06-27 17:44:55</span></span>
+<span><span class="co">#&gt;  12: 1045278555    buy 60502.77 0.00020098 2026-06-27 17:44:55</span></span>
+<span><span class="co">#&gt;  13: 1045278556    buy 60502.77 0.00116532 2026-06-27 17:44:55</span></span>
+<span><span class="co">#&gt;  14: 1045278557    buy 60502.32 0.00001900 2026-06-27 17:44:55</span></span>
+<span><span class="co">#&gt;  15: 1045278558    buy 60499.26 0.00000042 2026-06-27 17:44:55</span></span>
+<span><span class="co">#&gt;  16: 1045278559    buy 60499.26 0.00000003 2026-06-27 17:44:56</span></span>
+<span><span class="co">#&gt;  17: 1045278560    buy 60499.26 0.00000020 2026-06-27 17:44:57</span></span>
+<span><span class="co">#&gt;  18: 1045278561    buy 60499.26 0.00000012 2026-06-27 17:44:57</span></span>
+<span><span class="co">#&gt;  19: 1045278562    buy 60499.26 0.00000011 2026-06-27 17:44:58</span></span>
+<span><span class="co">#&gt;  20: 1045278563    buy 60499.26 0.00000013 2026-06-27 17:44:58</span></span>
+<span><span class="co">#&gt;  21: 1045278564   sell 60499.27 0.00862134 2026-06-27 17:44:59</span></span>
+<span><span class="co">#&gt;  22: 1045278565    buy 60499.26 0.00000009 2026-06-27 17:44:59</span></span>
+<span><span class="co">#&gt;  23: 1045278566    buy 60499.26 0.00000006 2026-06-27 17:44:59</span></span>
+<span><span class="co">#&gt;  24: 1045278567    buy 60499.26 0.00001784 2026-06-27 17:45:00</span></span>
+<span><span class="co">#&gt;  25: 1045278568    buy 60499.26 0.00003303 2026-06-27 17:45:00</span></span>
+<span><span class="co">#&gt;  26: 1045278569    buy 60499.26 0.00000723 2026-06-27 17:45:00</span></span>
+<span><span class="co">#&gt;  27: 1045278570    buy 60499.26 0.00018764 2026-06-27 17:45:00</span></span>
+<span><span class="co">#&gt;  28: 1045278571    buy 60499.26 0.00001236 2026-06-27 17:45:00</span></span>
+<span><span class="co">#&gt;  29: 1045278572    buy 60499.26 0.00001317 2026-06-27 17:45:00</span></span>
+<span><span class="co">#&gt;  30: 1045278573    buy 60496.20 0.00001889 2026-06-27 17:45:00</span></span>
+<span><span class="co">#&gt;  31: 1045278574    buy 60496.20 0.00007008 2026-06-27 17:45:00</span></span>
+<span><span class="co">#&gt;  32: 1045278575    buy 60493.16 0.00009918 2026-06-27 17:45:00</span></span>
+<span><span class="co">#&gt;  33: 1045278576    buy 60493.15 0.00770661 2026-06-27 17:45:00</span></span>
+<span><span class="co">#&gt;  34: 1045278577    buy 60493.14 0.00001900 2026-06-27 17:45:00</span></span>
+<span><span class="co">#&gt;  35: 1045278578    buy 60490.08 0.00001862 2026-06-27 17:45:00</span></span>
+<span><span class="co">#&gt;  36: 1045278579    buy 60487.02 0.00001900 2026-06-27 17:45:00</span></span>
+<span><span class="co">#&gt;  37: 1045278580    buy 60483.96 0.00001900 2026-06-27 17:45:00</span></span>
+<span><span class="co">#&gt;  38: 1045278581    buy 60480.90 0.00001900 2026-06-27 17:45:00</span></span>
+<span><span class="co">#&gt;  39: 1045278582    buy 60480.00 0.00076067 2026-06-27 17:45:00</span></span>
+<span><span class="co">#&gt;  40: 1045278583    buy 60477.84 0.00000015 2026-06-27 17:45:01</span></span>
+<span><span class="co">#&gt;  41: 1045278584   sell 60477.85 0.00435294 2026-06-27 17:45:01</span></span>
+<span><span class="co">#&gt;  42: 1045278585    buy 60477.84 0.00001885 2026-06-27 17:45:01</span></span>
+<span><span class="co">#&gt;  43: 1045278586    buy 60477.84 0.00035980 2026-06-27 17:45:01</span></span>
+<span><span class="co">#&gt;  44: 1045278587    buy 60475.37 0.00254302 2026-06-27 17:45:01</span></span>
+<span><span class="co">#&gt;  45: 1045278588   sell 60475.37 0.00068000 2026-06-27 17:45:01</span></span>
+<span><span class="co">#&gt;  46: 1045278589    buy 60475.36 0.00000014 2026-06-27 17:45:01</span></span>
+<span><span class="co">#&gt;  47: 1045278590   sell 60475.37 0.00094070 2026-06-27 17:45:02</span></span>
+<span><span class="co">#&gt;  48: 1045278591    buy 60475.36 0.00000006 2026-06-27 17:45:02</span></span>
+<span><span class="co">#&gt;  49: 1045278592    buy 60475.36 0.00000005 2026-06-27 17:45:03</span></span>
+<span><span class="co">#&gt;  50: 1045278593    buy 60475.36 0.00001413 2026-06-27 17:45:03</span></span>
+<span><span class="co">#&gt;  51: 1045278594    buy 60475.36 0.00138159 2026-06-27 17:45:03</span></span>
+<span><span class="co">#&gt;  52: 1045278595   sell 60475.37 0.00080334 2026-06-27 17:45:03</span></span>
+<span><span class="co">#&gt;  53: 1045278596   sell 60475.37 0.00171634 2026-06-27 17:45:04</span></span>
+<span><span class="co">#&gt;  54: 1045278597   sell 60475.37 0.00157425 2026-06-27 17:45:04</span></span>
+<span><span class="co">#&gt;  55: 1045278598    buy 60475.36 0.00000006 2026-06-27 17:45:04</span></span>
+<span><span class="co">#&gt;  56: 1045278599    buy 60475.36 0.00000024 2026-06-27 17:45:04</span></span>
+<span><span class="co">#&gt;  57: 1045278600    buy 60475.36 0.00691324 2026-06-27 17:45:04</span></span>
+<span><span class="co">#&gt;  58: 1045278601    buy 60475.36 0.00000018 2026-06-27 17:45:05</span></span>
+<span><span class="co">#&gt;  59: 1045278602   sell 60475.37 0.00015545 2026-06-27 17:45:05</span></span>
+<span><span class="co">#&gt;  60: 1045278603    buy 60475.36 0.00000019 2026-06-27 17:45:05</span></span>
+<span><span class="co">#&gt;  61: 1045278604    buy 60475.36 0.00000004 2026-06-27 17:45:06</span></span>
+<span><span class="co">#&gt;  62: 1045278605    buy 60475.36 0.00000037 2026-06-27 17:45:07</span></span>
+<span><span class="co">#&gt;  63: 1045278606    buy 60475.36 0.00000019 2026-06-27 17:45:07</span></span>
+<span><span class="co">#&gt;  64: 1045278607    buy 60475.36 0.00000004 2026-06-27 17:45:08</span></span>
+<span><span class="co">#&gt;  65: 1045278608    buy 60475.36 0.00000011 2026-06-27 17:45:08</span></span>
+<span><span class="co">#&gt;  66: 1045278609   sell 60475.37 0.00232489 2026-06-27 17:45:08</span></span>
+<span><span class="co">#&gt;  67: 1045278610   sell 60475.37 0.00570965 2026-06-27 17:45:08</span></span>
+<span><span class="co">#&gt;  68: 1045278611    buy 60475.36 0.00000006 2026-06-27 17:45:09</span></span>
+<span><span class="co">#&gt;  69: 1045278612    buy 60475.36 0.00000006 2026-06-27 17:45:09</span></span>
+<span><span class="co">#&gt;  70: 1045278613    buy 60475.36 0.00000003 2026-06-27 17:45:10</span></span>
+<span><span class="co">#&gt;  71: 1045278614   sell 60475.37 0.00298868 2026-06-27 17:45:10</span></span>
+<span><span class="co">#&gt;  72: 1045278615   sell 60475.37 0.00248034 2026-06-27 17:45:10</span></span>
+<span><span class="co">#&gt;  73: 1045278616   sell 60476.00 0.00560000 2026-06-27 17:45:10</span></span>
+<span><span class="co">#&gt;  74: 1045278617   sell 60476.07 0.00082678 2026-06-27 17:45:10</span></span>
+<span><span class="co">#&gt;  75: 1045278618   sell 60478.00 0.00446795 2026-06-27 17:45:10</span></span>
+<span><span class="co">#&gt;  76: 1045278619    buy 60475.87 0.00000043 2026-06-27 17:45:10</span></span>
+<span><span class="co">#&gt;  77: 1045278620    buy 60475.87 0.00000016 2026-06-27 17:45:11</span></span>
+<span><span class="co">#&gt;  78: 1045278621   sell 60475.88 0.00248032 2026-06-27 17:45:11</span></span>
+<span><span class="co">#&gt;  79: 1045278622   sell 60475.98 0.00082677 2026-06-27 17:45:11</span></span>
+<span><span class="co">#&gt;  80: 1045278623    buy 60483.95 0.00000007 2026-06-27 17:45:11</span></span>
+<span><span class="co">#&gt;  81: 1045278624    buy 60483.95 0.00000006 2026-06-27 17:45:12</span></span>
+<span><span class="co">#&gt;  82: 1045278625   sell 60483.96 0.00001900 2026-06-27 17:45:12</span></span>
+<span><span class="co">#&gt;  83: 1045278626   sell 60483.96 0.00068672 2026-06-27 17:45:12</span></span>
+<span><span class="co">#&gt;  84: 1045278627    buy 60483.95 0.00000005 2026-06-27 17:45:12</span></span>
+<span><span class="co">#&gt;  85: 1045278628   sell 60484.43 0.01564455 2026-06-27 17:45:12</span></span>
+<span><span class="co">#&gt;  86: 1045278629   sell 60484.44 0.02959940 2026-06-27 17:45:12</span></span>
+<span><span class="co">#&gt;  87: 1045278630   sell 60484.44 0.02194518 2026-06-27 17:45:12</span></span>
+<span><span class="co">#&gt;  88: 1045278631   sell 60484.44 0.14964316 2026-06-27 17:45:12</span></span>
+<span><span class="co">#&gt;  89: 1045278632   sell 60484.44 0.01280134 2026-06-27 17:45:12</span></span>
+<span><span class="co">#&gt;  90: 1045278633   sell 60484.44 0.02650802 2026-06-27 17:45:12</span></span>
+<span><span class="co">#&gt;  91: 1045278634   sell 60484.45 0.00980494 2026-06-27 17:45:12</span></span>
+<span><span class="co">#&gt;  92: 1045278635   sell 60487.02 0.00001900 2026-06-27 17:45:12</span></span>
+<span><span class="co">#&gt;  93: 1045278636    buy 60488.40 0.00028771 2026-06-27 17:45:13</span></span>
+<span><span class="co">#&gt;  94: 1045278637    buy 60488.40 0.03000000 2026-06-27 17:45:13</span></span>
+<span><span class="co">#&gt;  95: 1045278638    buy 60488.40 0.00058961 2026-06-27 17:45:13</span></span>
+<span><span class="co">#&gt;  96: 1045278639    buy 60488.40 0.00888601 2026-06-27 17:45:13</span></span>
+<span><span class="co">#&gt;  97: 1045278640    buy 60488.40 0.00888583 2026-06-27 17:45:13</span></span>
+<span><span class="co">#&gt;  98: 1045278641    buy 60488.40 0.00576070 2026-06-27 17:45:13</span></span>
+<span><span class="co">#&gt;  99: 1045278642    buy 60488.38 0.02143574 2026-06-27 17:45:13</span></span>
+<span><span class="co">#&gt; 100: 1045278643    buy 60488.38 0.00856426 2026-06-27 17:45:13</span></span>
+<span><span class="co">#&gt;        trade_id   side    price       size           timestamp</span></span>
+<span><span class="co">#&gt;           &lt;num&gt; &lt;char&gt;    &lt;num&gt;      &lt;num&gt;              &lt;POSc&gt;</span></span></code></pre>
 </div>
 <div class="section level4">
 <h4 id="order-book">Order book<a class="anchor" aria-label="anchor" href="#order-book"></a>
@@ -512,23 +831,121 @@ call returns one or the other, never both.</p>
 <span><span class="va">depth</span><span class="op">[</span><span class="va">side</span> <span class="op">==</span> <span class="st">"ask"</span><span class="op">]</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/order.html" class="external-link">order</a></span><span class="op">(</span><span class="op">-</span><span class="va">price</span><span class="op">)</span><span class="op">]</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min</a></span><span class="op">(</span><span class="fl">5</span>, <span class="va">.N</span><span class="op">)</span><span class="op">]</span></span></code></pre></div>
 <pre><code><span><span class="co">#&gt;      side    price       size num_orders</span></span>
 <span><span class="co">#&gt;    &lt;char&gt;    &lt;num&gt;      &lt;num&gt;      &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:    ask 74103.66 0.00140588          2</span></span>
-<span><span class="co">#&gt; 2:    ask 74103.63 0.26058806          2</span></span>
-<span><span class="co">#&gt; 3:    ask 74101.53 0.08631688          7</span></span></code></pre>
+<span><span class="co">#&gt; 1:    ask 60493.74 0.09926542          1</span></span>
+<span><span class="co">#&gt; 2:    ask 60493.28 0.00019400          1</span></span>
+<span><span class="co">#&gt; 3:    ask 60493.27 0.00082648          1</span></span>
+<span><span class="co">#&gt; 4:    ask 60493.14 0.00001900          1</span></span>
+<span><span class="co">#&gt; 5:    ask 60492.56 0.00165071          1</span></span></code></pre>
 <p>At level 3 the third column is a character <code>order_id</code>
 instead of <code>num_orders</code> (a single call returns one or the
 other, never both):</p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">l3</span> <span class="op">&lt;-</span> <span class="va">market</span><span class="op">$</span><span class="fu">get_orderbook</span><span class="op">(</span><span class="st">"BTC-USD"</span>, level <span class="op">=</span> <span class="fl">3L</span><span class="op">)</span></span>
 <span><span class="va">l3</span><span class="op">[</span>, <span class="fu">.</span><span class="op">(</span><span class="va">side</span>, <span class="va">price</span>, <span class="va">size</span>, <span class="va">order_id</span><span class="op">)</span><span class="op">]</span></span></code></pre></div>
-<pre><code><span><span class="co">#&gt;      side    price       size                             order_id</span></span>
-<span><span class="co">#&gt;    &lt;char&gt;    &lt;num&gt;      &lt;num&gt;                               &lt;char&gt;</span></span>
-<span><span class="co">#&gt; 1:    bid 74101.52 0.21000000 b1a2c3d4-0001-4aaa-8bbb-000000000001</span></span>
-<span><span class="co">#&gt; 2:    bid 74101.52 0.22541938 b1a2c3d4-0002-4aaa-8bbb-000000000002</span></span>
-<span><span class="co">#&gt; 3:    bid 74098.69 0.00266800 b1a2c3d4-0003-4aaa-8bbb-000000000003</span></span>
-<span><span class="co">#&gt; 4:    ask 74101.53 0.04000000 a1a2c3d4-0001-4aaa-8bbb-000000000001</span></span>
-<span><span class="co">#&gt; 5:    ask 74101.53 0.04631688 a1a2c3d4-0002-4aaa-8bbb-000000000002</span></span>
-<span><span class="co">#&gt; 6:    ask 74103.66 0.00140588 a1a2c3d4-0003-4aaa-8bbb-000000000003</span></span></code></pre>
+<pre><code><span><span class="co">#&gt;        side    price       size                             order_id</span></span>
+<span><span class="co">#&gt;      &lt;char&gt;    &lt;num&gt;      &lt;num&gt;                               &lt;char&gt;</span></span>
+<span><span class="co">#&gt;   1:    bid 60481.81 0.01030000 10000000-0000-4000-8000-000000000000</span></span>
+<span><span class="co">#&gt;   2:    bid 60480.00 0.00560000 10000000-0000-4000-8000-000000000001</span></span>
+<span><span class="co">#&gt;   3:    bid 60478.70 0.01564455 10000000-0000-4000-8000-000000000002</span></span>
+<span><span class="co">#&gt;   4:    bid 60478.69 0.27476432 10000000-0000-4000-8000-000000000003</span></span>
+<span><span class="co">#&gt;   5:    bid 60478.00 0.00560000 10000000-0000-4000-8000-000000000004</span></span>
+<span><span class="co">#&gt;   6:    bid 60477.97 0.13227955 10000000-0000-4000-8000-000000000005</span></span>
+<span><span class="co">#&gt;   7:    bid 60477.84 0.00001900 10000000-0000-4000-8000-000000000006</span></span>
+<span><span class="co">#&gt;   8:    bid 60477.70 0.06613416 10000000-0000-4000-8000-000000000007</span></span>
+<span><span class="co">#&gt;   9:    bid 60477.61 0.04960714 10000000-0000-4000-8000-000000000008</span></span>
+<span><span class="co">#&gt;  10:    bid 60477.08 0.09926542 10000000-0000-4000-8000-000000000009</span></span>
+<span><span class="co">#&gt;  11:    bid 60477.08 0.06628080 10000000-0000-4000-8000-000000000010</span></span>
+<span><span class="co">#&gt;  12:    bid 60476.74 0.00248009 10000000-0000-4000-8000-000000000011</span></span>
+<span><span class="co">#&gt;  13:    bid 60476.00 0.00560000 10000000-0000-4000-8000-000000000012</span></span>
+<span><span class="co">#&gt;  14:    bid 60475.87 0.00017461 10000000-0000-4000-8000-000000000013</span></span>
+<span><span class="co">#&gt;  15:    bid 60475.52 0.12301469 10000000-0000-4000-8000-000000000014</span></span>
+<span><span class="co">#&gt;  16:    bid 60475.52 0.09280508 10000000-0000-4000-8000-000000000015</span></span>
+<span><span class="co">#&gt;  17:    bid 60475.25 0.09926542 10000000-0000-4000-8000-000000000016</span></span>
+<span><span class="co">#&gt;  18:    bid 60475.24 0.16553407 10000000-0000-4000-8000-000000000017</span></span>
+<span><span class="co">#&gt;  19:    bid 60475.06 0.00429929 10000000-0000-4000-8000-000000000018</span></span>
+<span><span class="co">#&gt;  20:    bid 60474.78 0.00001900 10000000-0000-4000-8000-000000000019</span></span>
+<span><span class="co">#&gt;  21:    bid 60474.63 0.00082661 10000000-0000-4000-8000-000000000020</span></span>
+<span><span class="co">#&gt;  22:    bid 60474.00 0.00560000 10000000-0000-4000-8000-000000000021</span></span>
+<span><span class="co">#&gt;  23:    bid 60473.10 0.04166679 10000000-0000-4000-8000-000000000022</span></span>
+<span><span class="co">#&gt;  24:    bid 60473.09 0.00454375 10000000-0000-4000-8000-000000000023</span></span>
+<span><span class="co">#&gt;  25:    bid 60472.06 0.11185704 10000000-0000-4000-8000-000000000024</span></span>
+<span><span class="co">#&gt;  26:    bid 60472.06 0.58269929 10000000-0000-4000-8000-000000000025</span></span>
+<span><span class="co">#&gt;  27:    bid 60472.05 0.06628080 10000000-0000-4000-8000-000000000026</span></span>
+<span><span class="co">#&gt;  28:    bid 60472.04 0.09926542 10000000-0000-4000-8000-000000000027</span></span>
+<span><span class="co">#&gt;  29:    bid 60472.00 0.00590000 10000000-0000-4000-8000-000000000028</span></span>
+<span><span class="co">#&gt;  30:    bid 60471.72 0.00001900 10000000-0000-4000-8000-000000000029</span></span>
+<span><span class="co">#&gt;  31:    bid 60471.00 1.00000000 10000000-0000-4000-8000-000000000030</span></span>
+<span><span class="co">#&gt;  32:    bid 60470.95 0.06789000 10000000-0000-4000-8000-000000000031</span></span>
+<span><span class="co">#&gt;  33:    bid 60470.62 0.00310011 10000000-0000-4000-8000-000000000032</span></span>
+<span><span class="co">#&gt;  34:    bid 60470.00 0.00590000 10000000-0000-4000-8000-000000000033</span></span>
+<span><span class="co">#&gt;  35:    bid 60470.00 0.01000000 10000000-0000-4000-8000-000000000034</span></span>
+<span><span class="co">#&gt;  36:    bid 60469.70 0.16553407 10000000-0000-4000-8000-000000000035</span></span>
+<span><span class="co">#&gt;  37:    bid 60469.68 0.21947960 10000000-0000-4000-8000-000000000036</span></span>
+<span><span class="co">#&gt;  38:    bid 60469.23 0.09926542 10000000-0000-4000-8000-000000000037</span></span>
+<span><span class="co">#&gt;  39:    bid 60468.66 0.00001900 10000000-0000-4000-8000-000000000038</span></span>
+<span><span class="co">#&gt;  40:    bid 60468.59 0.05274600 10000000-0000-4000-8000-000000000039</span></span>
+<span><span class="co">#&gt;  41:    bid 60468.12 0.05563684 10000000-0000-4000-8000-000000000040</span></span>
+<span><span class="co">#&gt;  42:    bid 60466.68 0.09926542 10000000-0000-4000-8000-000000000041</span></span>
+<span><span class="co">#&gt;  43:    bid 60466.62 0.00032994 10000000-0000-4000-8000-000000000042</span></span>
+<span><span class="co">#&gt;  44:    bid 60466.05 0.00592000 10000000-0000-4000-8000-000000000043</span></span>
+<span><span class="co">#&gt;  45:    bid 60465.60 0.00001900 10000000-0000-4000-8000-000000000044</span></span>
+<span><span class="co">#&gt;  46:    bid 60465.39 0.00004639 10000000-0000-4000-8000-000000000045</span></span>
+<span><span class="co">#&gt;  47:    bid 60465.01 0.02773620 10000000-0000-4000-8000-000000000046</span></span>
+<span><span class="co">#&gt;  48:    bid 60465.00 0.01000000 10000000-0000-4000-8000-000000000047</span></span>
+<span><span class="co">#&gt;  49:    bid 60464.99 0.03634998 10000000-0000-4000-8000-000000000048</span></span>
+<span><span class="co">#&gt;  50:    bid 60464.20 0.00009277 10000000-0000-4000-8000-000000000049</span></span>
+<span><span class="co">#&gt;  51:    ask 60481.82 0.05645871 20000000-0000-4000-8000-000000000000</span></span>
+<span><span class="co">#&gt;  52:    ask 60482.12 0.09926542 20000000-0000-4000-8000-000000000001</span></span>
+<span><span class="co">#&gt;  53:    ask 60483.96 0.06242556 20000000-0000-4000-8000-000000000002</span></span>
+<span><span class="co">#&gt;  54:    ask 60483.97 0.09926542 20000000-0000-4000-8000-000000000003</span></span>
+<span><span class="co">#&gt;  55:    ask 60484.00 0.00530000 20000000-0000-4000-8000-000000000004</span></span>
+<span><span class="co">#&gt;  56:    ask 60485.80 0.08204909 20000000-0000-4000-8000-000000000005</span></span>
+<span><span class="co">#&gt;  57:    ask 60485.80 0.10033507 20000000-0000-4000-8000-000000000006</span></span>
+<span><span class="co">#&gt;  58:    ask 60485.81 0.09926542 20000000-0000-4000-8000-000000000007</span></span>
+<span><span class="co">#&gt;  59:    ask 60485.82 0.13226241 20000000-0000-4000-8000-000000000008</span></span>
+<span><span class="co">#&gt;  60:    ask 60486.00 0.00530000 20000000-0000-4000-8000-000000000009</span></span>
+<span><span class="co">#&gt;  61:    ask 60486.77 0.06613416 20000000-0000-4000-8000-000000000010</span></span>
+<span><span class="co">#&gt;  62:    ask 60488.05 0.01564455 20000000-0000-4000-8000-000000000011</span></span>
+<span><span class="co">#&gt;  63:    ask 60488.06 0.19214145 20000000-0000-4000-8000-000000000012</span></span>
+<span><span class="co">#&gt;  64:    ask 60488.06 0.07613671 20000000-0000-4000-8000-000000000013</span></span>
+<span><span class="co">#&gt;  65:    ask 60488.07 0.09926542 20000000-0000-4000-8000-000000000014</span></span>
+<span><span class="co">#&gt;  66:    ask 60488.40 0.13225676 20000000-0000-4000-8000-000000000015</span></span>
+<span><span class="co">#&gt;  67:    ask 60488.41 0.00970000 20000000-0000-4000-8000-000000000016</span></span>
+<span><span class="co">#&gt;  68:    ask 60488.69 0.06628080 20000000-0000-4000-8000-000000000017</span></span>
+<span><span class="co">#&gt;  69:    ask 60489.18 0.06834000 20000000-0000-4000-8000-000000000018</span></span>
+<span><span class="co">#&gt;  70:    ask 60489.67 0.00009700 20000000-0000-4000-8000-000000000019</span></span>
+<span><span class="co">#&gt;  71:    ask 60489.99 0.09926542 20000000-0000-4000-8000-000000000020</span></span>
+<span><span class="co">#&gt;  72:    ask 60490.00 0.01000000 20000000-0000-4000-8000-000000000021</span></span>
+<span><span class="co">#&gt;  73:    ask 60490.00 0.00530000 20000000-0000-4000-8000-000000000022</span></span>
+<span><span class="co">#&gt;  74:    ask 60490.08 0.00001900 20000000-0000-4000-8000-000000000023</span></span>
+<span><span class="co">#&gt;  75:    ask 60491.07 0.00132219 20000000-0000-4000-8000-000000000024</span></span>
+<span><span class="co">#&gt;  76:    ask 60491.52 0.07415342 20000000-0000-4000-8000-000000000025</span></span>
+<span><span class="co">#&gt;  77:    ask 60491.52 0.04770563 20000000-0000-4000-8000-000000000026</span></span>
+<span><span class="co">#&gt;  78:    ask 60491.90 0.04166679 20000000-0000-4000-8000-000000000027</span></span>
+<span><span class="co">#&gt;  79:    ask 60492.00 0.00003167 20000000-0000-4000-8000-000000000028</span></span>
+<span><span class="co">#&gt;  80:    ask 60492.00 0.00530000 20000000-0000-4000-8000-000000000029</span></span>
+<span><span class="co">#&gt;  81:    ask 60492.05 0.01940000 20000000-0000-4000-8000-000000000030</span></span>
+<span><span class="co">#&gt;  82:    ask 60492.27 0.09926542 20000000-0000-4000-8000-000000000031</span></span>
+<span><span class="co">#&gt;  83:    ask 60493.14 0.00001900 20000000-0000-4000-8000-000000000032</span></span>
+<span><span class="co">#&gt;  84:    ask 60493.28 0.00019400 20000000-0000-4000-8000-000000000033</span></span>
+<span><span class="co">#&gt;  85:    ask 60493.77 0.05412215 20000000-0000-4000-8000-000000000034</span></span>
+<span><span class="co">#&gt;  86:    ask 60494.00 0.00590000 20000000-0000-4000-8000-000000000035</span></span>
+<span><span class="co">#&gt;  87:    ask 60494.28 0.14561142 20000000-0000-4000-8000-000000000036</span></span>
+<span><span class="co">#&gt;  88:    ask 60494.28 0.08020770 20000000-0000-4000-8000-000000000037</span></span>
+<span><span class="co">#&gt;  89:    ask 60494.29 0.09926542 20000000-0000-4000-8000-000000000038</span></span>
+<span><span class="co">#&gt;  90:    ask 60494.63 0.00583000 20000000-0000-4000-8000-000000000039</span></span>
+<span><span class="co">#&gt;  91:    ask 60494.76 0.16553407 20000000-0000-4000-8000-000000000040</span></span>
+<span><span class="co">#&gt;  92:    ask 60494.77 0.06628080 20000000-0000-4000-8000-000000000041</span></span>
+<span><span class="co">#&gt;  93:    ask 60495.00 0.01000000 20000000-0000-4000-8000-000000000042</span></span>
+<span><span class="co">#&gt;  94:    ask 60496.20 0.00001900 20000000-0000-4000-8000-000000000043</span></span>
+<span><span class="co">#&gt;  95:    ask 60497.33 0.83406652 20000000-0000-4000-8000-000000000044</span></span>
+<span><span class="co">#&gt;  96:    ask 60497.85 0.09926542 20000000-0000-4000-8000-000000000045</span></span>
+<span><span class="co">#&gt;  97:    ask 60498.00 1.00000000 20000000-0000-4000-8000-000000000046</span></span>
+<span><span class="co">#&gt;  98:    ask 60499.26 0.00001900 20000000-0000-4000-8000-000000000047</span></span>
+<span><span class="co">#&gt;  99:    ask 60499.26 0.00082640 20000000-0000-4000-8000-000000000048</span></span>
+<span><span class="co">#&gt; 100:    ask 60499.27 0.00235993 20000000-0000-4000-8000-000000000049</span></span>
+<span><span class="co">#&gt;        side    price       size                             order_id</span></span>
+<span><span class="co">#&gt;      &lt;char&gt;    &lt;num&gt;      &lt;num&gt;                               &lt;char&gt;</span></span></code></pre>
 </div>
 <div class="section level4">
 <h4 id="ticker-and-server-time">Ticker and server time<a class="anchor" aria-label="anchor" href="#ticker-and-server-time"></a>
@@ -536,24 +953,24 @@ other, never both):</p>
 <p><code>get_ticker()</code> returns a single row; the numeric fields
 (<code>ask</code>, <code>bid</code>, <code>price</code>,
 <code>size</code>, <code>volume</code>, <code>rfq_volume</code> where
-present) are cast to <code>numeric</code> and <code>time</code> to
-<code>POSIXct</code>, with any other fields (e.g. <code>trade_id</code>)
-left as the API sends them.</p>
+present) are cast to <code>numeric</code> and the last-trade time to
+<code>POSIXct</code> in a <code>timestamp</code> column, with any other
+fields (e.g. <code>trade_id</code>) left as the API sends them.</p>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">market</span><span class="op">$</span><span class="fu">get_ticker</span><span class="op">(</span><span class="st">"BTC-USD"</span><span class="op">)</span><span class="op">[</span><span class="op">]</span></span></code></pre></div>
-<pre><code><span><span class="co">#&gt;         ask      bid   volume   trade_id    price    size                time</span></span>
-<span><span class="co">#&gt;       &lt;num&gt;    &lt;num&gt;    &lt;num&gt;      &lt;int&gt;    &lt;num&gt;   &lt;num&gt;              &lt;POSc&gt;</span></span>
-<span><span class="co">#&gt; 1: 74101.53 74101.52 3600.231 1026942323 74101.53 5.2e-07 2026-05-31 04:58:29</span></span>
-<span><span class="co">#&gt;    rfq_volume</span></span>
-<span><span class="co">#&gt;         &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:    10.7929</span></span></code></pre>
+<pre><code><span><span class="co">#&gt;         ask      bid   volume   trade_id    price    size rfq_volume</span></span>
+<span><span class="co">#&gt;       &lt;num&gt;    &lt;num&gt;    &lt;num&gt;      &lt;int&gt;    &lt;num&gt;   &lt;num&gt;      &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1: 60481.65 60481.64 5973.761 1045278653 60479.56 1.3e-07   67.01332</span></span>
+<span><span class="co">#&gt;              timestamp</span></span>
+<span><span class="co">#&gt;                 &lt;POSc&gt;</span></span>
+<span><span class="co">#&gt; 1: 2026-06-27 17:45:15</span></span></code></pre>
 <p><code>get_server_time()</code> returns a single row with
 <code>iso</code> and <code>epoch</code>:</p>
 <div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">market</span><span class="op">$</span><span class="fu">get_server_time</span><span class="op">(</span><span class="op">)</span><span class="op">[</span><span class="op">]</span></span></code></pre></div>
 <pre><code><span><span class="co">#&gt;                         iso      epoch</span></span>
 <span><span class="co">#&gt;                      &lt;char&gt;      &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1: 2026-05-31T04:58:31.547Z 1780203512</span></span></code></pre>
+<span><span class="co">#&gt; 1: 2026-06-27T17:45:16.925Z 1782582317</span></span></code></pre>
 <hr>
 </div>
 </div>
@@ -695,22 +1112,129 @@ columns:</p>
 <code class="sourceCode R"><span><span class="va">accts</span> <span class="op">&lt;-</span> <span class="va">account</span><span class="op">$</span><span class="fu">get_accounts</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">accts</span><span class="op">[</span><span class="op">]</span></span>
 <span><span class="va">accts</span><span class="op">[</span><span class="va">available_balance</span> <span class="op">&gt;</span> <span class="fl">0</span>, <span class="fu">.</span><span class="op">(</span><span class="va">currency</span>, <span class="va">available_balance</span>, <span class="va">hold</span><span class="op">)</span><span class="op">]</span></span></code></pre></div>
-<pre><code><span><span class="co">#&gt;                                    uuid       name currency available_balance</span></span>
-<span><span class="co">#&gt;                                  &lt;char&gt;     &lt;char&gt;   &lt;char&gt;             &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1: 00000000-0000-4000-8000-000000000001 BTC Wallet      BTC            0.5000</span></span>
-<span><span class="co">#&gt; 2: 1a2b3c4d-5e6f-4789-90ab-cdef01234567 USD Wallet      USD        12500.0000</span></span>
-<span><span class="co">#&gt;     hold active default  ready                type                  platform</span></span>
-<span><span class="co">#&gt;    &lt;num&gt; &lt;lgcl&gt;  &lt;lgcl&gt; &lt;lgcl&gt;              &lt;char&gt;                    &lt;char&gt;</span></span>
-<span><span class="co">#&gt; 1:     0   TRUE    TRUE   TRUE ACCOUNT_TYPE_CRYPTO ACCOUNT_PLATFORM_CONSUMER</span></span>
-<span><span class="co">#&gt; 2:   250   TRUE    TRUE   TRUE   ACCOUNT_TYPE_FIAT ACCOUNT_PLATFORM_CONSUMER</span></span>
-<span><span class="co">#&gt;                     retail_portfolio_id          created_at          updated_at</span></span>
-<span><span class="co">#&gt;                                  &lt;char&gt;              &lt;POSc&gt;              &lt;POSc&gt;</span></span>
-<span><span class="co">#&gt; 1: 9c2f8b1e-1111-4d3a-9aaa-0123456789ab 2024-01-10 10:00:00 2026-05-30 18:40:29</span></span>
-<span><span class="co">#&gt; 2: 9c2f8b1e-1111-4d3a-9aaa-0123456789ab 2024-01-10 10:00:00 2026-05-30 18:40:29</span></span>
+<pre><code><span><span class="co">#&gt;                                     uuid            name currency</span></span>
+<span><span class="co">#&gt;                                   &lt;char&gt;          &lt;char&gt;   &lt;char&gt;</span></span>
+<span><span class="co">#&gt;  1: 00000000-0000-4000-8000-000000000001     DASH Wallet     DASH</span></span>
+<span><span class="co">#&gt;  2: 00000000-0000-4000-8000-000000000003     ETH2 Wallet     ETH2</span></span>
+<span><span class="co">#&gt;  3: 00000000-0000-4000-8000-000000000004     COMP Wallet     COMP</span></span>
+<span><span class="co">#&gt;  4: 00000000-0000-4000-8000-000000000005     CGLD Wallet     CGLD</span></span>
+<span><span class="co">#&gt;  5: 00000000-0000-4000-8000-000000000006      GRT Wallet      GRT</span></span>
+<span><span class="co">#&gt;  6: 00000000-0000-4000-8000-000000000007      XLM Wallet      XLM</span></span>
+<span><span class="co">#&gt;  7: 00000000-0000-4000-8000-000000000008      BSV Wallet      BSV</span></span>
+<span><span class="co">#&gt;  8: 00000000-0000-4000-8000-000000000009      DAI Wallet      DAI</span></span>
+<span><span class="co">#&gt;  9: 00000000-0000-4000-8000-00000000000a      GNT Wallet      GNT</span></span>
+<span><span class="co">#&gt; 10: 00000000-0000-4000-8000-00000000000b      MKR Wallet      MKR</span></span>
+<span><span class="co">#&gt; 11: 00000000-0000-4000-8000-00000000000c      ZIL Wallet      ZIL</span></span>
+<span><span class="co">#&gt; 12: 00000000-0000-4000-8000-00000000000d      ZEC Wallet      ZEC</span></span>
+<span><span class="co">#&gt; 13: 00000000-0000-4000-8000-00000000000e      CVC Wallet      CVC</span></span>
+<span><span class="co">#&gt; 14: 00000000-0000-4000-8000-00000000000f      DNT Wallet      DNT</span></span>
+<span><span class="co">#&gt; 15: 00000000-0000-4000-8000-000000000010     MANA Wallet     MANA</span></span>
+<span><span class="co">#&gt; 16: 00000000-0000-4000-8000-000000000011     LOOM Wallet     LOOM</span></span>
+<span><span class="co">#&gt; 17: 00000000-0000-4000-8000-000000000012      BAT Wallet      BAT</span></span>
+<span><span class="co">#&gt; 18: 00000000-0000-4000-8000-000000000013     USDC Wallet     USDC</span></span>
+<span><span class="co">#&gt; 19: 00000000-0000-4000-8000-000000000014 PBVAONFR Wallet PBVAONFR</span></span>
+<span><span class="co">#&gt; 20: 00000000-0000-4000-8000-000000000015      ZRX Wallet      ZRX</span></span>
+<span><span class="co">#&gt; 21: 00000000-0000-4000-8000-000000000016      ETC Wallet      ETC</span></span>
+<span><span class="co">#&gt; 22: 00000000-0000-4000-8000-000000000017      BCH Wallet      BCH</span></span>
+<span><span class="co">#&gt; 23: 00000000-0000-4000-8000-000000000018      USD Wallet      USD</span></span>
+<span><span class="co">#&gt; 24: 00000000-0000-4000-8000-000000000019      LTC Wallet      LTC</span></span>
+<span><span class="co">#&gt; 25: 00000000-0000-4000-8000-00000000001a      ETH Wallet      ETH</span></span>
+<span><span class="co">#&gt; 26: 00000000-0000-4000-8000-00000000001b      BTC Wallet      BTC</span></span>
+<span><span class="co">#&gt;                                     uuid            name currency</span></span>
+<span><span class="co">#&gt;                                   &lt;char&gt;          &lt;char&gt;   &lt;char&gt;</span></span>
+<span><span class="co">#&gt;     available_balance  hold active default  ready                type</span></span>
+<span><span class="co">#&gt;                 &lt;num&gt; &lt;num&gt; &lt;lgcl&gt;  &lt;lgcl&gt; &lt;lgcl&gt;              &lt;char&gt;</span></span>
+<span><span class="co">#&gt;  1:               0.0     0   TRUE    TRUE   TRUE ACCOUNT_TYPE_CRYPTO</span></span>
+<span><span class="co">#&gt;  2:               0.0     0   TRUE    TRUE  FALSE ACCOUNT_TYPE_CRYPTO</span></span>
+<span><span class="co">#&gt;  3:               0.0     0   TRUE    TRUE   TRUE ACCOUNT_TYPE_CRYPTO</span></span>
+<span><span class="co">#&gt;  4:               0.0     0   TRUE    TRUE   TRUE ACCOUNT_TYPE_CRYPTO</span></span>
+<span><span class="co">#&gt;  5:               0.0     0   TRUE    TRUE   TRUE ACCOUNT_TYPE_CRYPTO</span></span>
+<span><span class="co">#&gt;  6:               0.0     0   TRUE    TRUE   TRUE ACCOUNT_TYPE_CRYPTO</span></span>
+<span><span class="co">#&gt;  7:               0.0     0   TRUE    TRUE  FALSE ACCOUNT_TYPE_CRYPTO</span></span>
+<span><span class="co">#&gt;  8:               0.0     0   TRUE    TRUE   TRUE ACCOUNT_TYPE_CRYPTO</span></span>
+<span><span class="co">#&gt;  9:               0.0     0   TRUE    TRUE   TRUE ACCOUNT_TYPE_CRYPTO</span></span>
+<span><span class="co">#&gt; 10:               0.0     0   TRUE    TRUE   TRUE ACCOUNT_TYPE_CRYPTO</span></span>
+<span><span class="co">#&gt; 11:               0.0     0   TRUE    TRUE  FALSE ACCOUNT_TYPE_CRYPTO</span></span>
+<span><span class="co">#&gt; 12:               0.0     0   TRUE    TRUE   TRUE ACCOUNT_TYPE_CRYPTO</span></span>
+<span><span class="co">#&gt; 13:               0.0     0   TRUE    TRUE   TRUE ACCOUNT_TYPE_CRYPTO</span></span>
+<span><span class="co">#&gt; 14:               0.0     0   TRUE    TRUE   TRUE ACCOUNT_TYPE_CRYPTO</span></span>
+<span><span class="co">#&gt; 15:               0.0     0   TRUE    TRUE   TRUE ACCOUNT_TYPE_CRYPTO</span></span>
+<span><span class="co">#&gt; 16:               0.0     0   TRUE    TRUE   TRUE ACCOUNT_TYPE_CRYPTO</span></span>
+<span><span class="co">#&gt; 17:               0.0     0   TRUE    TRUE   TRUE ACCOUNT_TYPE_CRYPTO</span></span>
+<span><span class="co">#&gt; 18:               0.0     0   TRUE    TRUE   TRUE ACCOUNT_TYPE_CRYPTO</span></span>
+<span><span class="co">#&gt; 19:               0.0     0   TRUE    TRUE  FALSE ACCOUNT_TYPE_CRYPTO</span></span>
+<span><span class="co">#&gt; 20:               0.0     0   TRUE    TRUE   TRUE ACCOUNT_TYPE_CRYPTO</span></span>
+<span><span class="co">#&gt; 21:               0.0     0   TRUE    TRUE   TRUE ACCOUNT_TYPE_CRYPTO</span></span>
+<span><span class="co">#&gt; 22:               0.0     0   TRUE    TRUE   TRUE ACCOUNT_TYPE_CRYPTO</span></span>
+<span><span class="co">#&gt; 23:               0.0     0   TRUE   FALSE   TRUE   ACCOUNT_TYPE_FIAT</span></span>
+<span><span class="co">#&gt; 24:               0.0     0   TRUE    TRUE   TRUE ACCOUNT_TYPE_CRYPTO</span></span>
+<span><span class="co">#&gt; 25:               0.5     0   TRUE    TRUE   TRUE ACCOUNT_TYPE_CRYPTO</span></span>
+<span><span class="co">#&gt; 26:               0.0     0   TRUE    TRUE   TRUE ACCOUNT_TYPE_CRYPTO</span></span>
+<span><span class="co">#&gt;     available_balance  hold active default  ready                type</span></span>
+<span><span class="co">#&gt;                 &lt;num&gt; &lt;num&gt; &lt;lgcl&gt;  &lt;lgcl&gt; &lt;lgcl&gt;              &lt;char&gt;</span></span>
+<span><span class="co">#&gt;                      platform                  retail_portfolio_id</span></span>
+<span><span class="co">#&gt;                        &lt;char&gt;                               &lt;char&gt;</span></span>
+<span><span class="co">#&gt;  1: ACCOUNT_PLATFORM_CONSUMER 00000000-0000-4000-8000-000000000002</span></span>
+<span><span class="co">#&gt;  2: ACCOUNT_PLATFORM_CONSUMER 00000000-0000-4000-8000-000000000002</span></span>
+<span><span class="co">#&gt;  3: ACCOUNT_PLATFORM_CONSUMER 00000000-0000-4000-8000-000000000002</span></span>
+<span><span class="co">#&gt;  4: ACCOUNT_PLATFORM_CONSUMER 00000000-0000-4000-8000-000000000002</span></span>
+<span><span class="co">#&gt;  5: ACCOUNT_PLATFORM_CONSUMER 00000000-0000-4000-8000-000000000002</span></span>
+<span><span class="co">#&gt;  6: ACCOUNT_PLATFORM_CONSUMER 00000000-0000-4000-8000-000000000002</span></span>
+<span><span class="co">#&gt;  7: ACCOUNT_PLATFORM_CONSUMER 00000000-0000-4000-8000-000000000002</span></span>
+<span><span class="co">#&gt;  8: ACCOUNT_PLATFORM_CONSUMER 00000000-0000-4000-8000-000000000002</span></span>
+<span><span class="co">#&gt;  9: ACCOUNT_PLATFORM_CONSUMER 00000000-0000-4000-8000-000000000002</span></span>
+<span><span class="co">#&gt; 10: ACCOUNT_PLATFORM_CONSUMER 00000000-0000-4000-8000-000000000002</span></span>
+<span><span class="co">#&gt; 11: ACCOUNT_PLATFORM_CONSUMER 00000000-0000-4000-8000-000000000002</span></span>
+<span><span class="co">#&gt; 12: ACCOUNT_PLATFORM_CONSUMER 00000000-0000-4000-8000-000000000002</span></span>
+<span><span class="co">#&gt; 13: ACCOUNT_PLATFORM_CONSUMER 00000000-0000-4000-8000-000000000002</span></span>
+<span><span class="co">#&gt; 14: ACCOUNT_PLATFORM_CONSUMER 00000000-0000-4000-8000-000000000002</span></span>
+<span><span class="co">#&gt; 15: ACCOUNT_PLATFORM_CONSUMER 00000000-0000-4000-8000-000000000002</span></span>
+<span><span class="co">#&gt; 16: ACCOUNT_PLATFORM_CONSUMER 00000000-0000-4000-8000-000000000002</span></span>
+<span><span class="co">#&gt; 17: ACCOUNT_PLATFORM_CONSUMER 00000000-0000-4000-8000-000000000002</span></span>
+<span><span class="co">#&gt; 18: ACCOUNT_PLATFORM_CONSUMER 00000000-0000-4000-8000-000000000002</span></span>
+<span><span class="co">#&gt; 19: ACCOUNT_PLATFORM_CONSUMER 00000000-0000-4000-8000-000000000002</span></span>
+<span><span class="co">#&gt; 20: ACCOUNT_PLATFORM_CONSUMER 00000000-0000-4000-8000-000000000002</span></span>
+<span><span class="co">#&gt; 21: ACCOUNT_PLATFORM_CONSUMER 00000000-0000-4000-8000-000000000002</span></span>
+<span><span class="co">#&gt; 22: ACCOUNT_PLATFORM_CONSUMER 00000000-0000-4000-8000-000000000002</span></span>
+<span><span class="co">#&gt; 23: ACCOUNT_PLATFORM_CONSUMER 00000000-0000-4000-8000-000000000002</span></span>
+<span><span class="co">#&gt; 24: ACCOUNT_PLATFORM_CONSUMER 00000000-0000-4000-8000-000000000002</span></span>
+<span><span class="co">#&gt; 25: ACCOUNT_PLATFORM_CONSUMER 00000000-0000-4000-8000-000000000002</span></span>
+<span><span class="co">#&gt; 26: ACCOUNT_PLATFORM_CONSUMER 00000000-0000-4000-8000-000000000002</span></span>
+<span><span class="co">#&gt;                      platform                  retail_portfolio_id</span></span>
+<span><span class="co">#&gt;                        &lt;char&gt;                               &lt;char&gt;</span></span>
+<span><span class="co">#&gt;              created_at          updated_at</span></span>
+<span><span class="co">#&gt;                  &lt;POSc&gt;              &lt;POSc&gt;</span></span>
+<span><span class="co">#&gt;  1: 2025-03-17 06:44:24 2025-04-23 16:57:19</span></span>
+<span><span class="co">#&gt;  2: 2023-07-26 10:16:17 2023-07-26 10:16:18</span></span>
+<span><span class="co">#&gt;  3: 2020-12-24 21:42:52 2020-12-24 21:47:34</span></span>
+<span><span class="co">#&gt;  4: 2020-12-24 21:41:51 2020-12-24 21:48:21</span></span>
+<span><span class="co">#&gt;  5: 2020-12-24 21:39:42 2020-12-24 21:48:49</span></span>
+<span><span class="co">#&gt;  6: 2019-03-27 19:03:13 2025-03-17 07:14:40</span></span>
+<span><span class="co">#&gt;  7: 2019-03-06 08:25:49 2019-03-06 08:25:49</span></span>
+<span><span class="co">#&gt;  8: 2018-12-19 11:38:50 2018-12-19 11:38:50</span></span>
+<span><span class="co">#&gt;  9: 2018-12-19 11:38:50 2018-12-19 11:38:50</span></span>
+<span><span class="co">#&gt; 10: 2018-12-19 11:38:50 2020-12-24 21:48:02</span></span>
+<span><span class="co">#&gt; 11: 2018-12-19 11:38:50 2018-12-19 11:38:50</span></span>
+<span><span class="co">#&gt; 12: 2018-12-07 18:16:18 2018-12-07 18:16:19</span></span>
+<span><span class="co">#&gt; 13: 2018-12-07 18:16:17 2018-12-07 18:16:17</span></span>
+<span><span class="co">#&gt; 14: 2018-12-07 18:16:17 2018-12-07 18:16:17</span></span>
+<span><span class="co">#&gt; 15: 2018-12-07 18:16:17 2018-12-07 18:16:17</span></span>
+<span><span class="co">#&gt; 16: 2018-12-07 18:16:17 2018-12-07 18:16:17</span></span>
+<span><span class="co">#&gt; 17: 2018-11-06 11:12:35 2025-03-17 07:15:28</span></span>
+<span><span class="co">#&gt; 18: 2018-10-23 20:36:35 2026-06-09 17:12:16</span></span>
+<span><span class="co">#&gt; 19: 2018-10-23 20:36:35 2018-10-23 20:36:35</span></span>
+<span><span class="co">#&gt; 20: 2018-10-06 14:30:08 2018-10-06 14:30:08</span></span>
+<span><span class="co">#&gt; 21: 2018-02-08 02:10:29 2021-06-26 16:42:55</span></span>
+<span><span class="co">#&gt; 22: 2017-12-15 20:25:13 2017-12-17 15:21:56</span></span>
+<span><span class="co">#&gt; 23: 2017-11-29 20:27:22 2025-02-25 20:30:33</span></span>
+<span><span class="co">#&gt; 24: 2017-11-29 19:55:46 2025-03-15 01:15:34</span></span>
+<span><span class="co">#&gt; 25: 2017-11-29 19:55:46 2025-04-02 23:52:35</span></span>
+<span><span class="co">#&gt; 26: 2017-11-29 19:55:45 2026-02-01 05:45:36</span></span>
+<span><span class="co">#&gt;              created_at          updated_at</span></span>
+<span><span class="co">#&gt;                  &lt;POSc&gt;              &lt;POSc&gt;</span></span>
 <span><span class="co">#&gt;    currency available_balance  hold</span></span>
 <span><span class="co">#&gt;      &lt;char&gt;             &lt;num&gt; &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:      BTC            0.5000     0</span></span>
-<span><span class="co">#&gt; 2:      USD        12500.0000   250</span></span></code></pre>
+<span><span class="co">#&gt; 1:      ETH               0.5     0</span></span></code></pre>
 </div>
 <div class="section level4">
 <h4 id="fees">Fees<a class="anchor" aria-label="anchor" href="#fees"></a>
@@ -763,10 +1287,10 @@ top-level volume/fee fields. A single row, every column numeric except
 <code class="sourceCode R"><span><span class="va">account</span><span class="op">$</span><span class="fu">get_fees</span><span class="op">(</span><span class="op">)</span><span class="op">[</span><span class="op">]</span></span></code></pre></div>
 <pre><code><span><span class="co">#&gt;    pricing_tier maker_fee_rate taker_fee_rate usd_from usd_to total_volume</span></span>
 <span><span class="co">#&gt;          &lt;char&gt;          &lt;num&gt;          &lt;num&gt;    &lt;num&gt;  &lt;num&gt;        &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:   Advanced 1          0.004          0.006        0   1000     125000.5</span></span>
+<span><span class="co">#&gt; 1:      Intro 1          0.006          0.012       NA     NA            0</span></span>
 <span><span class="co">#&gt;    total_fees total_balance</span></span>
 <span><span class="co">#&gt;         &lt;num&gt;         &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:     312.75      13050.42</span></span></code></pre>
+<span><span class="co">#&gt; 1:          0             0</span></span></code></pre>
 <p>Pass <code>product_type = "SPOT"</code> or <code>"FUTURE"</code> to
 scope the summary.</p>
 </div>
@@ -780,13 +1304,12 @@ generic <code>as_dt_list</code> flattener;
 <div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">account</span><span class="op">$</span><span class="fu">get_portfolios</span><span class="op">(</span><span class="op">)</span><span class="op">[</span><span class="op">]</span></span>
 <span><span class="va">account</span><span class="op">$</span><span class="fu">get_key_permissions</span><span class="op">(</span><span class="op">)</span><span class="op">[</span><span class="op">]</span></span></code></pre></div>
-<pre><code><span><span class="co">#&gt;       name                                 uuid     type</span></span>
-<span><span class="co">#&gt;     &lt;char&gt;                               &lt;char&gt;   &lt;char&gt;</span></span>
-<span><span class="co">#&gt; 1: Default 9c2f8b1e-1111-4d3a-9aaa-0123456789ab  DEFAULT</span></span>
-<span><span class="co">#&gt; 2:    Algo 7d6e5f4c-2222-4b1a-8ccc-fedcba987654 CONSUMER</span></span>
+<pre><code><span><span class="co">#&gt;       name                                 uuid    type deleted</span></span>
+<span><span class="co">#&gt;     &lt;char&gt;                               &lt;char&gt;  &lt;char&gt;  &lt;lgcl&gt;</span></span>
+<span><span class="co">#&gt; 1: Default 00000000-0000-4000-8000-000000000002 DEFAULT   FALSE</span></span>
 <span><span class="co">#&gt;    can_view can_trade can_transfer                       portfolio_uuid</span></span>
 <span><span class="co">#&gt;      &lt;lgcl&gt;    &lt;lgcl&gt;       &lt;lgcl&gt;                               &lt;char&gt;</span></span>
-<span><span class="co">#&gt; 1:     TRUE      TRUE        FALSE 9c2f8b1e-1111-4d3a-9aaa-0123456789ab</span></span>
+<span><span class="co">#&gt; 1:     TRUE      TRUE        FALSE 00000000-0000-4000-8000-000000000002</span></span>
 <span><span class="co">#&gt;    portfolio_type</span></span>
 <span><span class="co">#&gt;            &lt;char&gt;</span></span>
 <span><span class="co">#&gt; 1:        DEFAULT</span></span></code></pre>
@@ -973,10 +1496,10 @@ Exactly these columns, one row per order:</p>
 <td></td>
 </tr>
 <tr class="odd">
-<td><code>created_time</code></td>
+<td><code>timestamp</code></td>
 <td>
 <code>POSIXct</code> (UTC)</td>
-<td></td>
+<td>order creation time (primary event time)</td>
 </tr>
 <tr class="even">
 <td><code>completion_percentage</code></td>
@@ -1062,25 +1585,27 @@ Exactly these columns, one row per order:</p>
 <div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">orders</span> <span class="op">&lt;-</span> <span class="va">trading</span><span class="op">$</span><span class="fu">get_orders</span><span class="op">(</span>product_ids <span class="op">=</span> <span class="st">"BTC-USD"</span>, limit <span class="op">=</span> <span class="fl">50L</span><span class="op">)</span></span>
 <span><span class="va">orders</span><span class="op">[</span>, <span class="fu">.</span><span class="op">(</span><span class="va">order_id</span>, <span class="va">product_id</span>, <span class="va">side</span>, <span class="va">status</span>, <span class="va">order_type</span>, <span class="va">config_type</span>, <span class="va">filled_size</span><span class="op">)</span><span class="op">]</span></span></code></pre></div>
-<pre><code><span><span class="co">#&gt;                                order_id product_id   side status order_type</span></span>
-<span><span class="co">#&gt;                                  &lt;char&gt;     &lt;char&gt; &lt;char&gt; &lt;char&gt;     &lt;char&gt;</span></span>
-<span><span class="co">#&gt; 1: 1111aaaa-2222-bbbb-3333-cccccccccccc    BTC-USD    BUY   OPEN      LIMIT</span></span>
-<span><span class="co">#&gt; 2: 4444dddd-5555-eeee-6666-ffffffffffff    ETH-USD   SELL FILLED     MARKET</span></span>
-<span><span class="co">#&gt;          config_type filled_size</span></span>
-<span><span class="co">#&gt;               &lt;char&gt;       &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:   limit_limit_gtc         0.0</span></span>
-<span><span class="co">#&gt; 2: market_market_ioc         0.5</span></span></code></pre>
+<pre><code><span><span class="co">#&gt;                                order_id product_id   side    status order_type</span></span>
+<span><span class="co">#&gt;                                  &lt;char&gt;     &lt;char&gt; &lt;char&gt;    &lt;char&gt;     &lt;char&gt;</span></span>
+<span><span class="co">#&gt; 1: 00000000-0000-4000-8000-00000000001c    LTC-USD    BUY CANCELLED      LIMIT</span></span>
+<span><span class="co">#&gt; 2: 00000000-0000-4000-8000-00000000001e    LTC-USD    BUY CANCELLED      LIMIT</span></span>
+<span><span class="co">#&gt; 3: 00000000-0000-4000-8000-000000000020   LTC-USDC    BUY CANCELLED      LIMIT</span></span>
+<span><span class="co">#&gt;        config_type filled_size</span></span>
+<span><span class="co">#&gt;             &lt;char&gt;       &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1: limit_limit_gtc           0</span></span>
+<span><span class="co">#&gt; 2: limit_limit_gtc           0</span></span>
+<span><span class="co">#&gt; 3: limit_limit_gtc           0</span></span></code></pre>
 <p>A single order by id is the same row shape:</p>
 <div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">trading</span><span class="op">$</span><span class="fu">get_order</span><span class="op">(</span><span class="st">"1111aaaa-2222-bbbb-3333-cccccccccccc"</span><span class="op">)</span><span class="op">[</span></span>
 <span>  , <span class="fu">.</span><span class="op">(</span><span class="va">order_id</span>, <span class="va">side</span>, <span class="va">status</span>, <span class="va">config_type</span>, <span class="va">base_size</span>, <span class="va">limit_price</span><span class="op">)</span></span>
 <span><span class="op">]</span></span></code></pre></div>
-<pre><code><span><span class="co">#&gt;                                order_id   side status     config_type base_size</span></span>
-<span><span class="co">#&gt;                                  &lt;char&gt; &lt;char&gt; &lt;char&gt;          &lt;char&gt;     &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1: 1111aaaa-2222-bbbb-3333-cccccccccccc    BUY   OPEN limit_limit_gtc     0.001</span></span>
-<span><span class="co">#&gt;    limit_price</span></span>
-<span><span class="co">#&gt;          &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:       70000</span></span></code></pre>
+<pre><code><span><span class="co">#&gt;                                order_id   side    status     config_type</span></span>
+<span><span class="co">#&gt;                                  &lt;char&gt; &lt;char&gt;    &lt;char&gt;          &lt;char&gt;</span></span>
+<span><span class="co">#&gt; 1: 00000000-0000-4000-8000-00000000001c    BUY CANCELLED limit_limit_gtc</span></span>
+<span><span class="co">#&gt;    base_size limit_price</span></span>
+<span><span class="co">#&gt;        &lt;num&gt;       &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1:        10          10</span></span></code></pre>
 </div>
 <div class="section level4">
 <h4 id="fills-get_fills">Fills (<code>get_fills</code>)<a class="anchor" aria-label="anchor" href="#fills-get_fills"></a>
@@ -1113,7 +1638,7 @@ Exactly these columns, one row per order:</p>
 <td><code>character</code></td>
 </tr>
 <tr class="even">
-<td><code>trade_time</code></td>
+<td><code>timestamp</code></td>
 <td>
 <code>POSIXct</code> (UTC)</td>
 </tr>
@@ -1150,7 +1675,7 @@ Exactly these columns, one row per order:</p>
 <span><span class="co">#&gt;        &lt;char&gt;     &lt;char&gt;                               &lt;char&gt;     &lt;char&gt; &lt;char&gt;</span></span>
 <span><span class="co">#&gt; 1: entry-0001 trade-0001 4444dddd-5555-eeee-6666-ffffffffffff    ETH-USD   SELL</span></span>
 <span><span class="co">#&gt; 2: entry-0002 trade-0002 4444dddd-5555-eeee-6666-ffffffffffff    ETH-USD   SELL</span></span>
-<span><span class="co">#&gt;             trade_time trade_type  price  size commission size_in_quote</span></span>
+<span><span class="co">#&gt;              timestamp trade_type  price  size commission size_in_quote</span></span>
 <span><span class="co">#&gt;                 &lt;POSc&gt;     &lt;char&gt;  &lt;num&gt; &lt;num&gt;      &lt;num&gt;        &lt;lgcl&gt;</span></span>
 <span><span class="co">#&gt; 1: 2026-05-30 18:31:02       FILL 3850.2   0.3       4.62         FALSE</span></span>
 <span><span class="co">#&gt; 2: 2026-05-30 18:31:03       FILL 3850.2   0.2       3.08         FALSE</span></span>
@@ -1615,7 +2140,7 @@ position:</p>
 <td><code>character</code></td>
 </tr>
 <tr class="odd">
-<td><code>schedule_time</code></td>
+<td><code>timestamp</code></td>
 <td>
 <code>POSIXct</code> (UTC)</td>
 </tr>
@@ -1623,9 +2148,9 @@ position:</p>
 </table>
 <div class="sourceCode" id="cb53"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">futures</span><span class="op">$</span><span class="fu">get_sweeps</span><span class="op">(</span><span class="op">)</span><span class="op">[</span><span class="op">]</span></span></code></pre></div>
-<pre><code><span><span class="co">#&gt;            id requested_amount should_sweep_all  status schedule_time</span></span>
-<span><span class="co">#&gt;        &lt;char&gt;            &lt;num&gt;           &lt;lgcl&gt;  &lt;char&gt;        &lt;POSc&gt;</span></span>
-<span><span class="co">#&gt; 1: sweep-0001              500            FALSE PENDING    2026-05-31</span></span></code></pre>
+<pre><code><span><span class="co">#&gt;            id requested_amount should_sweep_all  status  timestamp</span></span>
+<span><span class="co">#&gt;        &lt;char&gt;            &lt;num&gt;           &lt;lgcl&gt;  &lt;char&gt;     &lt;POSc&gt;</span></span>
+<span><span class="co">#&gt; 1: sweep-0001              500            FALSE PENDING 2026-05-31</span></span></code></pre>
 </div>
 <div class="section level4">
 <h4 id="margin-window-and-settings">Margin window and settings<a class="anchor" aria-label="anchor" href="#margin-window-and-settings"></a>
@@ -1647,9 +2172,9 @@ success body is empty.</p>
 <div class="sourceCode" id="cb55"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">futures</span><span class="op">$</span><span class="fu">get_current_margin_window</span><span class="op">(</span><span class="st">"MARGIN_PROFILE_TYPE_RETAIL_INTRADAY_MARGIN_1"</span><span class="op">)</span><span class="op">[</span><span class="op">]</span></span>
 <span><span class="va">futures</span><span class="op">$</span><span class="fu">get_intraday_margin_setting</span><span class="op">(</span><span class="op">)</span><span class="op">[</span><span class="op">]</span></span></code></pre></div>
-<pre><code><span><span class="co">#&gt;                  margin_window_type            end_time</span></span>
-<span><span class="co">#&gt;                              &lt;char&gt;              &lt;POSc&gt;</span></span>
-<span><span class="co">#&gt; 1: FCM_MARGIN_WINDOW_TYPE_OVERNIGHT 2026-05-31 13:30:00</span></span>
+<pre><code><span><span class="co">#&gt;              margin_window_type            end_time</span></span>
+<span><span class="co">#&gt;                          &lt;char&gt;              &lt;POSc&gt;</span></span>
+<span><span class="co">#&gt; 1: MARGIN_WINDOW_TYPE_OVERNIGHT 2026-06-28 22:00:00</span></span>
 <span><span class="co">#&gt;    is_intraday_margin_killswitch_enabled</span></span>
 <span><span class="co">#&gt;                                   &lt;lgcl&gt;</span></span>
 <span><span class="co">#&gt; 1:                                 FALSE</span></span>
@@ -1713,7 +2238,7 @@ not run here:</p>
 <p>This is the deep-history path. Coinbase’s <code>/candles</code>
 endpoint is shallow, so complete OHLCV at any timeframe is built from
 ticks: download trades, then aggregate. <code><a href="../reference/trades_to_ohlcv.html">trades_to_ohlcv()</a></code>
-takes a <code>data.table</code> with <code>time</code>
+takes a <code>data.table</code> with <code>timestamp</code>
 (<code>POSIXct</code>), <code>price</code> (<code>numeric</code>), and
 <code>size</code> (<code>numeric</code>) columns — exactly what
 <code>get_trades()</code> / <code>get_trades_history()</code> return —
@@ -1767,9 +2292,10 @@ exactly, so candle data from either source is interchangeable.</p>
 <code class="sourceCode R"><span><span class="va">ticks</span> <span class="op">&lt;-</span> <span class="va">market</span><span class="op">$</span><span class="fu">get_trades</span><span class="op">(</span><span class="st">"BTC-USD"</span>, limit <span class="op">=</span> <span class="fl">1000L</span><span class="op">)</span></span>
 <span><span class="va">bars</span>  <span class="op">&lt;-</span> <span class="fu"><a href="../reference/trades_to_ohlcv.html">trades_to_ohlcv</a></span><span class="op">(</span><span class="va">ticks</span>, interval <span class="op">=</span> <span class="fl">60</span><span class="op">)</span>   <span class="co"># 1-minute bars</span></span>
 <span><span class="va">bars</span><span class="op">[</span>, <span class="fu">.</span><span class="op">(</span><span class="va">datetime</span>, <span class="va">open</span>, <span class="va">high</span>, <span class="va">low</span>, <span class="va">close</span>, <span class="va">volume</span><span class="op">)</span><span class="op">]</span></span></code></pre></div>
-<pre><code><span><span class="co">#&gt;               datetime     open     high      low    close     volume</span></span>
-<span><span class="co">#&gt;                 &lt;POSc&gt;    &lt;num&gt;    &lt;num&gt;    &lt;num&gt;    &lt;num&gt;      &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1: 2026-05-31 04:58:00 74100.98 74101.54 74100.98 74101.53 0.01258607</span></span></code></pre>
+<pre><code><span><span class="co">#&gt;               datetime     open     high      low    close    volume</span></span>
+<span><span class="co">#&gt;                 &lt;POSc&gt;    &lt;num&gt;    &lt;num&gt;    &lt;num&gt;    &lt;num&gt;     &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1: 2026-06-27 17:44:00 60502.78 60502.78 60499.26 60499.26 0.1652497</span></span>
+<span><span class="co">#&gt; 2: 2026-06-27 17:45:00 60499.26 60499.26 60475.36 60488.38 0.4092643</span></span></code></pre>
 </div>
 <div class="section level4">
 <h4 id="symbol-verification-and-client-order-ids">Symbol verification and client order IDs<a class="anchor" aria-label="anchor" href="#symbol-verification-and-client-order-ids"></a>
@@ -1783,7 +2309,7 @@ exactly, so candle data from either source is interchangeable.</p>
 <pre><code><span><span class="co">#&gt; [1] TRUE</span></span>
 <span><span class="co">#&gt; [1] TRUE</span></span>
 <span><span class="co">#&gt; [1] FALSE</span></span>
-<span><span class="co">#&gt; [1] "0fb5aaa7-cd0a-44d9-abb4-ff0455677cfb"</span></span></code></pre>
+<span><span class="co">#&gt; [1] "4f16d915-ef6f-4f94-aea6-6c3673e67c43"</span></span></code></pre>
 </div>
 <div class="section level4">
 <h4 id="async-usage">Async usage<a class="anchor" aria-label="anchor" href="#async-usage"></a>
@@ -1813,18 +2339,25 @@ No pipes anywhere.</p>
 <span></span>
 <span><span class="va">results</span><span class="op">$</span><span class="va">ticker</span><span class="op">[</span><span class="op">]</span></span>
 <span><span class="va">results</span><span class="op">$</span><span class="va">candles</span><span class="op">[</span><span class="op">]</span></span></code></pre></div>
-<pre><code><span><span class="co">#&gt;         ask      bid   volume   trade_id    price    size                time</span></span>
-<span><span class="co">#&gt;       &lt;num&gt;    &lt;num&gt;    &lt;num&gt;      &lt;int&gt;    &lt;num&gt;   &lt;num&gt;              &lt;POSc&gt;</span></span>
-<span><span class="co">#&gt; 1: 74101.53 74101.52 3600.231 1026942323 74101.53 5.2e-07 2026-05-31 04:58:29</span></span>
-<span><span class="co">#&gt;    rfq_volume</span></span>
-<span><span class="co">#&gt;         &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:    10.7929</span></span>
-<span><span class="co">#&gt;               datetime     open     high      low    close volume</span></span>
-<span><span class="co">#&gt;                 &lt;POSc&gt;    &lt;num&gt;    &lt;num&gt;    &lt;num&gt;    &lt;num&gt;  &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1: 2026-05-31 04:53:00 74055.40 74070.12 74050.00 74067.15 1.4820</span></span>
-<span><span class="co">#&gt; 2: 2026-05-31 04:54:00 74113.49 74113.49 74067.15 74068.26 3.0535</span></span>
-<span><span class="co">#&gt; 3: 2026-05-31 04:55:00 74068.26 74093.61 74068.26 74093.60 0.9691</span></span>
-<span><span class="co">#&gt; 4: 2026-05-31 04:56:00 74093.60 74099.83 74093.59 74099.83 0.1151</span></span></code></pre>
+<pre><code><span><span class="co">#&gt;         ask      bid   volume   trade_id    price    size rfq_volume</span></span>
+<span><span class="co">#&gt;       &lt;num&gt;    &lt;num&gt;    &lt;num&gt;      &lt;int&gt;    &lt;num&gt;   &lt;num&gt;      &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1: 60481.65 60481.64 5973.761 1045278653 60479.56 1.3e-07   67.01332</span></span>
+<span><span class="co">#&gt;              timestamp</span></span>
+<span><span class="co">#&gt;                 &lt;POSc&gt;</span></span>
+<span><span class="co">#&gt; 1: 2026-06-27 17:45:15</span></span>
+<span><span class="co">#&gt;                 datetime     open     high      low    close    volume</span></span>
+<span><span class="co">#&gt;                   &lt;POSc&gt;    &lt;num&gt;    &lt;num&gt;    &lt;num&gt;    &lt;num&gt;     &lt;num&gt;</span></span>
+<span><span class="co">#&gt;   1: 2026-06-27 11:53:00 60239.24 60259.03 60237.18 60254.55 0.5974811</span></span>
+<span><span class="co">#&gt;   2: 2026-06-27 11:54:00 60254.55 60259.22 60245.28 60253.71 1.3447478</span></span>
+<span><span class="co">#&gt;   3: 2026-06-27 11:55:00 60253.71 60277.48 60253.35 60261.37 1.9928412</span></span>
+<span><span class="co">#&gt;   4: 2026-06-27 11:56:00 60261.37 60271.22 60261.37 60267.93 0.5881228</span></span>
+<span><span class="co">#&gt;   5: 2026-06-27 11:57:00 60267.94 60275.14 60267.93 60275.14 1.4672205</span></span>
+<span><span class="co">#&gt;  ---                                                                  </span></span>
+<span><span class="co">#&gt; 346: 2026-06-27 17:38:00 60488.71 60542.10 60486.43 60531.97 0.8154508</span></span>
+<span><span class="co">#&gt; 347: 2026-06-27 17:39:00 60531.98 60557.40 60490.84 60498.00 3.7195266</span></span>
+<span><span class="co">#&gt; 348: 2026-06-27 17:40:00 60499.25 60510.05 60490.08 60506.00 0.6947636</span></span>
+<span><span class="co">#&gt; 349: 2026-06-27 17:41:00 60506.00 60509.35 60494.01 60500.51 0.9226553</span></span>
+<span><span class="co">#&gt; 350: 2026-06-27 17:42:00 60500.51 60510.05 60500.51 60510.04 0.0020467</span></span></code></pre>
 <p>See <code><a href="../articles/async-usage.html">vignette("async-usage", package = "coinbase")</a></code> for
 the full pattern.</p>
 <hr>
@@ -1866,7 +2399,8 @@ sibling <code>currency</code> column.</p>
 <span></span>
 <span><span class="va">bal</span> <span class="op">&lt;-</span> <span class="va">futures</span><span class="op">$</span><span class="fu">get_balance_summary</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">bal</span><span class="op">$</span><span class="va">futures_buying_power</span>    <span class="co"># numeric, flattened from {value, currency}</span></span></code></pre></div>
-<pre><code><span><span class="co">#&gt; [1]     0.5000 12500.0000</span></span>
+<pre><code><span><span class="co">#&gt;  [1] 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0</span></span>
+<span><span class="co">#&gt; [20] 0.0 0.0 0.0 0.0 0.0 0.5 0.0</span></span>
 <span><span class="co">#&gt; [1] 9500</span></span></code></pre>
 <p>Where it’s used: <code>available_balance</code> / <code>hold</code>
 on accounts; every amount on the futures balance summary, positions, and
@@ -1888,14 +2422,110 @@ exactly one endpoint: the order book.</p>
 <div class="sourceCode" id="cb69"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ob</span> <span class="op">&lt;-</span> <span class="va">market</span><span class="op">$</span><span class="fu">get_orderbook</span><span class="op">(</span><span class="st">"BTC-USD"</span>, level <span class="op">=</span> <span class="fl">2L</span><span class="op">)</span></span>
 <span><span class="va">ob</span><span class="op">[</span>, <span class="fu">.</span><span class="op">(</span><span class="va">side</span>, <span class="va">price</span>, <span class="va">size</span>, <span class="va">num_orders</span><span class="op">)</span><span class="op">]</span></span></code></pre></div>
-<pre><code><span><span class="co">#&gt;      side    price       size num_orders</span></span>
-<span><span class="co">#&gt;    &lt;char&gt;    &lt;num&gt;      &lt;num&gt;      &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:    bid 74101.52 0.43541938          5</span></span>
-<span><span class="co">#&gt; 2:    bid 74101.38 0.00067474          1</span></span>
-<span><span class="co">#&gt; 3:    bid 74098.69 0.00266800          1</span></span>
-<span><span class="co">#&gt; 4:    ask 74101.53 0.08631688          7</span></span>
-<span><span class="co">#&gt; 5:    ask 74103.63 0.26058806          2</span></span>
-<span><span class="co">#&gt; 6:    ask 74103.66 0.00140588          2</span></span></code></pre>
+<pre><code><span><span class="co">#&gt;        side    price       size num_orders</span></span>
+<span><span class="co">#&gt;      &lt;char&gt;    &lt;num&gt;      &lt;num&gt;      &lt;num&gt;</span></span>
+<span><span class="co">#&gt;   1:    bid 60475.87 0.09089192          5</span></span>
+<span><span class="co">#&gt;   2:    bid 60475.43 0.04133910          1</span></span>
+<span><span class="co">#&gt;   3:    bid 60475.42 0.10519951          1</span></span>
+<span><span class="co">#&gt;   4:    bid 60475.36 0.01836163          3</span></span>
+<span><span class="co">#&gt;   5:    bid 60475.06 0.00429929          1</span></span>
+<span><span class="co">#&gt;   6:    bid 60474.78 0.00001900          1</span></span>
+<span><span class="co">#&gt;   7:    bid 60474.01 0.01564455          1</span></span>
+<span><span class="co">#&gt;   8:    bid 60474.00 0.00560000          1</span></span>
+<span><span class="co">#&gt;   9:    bid 60473.60 0.13228911          1</span></span>
+<span><span class="co">#&gt;  10:    bid 60472.66 0.15518089          1</span></span>
+<span><span class="co">#&gt;  11:    bid 60472.18 0.09926542          1</span></span>
+<span><span class="co">#&gt;  12:    bid 60472.00 0.00590000          1</span></span>
+<span><span class="co">#&gt;  13:    bid 60471.72 0.00001900          1</span></span>
+<span><span class="co">#&gt;  14:    bid 60471.51 0.04958465          1</span></span>
+<span><span class="co">#&gt;  15:    bid 60470.29 0.09926542          1</span></span>
+<span><span class="co">#&gt;  16:    bid 60470.00 0.00590000          1</span></span>
+<span><span class="co">#&gt;  17:    bid 60469.69 0.06628080          1</span></span>
+<span><span class="co">#&gt;  18:    bid 60469.68 0.81150667          2</span></span>
+<span><span class="co">#&gt;  19:    bid 60469.58 0.16553407          1</span></span>
+<span><span class="co">#&gt;  20:    bid 60469.50 1.00000000          1</span></span>
+<span><span class="co">#&gt;  21:    bid 60468.89 0.04166679          1</span></span>
+<span><span class="co">#&gt;  22:    bid 60468.66 0.00001900          1</span></span>
+<span><span class="co">#&gt;  23:    bid 60468.12 0.05563684          1</span></span>
+<span><span class="co">#&gt;  24:    bid 60468.09 0.09926542          1</span></span>
+<span><span class="co">#&gt;  25:    bid 60468.02 0.06799000          1</span></span>
+<span><span class="co">#&gt;  26:    bid 60466.62 0.00032994          1</span></span>
+<span><span class="co">#&gt;  27:    bid 60466.51 0.24033430          1</span></span>
+<span><span class="co">#&gt;  28:    bid 60466.26 0.09926542          1</span></span>
+<span><span class="co">#&gt;  29:    bid 60465.60 0.00001900          1</span></span>
+<span><span class="co">#&gt;  30:    bid 60465.39 0.00004639          1</span></span>
+<span><span class="co">#&gt;  31:    bid 60465.17 0.06144184          1</span></span>
+<span><span class="co">#&gt;  32:    bid 60465.00 0.01000000          1</span></span>
+<span><span class="co">#&gt;  33:    bid 60464.51 0.16553407          1</span></span>
+<span><span class="co">#&gt;  34:    bid 60464.20 0.00009277          1</span></span>
+<span><span class="co">#&gt;  35:    bid 60463.80 0.00001654          1</span></span>
+<span><span class="co">#&gt;  36:    bid 60463.54 0.14766813          1</span></span>
+<span><span class="co">#&gt;  37:    bid 60463.53 0.06628080          1</span></span>
+<span><span class="co">#&gt;  38:    bid 60463.52 0.09926542          1</span></span>
+<span><span class="co">#&gt;  39:    bid 60463.33 0.00908749          1</span></span>
+<span><span class="co">#&gt;  40:    bid 60462.92 0.07251205          1</span></span>
+<span><span class="co">#&gt;  41:    bid 60462.54 0.00001900          1</span></span>
+<span><span class="co">#&gt;  42:    bid 60461.84 0.00018554          1</span></span>
+<span><span class="co">#&gt;  43:    bid 60460.57 0.01817499          1</span></span>
+<span><span class="co">#&gt;  44:    bid 60460.41 0.00454375          1</span></span>
+<span><span class="co">#&gt;  45:    bid 60460.00 0.01000000          1</span></span>
+<span><span class="co">#&gt;  46:    bid 60459.48 0.00001900          1</span></span>
+<span><span class="co">#&gt;  47:    bid 60459.28 0.00583000          1</span></span>
+<span><span class="co">#&gt;  48:    bid 60459.27 0.19632383          1</span></span>
+<span><span class="co">#&gt;  49:    bid 60459.26 0.16553407          1</span></span>
+<span><span class="co">#&gt;  50:    bid 60459.16 0.09926542          1</span></span>
+<span><span class="co">#&gt;  51:    ask 60475.88 0.00248032          1</span></span>
+<span><span class="co">#&gt;  52:    ask 60476.05 0.00082678          1</span></span>
+<span><span class="co">#&gt;  53:    ask 60478.08 0.09926542          1</span></span>
+<span><span class="co">#&gt;  54:    ask 60478.29 0.06628080          1</span></span>
+<span><span class="co">#&gt;  55:    ask 60479.90 0.09926542          1</span></span>
+<span><span class="co">#&gt;  56:    ask 60480.00 0.00590000          1</span></span>
+<span><span class="co">#&gt;  57:    ask 60480.41 0.01564455          1</span></span>
+<span><span class="co">#&gt;  58:    ask 60480.42 0.00248032          1</span></span>
+<span><span class="co">#&gt;  59:    ask 60481.75 0.09926542          1</span></span>
+<span><span class="co">#&gt;  60:    ask 60481.96 0.35622262          2</span></span>
+<span><span class="co">#&gt;  61:    ask 60482.00 0.00590000          1</span></span>
+<span><span class="co">#&gt;  62:    ask 60482.03 0.13227071          1</span></span>
+<span><span class="co">#&gt;  63:    ask 60483.96 0.00001900          1</span></span>
+<span><span class="co">#&gt;  64:    ask 60484.00 0.00590000          1</span></span>
+<span><span class="co">#&gt;  65:    ask 60484.18 0.16553407          1</span></span>
+<span><span class="co">#&gt;  66:    ask 60484.19 0.09926542          1</span></span>
+<span><span class="co">#&gt;  67:    ask 60484.25 0.06628080          1</span></span>
+<span><span class="co">#&gt;  68:    ask 60484.43 0.16533181          1</span></span>
+<span><span class="co">#&gt;  69:    ask 60484.94 0.06613619          1</span></span>
+<span><span class="co">#&gt;  70:    ask 60485.00 0.01000000          1</span></span>
+<span><span class="co">#&gt;  71:    ask 60485.36 0.15718904          1</span></span>
+<span><span class="co">#&gt;  72:    ask 60486.00 0.00590000          1</span></span>
+<span><span class="co">#&gt;  73:    ask 60486.01 0.09926542          1</span></span>
+<span><span class="co">#&gt;  74:    ask 60486.82 0.01102322          1</span></span>
+<span><span class="co">#&gt;  75:    ask 60487.02 0.00001900          1</span></span>
+<span><span class="co">#&gt;  76:    ask 60487.16 0.00082678          1</span></span>
+<span><span class="co">#&gt;  77:    ask 60487.84 0.09926542          1</span></span>
+<span><span class="co">#&gt;  78:    ask 60487.99 0.20654011          1</span></span>
+<span><span class="co">#&gt;  79:    ask 60488.00 0.00590000          1</span></span>
+<span><span class="co">#&gt;  80:    ask 60488.05 0.04166679          1</span></span>
+<span><span class="co">#&gt;  81:    ask 60488.26 0.00132219          1</span></span>
+<span><span class="co">#&gt;  82:    ask 60488.41 0.00970000          1</span></span>
+<span><span class="co">#&gt;  83:    ask 60488.51 0.00310030          1</span></span>
+<span><span class="co">#&gt;  84:    ask 60489.14 0.00583000          1</span></span>
+<span><span class="co">#&gt;  85:    ask 60489.27 0.06828000          1</span></span>
+<span><span class="co">#&gt;  86:    ask 60489.67 0.00009700          1</span></span>
+<span><span class="co">#&gt;  87:    ask 60489.70 0.16553407          1</span></span>
+<span><span class="co">#&gt;  88:    ask 60489.71 0.06628080          1</span></span>
+<span><span class="co">#&gt;  89:    ask 60490.00 0.01000000          1</span></span>
+<span><span class="co">#&gt;  90:    ask 60490.08 0.00001900          1</span></span>
+<span><span class="co">#&gt;  91:    ask 60491.32 0.74961071          2</span></span>
+<span><span class="co">#&gt;  92:    ask 60491.39 0.06298625          1</span></span>
+<span><span class="co">#&gt;  93:    ask 60491.79 0.09926542          1</span></span>
+<span><span class="co">#&gt;  94:    ask 60492.00 1.00593167          3</span></span>
+<span><span class="co">#&gt;  95:    ask 60492.05 0.01940000          1</span></span>
+<span><span class="co">#&gt;  96:    ask 60492.56 0.00165071          1</span></span>
+<span><span class="co">#&gt;  97:    ask 60493.14 0.00001900          1</span></span>
+<span><span class="co">#&gt;  98:    ask 60493.27 0.00082648          1</span></span>
+<span><span class="co">#&gt;  99:    ask 60493.28 0.00019400          1</span></span>
+<span><span class="co">#&gt; 100:    ask 60493.74 0.09926542          1</span></span>
+<span><span class="co">#&gt;        side    price       size num_orders</span></span>
+<span><span class="co">#&gt;      &lt;char&gt;    &lt;num&gt;      &lt;num&gt;      &lt;num&gt;</span></span></code></pre>
 <p>The <code>bids</code> and <code>asks</code> arrays are stacked with a
 <code>side</code> discriminator. The level-3 distinction is the subtle
 part: at levels 1-2 the third element is an order <strong>count</strong>
@@ -1920,10 +2550,10 @@ same row. The entity stays one row.</p>
 <span><span class="va">orders</span> <span class="op">&lt;-</span> <span class="va">trading</span><span class="op">$</span><span class="fu">get_orders</span><span class="op">(</span>product_ids <span class="op">=</span> <span class="st">"BTC-USD"</span><span class="op">)</span></span>
 <span><span class="va">orders</span><span class="op">$</span><span class="va">config_type</span>    <span class="co"># the order_configuration's one key</span></span>
 <span><span class="va">orders</span><span class="op">$</span><span class="va">limit_price</span>    <span class="co"># was nested inside order_configuration</span></span></code></pre></div>
-<pre><code><span><span class="co">#&gt; [1] 0.004</span></span>
-<span><span class="co">#&gt; [1] "Advanced 1"</span></span>
-<span><span class="co">#&gt; [1] "limit_limit_gtc"   "market_market_ioc"</span></span>
-<span><span class="co">#&gt; [1] 70000    NA</span></span></code></pre>
+<pre><code><span><span class="co">#&gt; [1] 0.006</span></span>
+<span><span class="co">#&gt; [1] "Intro 1"</span></span>
+<span><span class="co">#&gt; [1] "limit_limit_gtc" "limit_limit_gtc" "limit_limit_gtc"</span></span>
+<span><span class="co">#&gt; [1] 10 10 10</span></span></code></pre>
 <p>Where it’s used: <code>fee_tier</code> on <code>get_fees</code>
 (<code>pricing_tier</code> / <code>maker_fee_rate</code> /
 <code>taker_fee_rate</code> / <code>usd_from</code> /
@@ -2055,11 +2685,37 @@ hatch into <code>lapply</code> over hidden lists.</p>
 <span>  fill <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span>
 <span><span class="va">ledger</span><span class="op">[</span>, <span class="fu">.</span><span class="op">(</span><span class="va">wallet</span>, <span class="va">currency</span>, <span class="va">available_balance</span>, <span class="va">futures_buying_power</span><span class="op">)</span><span class="op">]</span></span></code></pre></div>
-<pre><code><span><span class="co">#&gt;     wallet currency available_balance futures_buying_power</span></span>
-<span><span class="co">#&gt;     &lt;char&gt;   &lt;char&gt;             &lt;num&gt;                &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:    spot      BTC            0.5000                   NA</span></span>
-<span><span class="co">#&gt; 2:    spot      USD        12500.0000                   NA</span></span>
-<span><span class="co">#&gt; 3: futures     &lt;NA&gt;                NA                 9500</span></span></code></pre>
+<pre><code><span><span class="co">#&gt;      wallet currency available_balance futures_buying_power</span></span>
+<span><span class="co">#&gt;      &lt;char&gt;   &lt;char&gt;             &lt;num&gt;                &lt;num&gt;</span></span>
+<span><span class="co">#&gt;  1:    spot     DASH               0.0                   NA</span></span>
+<span><span class="co">#&gt;  2:    spot     ETH2               0.0                   NA</span></span>
+<span><span class="co">#&gt;  3:    spot     COMP               0.0                   NA</span></span>
+<span><span class="co">#&gt;  4:    spot     CGLD               0.0                   NA</span></span>
+<span><span class="co">#&gt;  5:    spot      GRT               0.0                   NA</span></span>
+<span><span class="co">#&gt;  6:    spot      XLM               0.0                   NA</span></span>
+<span><span class="co">#&gt;  7:    spot      BSV               0.0                   NA</span></span>
+<span><span class="co">#&gt;  8:    spot      DAI               0.0                   NA</span></span>
+<span><span class="co">#&gt;  9:    spot      GNT               0.0                   NA</span></span>
+<span><span class="co">#&gt; 10:    spot      MKR               0.0                   NA</span></span>
+<span><span class="co">#&gt; 11:    spot      ZIL               0.0                   NA</span></span>
+<span><span class="co">#&gt; 12:    spot      ZEC               0.0                   NA</span></span>
+<span><span class="co">#&gt; 13:    spot      CVC               0.0                   NA</span></span>
+<span><span class="co">#&gt; 14:    spot      DNT               0.0                   NA</span></span>
+<span><span class="co">#&gt; 15:    spot     MANA               0.0                   NA</span></span>
+<span><span class="co">#&gt; 16:    spot     LOOM               0.0                   NA</span></span>
+<span><span class="co">#&gt; 17:    spot      BAT               0.0                   NA</span></span>
+<span><span class="co">#&gt; 18:    spot     USDC               0.0                   NA</span></span>
+<span><span class="co">#&gt; 19:    spot PBVAONFR               0.0                   NA</span></span>
+<span><span class="co">#&gt; 20:    spot      ZRX               0.0                   NA</span></span>
+<span><span class="co">#&gt; 21:    spot      ETC               0.0                   NA</span></span>
+<span><span class="co">#&gt; 22:    spot      BCH               0.0                   NA</span></span>
+<span><span class="co">#&gt; 23:    spot      USD               0.0                   NA</span></span>
+<span><span class="co">#&gt; 24:    spot      LTC               0.0                   NA</span></span>
+<span><span class="co">#&gt; 25:    spot      ETH               0.5                   NA</span></span>
+<span><span class="co">#&gt; 26:    spot      BTC               0.0                   NA</span></span>
+<span><span class="co">#&gt; 27: futures     &lt;NA&gt;                NA                 9500</span></span>
+<span><span class="co">#&gt;      wallet currency available_balance futures_buying_power</span></span>
+<span><span class="co">#&gt;      &lt;char&gt;   &lt;char&gt;             &lt;num&gt;                &lt;num&gt;</span></span></code></pre>
 <p>The same predictability is what makes the connector layer
 (<code>exchanges</code> package, on top of <code>tradebot-core</code>)
 easy to write: each raw wrapper returns data the connector can re-shape

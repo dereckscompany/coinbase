@@ -1,5 +1,11 @@
 # CoinbaseMarketData: Public Market Data Retrieval
 
+CoinbaseMarketData: Public Market Data Retrieval
+
+CoinbaseMarketData: Public Market Data Retrieval
+
+## Details
+
 Retrieves public market data from the Coinbase Exchange API: products,
 candles (OHLCV), tick trades, order books, tickers, and server time.
 These are unauthenticated, with one exception: `get_best_bid_ask()` hits
@@ -35,9 +41,11 @@ through history, then aggregate with
 | get_best_bid_ask   | GET /api/v3/brokerage/best_bid_ask | Yes  |
 | get_server_time    | GET /time                          | No   |
 
-## Super class
+## Super classes
 
-[`CoinbaseBase`](https://dereckscompany.github.io/coinbase/reference/CoinbaseBase.md)
+[`connectcore::RestClient`](https://rdrr.io/pkg/connectcore/man/RestClient.html)
+-\>
+[`coinbase::CoinbaseBase`](https://dereckscompany.github.io/coinbase/reference/CoinbaseBase.md)
 -\> `CoinbaseMarketData`
 
 ## Methods
@@ -70,11 +78,11 @@ through history, then aggregate with
 
 Inherited methods
 
-- [`CoinbaseBase$initialize()`](https://dereckscompany.github.io/coinbase/reference/CoinbaseBase.html#method-initialize)
+- [`coinbase::CoinbaseBase$initialize()`](https://dereckscompany.github.io/coinbase/reference/CoinbaseBase.html#method-initialize)
 
 ------------------------------------------------------------------------
 
-### `CoinbaseMarketData$get_products()`
+### Method `get_products()`
 
 Retrieve all available trading products (currency pairs).
 
@@ -84,13 +92,12 @@ Retrieve all available trading products (currency pairs).
 
 #### Returns
 
-A
-[data.table::data.table](https://rdrr.io/pkg/data.table/man/data.table.html)
-of products, or a promise thereof.
+(Products \| promise\<Products\>) one row per tradable product, or a
+promise thereof.
 
 ------------------------------------------------------------------------
 
-### `CoinbaseMarketData$get_product()`
+### Method `get_product()`
 
 Retrieve metadata for a single product.
 
@@ -102,17 +109,16 @@ Retrieve metadata for a single product.
 
 - `product_id`:
 
-  Character; the pair symbol, e.g. `"BTC-USD"`.
+  (scalar\<character\>) the pair symbol, e.g. `"BTC-USD"`.
 
 #### Returns
 
-A single-row
-[data.table::data.table](https://rdrr.io/pkg/data.table/man/data.table.html),
-or a promise thereof.
+(Products \| promise\<Products\>) a single-row table of product
+metadata, or a promise thereof.
 
 ------------------------------------------------------------------------
 
-### `CoinbaseMarketData$get_ohlcv()`
+### Method `get_ohlcv()`
 
 Retrieve OHLCV candles for a product. Returns roughly 300 bars per call;
 for deep history aggregate ticks with
@@ -131,31 +137,29 @@ for deep history aggregate ticks with
 
 - `product_id`:
 
-  Character; the pair symbol, e.g. `"BTC-USD"`.
+  (scalar\<character\>) the pair symbol, e.g. `"BTC-USD"`.
 
 - `granularity`:
 
-  Character; one of `"1min"`, `"5min"`, `"15min"`, `"1hour"`, `"6hour"`,
-  `"1day"`.
+  (scalar\<character in c("1min", "5min", "15min", "1hour", "6hour",
+  "1day")\>) the candle interval.
 
 - `start`:
 
-  POSIXct or NULL; range start. Optional.
+  (POSIXct \| NULL) range start. Optional.
 
 - `end`:
 
-  POSIXct or NULL; range end. Optional.
+  (POSIXct \| NULL) range end. Optional.
 
 #### Returns
 
-A
-[data.table::data.table](https://rdrr.io/pkg/data.table/man/data.table.html)
-with columns `datetime`, `open`, `high`, `low`, `close`, `volume`, or a
-promise thereof.
+(Ohlcv \| promise\<Ohlcv\>) one row per candle ascending by `datetime`,
+or a promise thereof.
 
 ------------------------------------------------------------------------
 
-### `CoinbaseMarketData$get_trades()`
+### Method `get_trades()`
 
 Retrieve recent tick trades for a product. To page further back, pass
 the smallest `trade_id` seen as `after`.
@@ -168,26 +172,25 @@ the smallest `trade_id` seen as `after`.
 
 - `product_id`:
 
-  Character; the pair symbol, e.g. `"BTC-USD"`.
+  (scalar\<character\>) the pair symbol, e.g. `"BTC-USD"`.
 
 - `limit`:
 
-  Integer; trades to return (max 1000). Default 1000.
+  (scalar\<count in \[1, Inf\[\>) trades to return (max 1000). Default
+  1000.
 
 - `after`:
 
-  Numeric or NULL; return trades older than this `trade_id`.
+  (scalar\<numeric\> \| NULL) return trades older than this `trade_id`.
 
 #### Returns
 
-A
-[data.table::data.table](https://rdrr.io/pkg/data.table/man/data.table.html)
-with columns `trade_id`, `side`, `price`, `size`, `time`, or a promise
+(Trades \| promise\<Trades\>) one row per tick trade, or a promise
 thereof.
 
 ------------------------------------------------------------------------
 
-### `CoinbaseMarketData$get_trades_history()`
+### Method `get_trades_history()`
 
 Retrieve deep tick history by paging the trades endpoint backwards in
 time. This is the backfill path: pages from the most recent trade toward
@@ -209,31 +212,30 @@ for deep OHLCV at any timeframe.
 
 - `product_id`:
 
-  Character; the pair symbol, e.g. `"BTC-USD"`.
+  (scalar\<character\>) the pair symbol, e.g. `"BTC-USD"`.
 
 - `start`:
 
-  POSIXct or NULL; stop once trades older than this are reached.
+  (POSIXct \| NULL) stop once trades older than this are reached.
 
 - `end`:
 
-  POSIXct or NULL; drop trades newer than this. Paging always begins at
+  (POSIXct \| NULL) drop trades newer than this. Paging always begins at
   the most recent trade.
 
 - `max_pages`:
 
-  Numeric; cap on pages fetched (each up to 1000 trades). Default `Inf`.
+  (scalar\<numeric in \[1, Inf\]\>) cap on pages fetched (each up to
+  1000 trades). Default `Inf`.
 
 #### Returns
 
-A
-[data.table::data.table](https://rdrr.io/pkg/data.table/man/data.table.html)
-with columns `trade_id`, `side`, `price`, `size`, `time` sorted
-ascending by `time`, or a promise thereof.
+(Trades \| promise\<Trades\>) one row per tick trade sorted ascending by
+`time`, or a promise thereof.
 
 ------------------------------------------------------------------------
 
-### `CoinbaseMarketData$get_orderbook()`
+### Method `get_orderbook()`
 
 Retrieve an order book snapshot for a product.
 
@@ -245,24 +247,22 @@ Retrieve an order book snapshot for a product.
 
 - `product_id`:
 
-  Character; the pair symbol, e.g. `"BTC-USD"`.
+  (scalar\<character\>) the pair symbol, e.g. `"BTC-USD"`.
 
 - `level`:
 
-  Integer; `1` (best bid/ask), `2` (top 50 aggregated), or `3` (full,
-  non-aggregated). Default 2.
+  (scalar\<count in \[1, 3\]\>) `1` (best bid/ask), `2` (top 50
+  aggregated), or `3` (full, non-aggregated). Default 2.
 
 #### Returns
 
-A long
-[data.table::data.table](https://rdrr.io/pkg/data.table/man/data.table.html)
-with columns `side`, `price`, `size`, and a third column that is
-`num_orders` (numeric) at levels 1-2 or `order_id` (character) at level
-3, or a promise thereof.
+(data.table \| promise\<data.table\>) a long table with columns `side`,
+`price`, `size`, and a third column that is `num_orders` (numeric) at
+levels 1-2 or `order_id` (character) at level 3, or a promise thereof.
 
 ------------------------------------------------------------------------
 
-### `CoinbaseMarketData$get_ticker()`
+### Method `get_ticker()`
 
 Retrieve the latest ticker (best bid/ask, last trade) for a product.
 
@@ -274,17 +274,29 @@ Retrieve the latest ticker (best bid/ask, last trade) for a product.
 
 - `product_id`:
 
-  Character; the pair symbol, e.g. `"BTC-USD"`.
+  (scalar\<character\>) the pair symbol, e.g. `"BTC-USD"`.
 
 #### Returns
 
-A single-row
-[data.table::data.table](https://rdrr.io/pkg/data.table/man/data.table.html),
-or a promise thereof.
+(data.table \| promise\<data.table\>) a single-row table (the `trade_id`
+and any `rfq_volume` columns are passed through untyped), or a promise
+thereof.
+
+- price (numeric \| NA) last trade price.
+
+- size (numeric \| NA) last trade size in the base asset.
+
+- timestamp (POSIXct) last trade time (UTC).
+
+- bid (numeric \| NA) best bid price.
+
+- ask (numeric \| NA) best ask price.
+
+- volume (numeric \| NA) 24-hour volume.
 
 ------------------------------------------------------------------------
 
-### `CoinbaseMarketData$get_stats()`
+### Method `get_stats()`
 
 Retrieve 24-hour and 30-day stats for *every* product in a single call –
 the basis for a market scanner / movers screener. Rank the returned
@@ -298,14 +310,11 @@ Exchange host's bulk stats endpoint.
 
 #### Returns
 
-A
-[data.table::data.table](https://rdrr.io/pkg/data.table/man/data.table.html)
-with one row per product: `product_id`, `open`, `high`, `low`, `last`,
-`volume`, `volume_30day`, or a promise thereof.
+(Stats \| promise\<Stats\>) one row per product, or a promise thereof.
 
 ------------------------------------------------------------------------
 
-### `CoinbaseMarketData$get_product_stats()`
+### Method `get_product_stats()`
 
 Retrieve 24-hour and 30-day stats for a single product.
 
@@ -317,18 +326,16 @@ Retrieve 24-hour and 30-day stats for a single product.
 
 - `product_id`:
 
-  Character; the pair symbol, e.g. `"BTC-USD"`.
+  (scalar\<character\>) the pair symbol, e.g. `"BTC-USD"`.
 
 #### Returns
 
-A single-row
-[data.table::data.table](https://rdrr.io/pkg/data.table/man/data.table.html)
-with `open`, `high`, `low`, `last`, `volume`, `volume_30day`, and the
-RFQ/conversion volumes, or a promise thereof.
+(ProductStats \| promise\<ProductStats\>) a single-row table, or a
+promise thereof.
 
 ------------------------------------------------------------------------
 
-### `CoinbaseMarketData$get_best_bid_ask()`
+### Method `get_best_bid_ask()`
 
 Retrieve the best bid/ask for many products in one call. Unlike the
 other `CoinbaseMarketData` methods, this hits the **Advanced Trade**
@@ -343,19 +350,17 @@ host and therefore **requires credentials** (construct the client with
 
 - `product_ids`:
 
-  Character vector or NULL; products to fetch. `NULL` returns the best
-  bid/ask for all products.
+  (character \| NULL) products to fetch. `NULL` returns the best bid/ask
+  for all products.
 
 #### Returns
 
-A
-[data.table::data.table](https://rdrr.io/pkg/data.table/man/data.table.html)
-with one row per product: `product_id`, `bid_price`, `bid_size`,
-`ask_price`, `ask_size`, `time`, or a promise thereof.
+(BestBidAsk \| promise\<BestBidAsk\>) one row per product, or a promise
+thereof.
 
 ------------------------------------------------------------------------
 
-### `CoinbaseMarketData$get_server_time()`
+### Method `get_server_time()`
 
 Retrieve the Coinbase Exchange server time.
 
@@ -365,13 +370,16 @@ Retrieve the Coinbase Exchange server time.
 
 #### Returns
 
-A single-row
-[data.table::data.table](https://rdrr.io/pkg/data.table/man/data.table.html)
-with `iso` and `epoch`, or a promise thereof.
+(data.table \| promise\<data.table\>) a single-row table, or a promise
+thereof.
+
+- iso (character) the server time as an ISO-8601 string.
+
+- epoch (numeric) the server time as Unix epoch seconds.
 
 ------------------------------------------------------------------------
 
-### `CoinbaseMarketData$clone()`
+### Method `clone()`
 
 The objects of this class are cloneable with this method.
 

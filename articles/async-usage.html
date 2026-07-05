@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">coinbase</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -63,7 +63,7 @@
 Mezquita</h4>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/dereckscompany/coinbase/blob/v0.0.1/vignettes/async-usage.Rmd" class="external-link"><code>vignettes/async-usage.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/dereckscompany/coinbase/blob/master/vignettes/async-usage.Rmd" class="external-link"><code>vignettes/async-usage.Rmd</code></a></small>
       <div class="d-none name"><code>async-usage.Rmd</code></div>
     </div>
 
@@ -152,12 +152,12 @@ return promises instead of data.tables:</p>
 <span>  <span class="fu">run_now</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="op">}</span></span>
 <span><span class="va">ticker</span></span></code></pre></div>
-<pre><code><span><span class="co">#&gt;         ask      bid   volume   trade_id    price    size                time</span></span>
-<span><span class="co">#&gt;       &lt;num&gt;    &lt;num&gt;    &lt;num&gt;      &lt;int&gt;    &lt;num&gt;   &lt;num&gt;              &lt;POSc&gt;</span></span>
-<span><span class="co">#&gt; 1: 74101.53 74101.52 3600.231 1026942323 74101.53 5.2e-07 2026-05-31 04:58:29</span></span>
-<span><span class="co">#&gt;    rfq_volume</span></span>
-<span><span class="co">#&gt;         &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:    10.7929</span></span></code></pre>
+<pre><code><span><span class="co">#&gt;         ask      bid   volume   trade_id    price    size rfq_volume</span></span>
+<span><span class="co">#&gt;       &lt;num&gt;    &lt;num&gt;    &lt;num&gt;      &lt;int&gt;    &lt;num&gt;   &lt;num&gt;      &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1: 60481.65 60481.64 5973.761 1045278653 60479.56 1.3e-07   67.01332</span></span>
+<span><span class="co">#&gt;              timestamp</span></span>
+<span><span class="co">#&gt;                 &lt;POSc&gt;</span></span>
+<span><span class="co">#&gt; 1: 2026-06-27 17:45:15</span></span></code></pre>
 <blockquote>
 <p><strong>Key pattern</strong>: define an <code>async</code> function,
 <code>await</code> each API call, capture the result with
@@ -167,7 +167,7 @@ return promises instead of data.tables:</p>
 <p>The resolved value is a single-row <code>data.table</code> with
 numeric <code>ask</code>, <code>bid</code>, <code>price</code>,
 <code>size</code>, <code>volume</code>, and a POSIXct
-<code>time</code>.</p>
+<code>timestamp</code>.</p>
 <hr>
 </div>
 <div class="section level2">
@@ -192,18 +192,25 @@ the next begins, just like <code>await</code> in TypeScript:</p>
 <span><span class="op">}</span></span>
 <span><span class="va">results</span><span class="op">$</span><span class="va">ticker</span></span>
 <span><span class="va">results</span><span class="op">$</span><span class="va">ohlcv</span></span></code></pre></div>
-<pre><code><span><span class="co">#&gt;         ask      bid   volume   trade_id    price    size                time</span></span>
-<span><span class="co">#&gt;       &lt;num&gt;    &lt;num&gt;    &lt;num&gt;      &lt;int&gt;    &lt;num&gt;   &lt;num&gt;              &lt;POSc&gt;</span></span>
-<span><span class="co">#&gt; 1: 74101.53 74101.52 3600.231 1026942323 74101.53 5.2e-07 2026-05-31 04:58:29</span></span>
-<span><span class="co">#&gt;    rfq_volume</span></span>
-<span><span class="co">#&gt;         &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:    10.7929</span></span>
-<span><span class="co">#&gt;               datetime     open     high      low    close volume</span></span>
-<span><span class="co">#&gt;                 &lt;POSc&gt;    &lt;num&gt;    &lt;num&gt;    &lt;num&gt;    &lt;num&gt;  &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1: 2026-05-31 04:53:00 74055.40 74070.12 74050.00 74067.15 1.4820</span></span>
-<span><span class="co">#&gt; 2: 2026-05-31 04:54:00 74113.49 74113.49 74067.15 74068.26 3.0535</span></span>
-<span><span class="co">#&gt; 3: 2026-05-31 04:55:00 74068.26 74093.61 74068.26 74093.60 0.9691</span></span>
-<span><span class="co">#&gt; 4: 2026-05-31 04:56:00 74093.60 74099.83 74093.59 74099.83 0.1151</span></span></code></pre>
+<pre><code><span><span class="co">#&gt;         ask      bid   volume   trade_id    price    size rfq_volume</span></span>
+<span><span class="co">#&gt;       &lt;num&gt;    &lt;num&gt;    &lt;num&gt;      &lt;int&gt;    &lt;num&gt;   &lt;num&gt;      &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1: 60481.65 60481.64 5973.761 1045278653 60479.56 1.3e-07   67.01332</span></span>
+<span><span class="co">#&gt;              timestamp</span></span>
+<span><span class="co">#&gt;                 &lt;POSc&gt;</span></span>
+<span><span class="co">#&gt; 1: 2026-06-27 17:45:15</span></span>
+<span><span class="co">#&gt;                 datetime     open     high      low    close    volume</span></span>
+<span><span class="co">#&gt;                   &lt;POSc&gt;    &lt;num&gt;    &lt;num&gt;    &lt;num&gt;    &lt;num&gt;     &lt;num&gt;</span></span>
+<span><span class="co">#&gt;   1: 2026-06-27 11:53:00 60239.24 60259.03 60237.18 60254.55 0.5974811</span></span>
+<span><span class="co">#&gt;   2: 2026-06-27 11:54:00 60254.55 60259.22 60245.28 60253.71 1.3447478</span></span>
+<span><span class="co">#&gt;   3: 2026-06-27 11:55:00 60253.71 60277.48 60253.35 60261.37 1.9928412</span></span>
+<span><span class="co">#&gt;   4: 2026-06-27 11:56:00 60261.37 60271.22 60261.37 60267.93 0.5881228</span></span>
+<span><span class="co">#&gt;   5: 2026-06-27 11:57:00 60267.94 60275.14 60267.93 60275.14 1.4672205</span></span>
+<span><span class="co">#&gt;  ---                                                                  </span></span>
+<span><span class="co">#&gt; 346: 2026-06-27 17:38:00 60488.71 60542.10 60486.43 60531.97 0.8154508</span></span>
+<span><span class="co">#&gt; 347: 2026-06-27 17:39:00 60531.98 60557.40 60490.84 60498.00 3.7195266</span></span>
+<span><span class="co">#&gt; 348: 2026-06-27 17:40:00 60499.25 60510.05 60490.08 60506.00 0.6947636</span></span>
+<span><span class="co">#&gt; 349: 2026-06-27 17:41:00 60506.00 60509.35 60494.01 60500.51 0.9226553</span></span>
+<span><span class="co">#&gt; 350: 2026-06-27 17:42:00 60500.51 60510.05 60500.51 60510.04 0.0020467</span></span></code></pre>
 <p>The <code>ohlcv</code> element is a <code>data.table</code> with
 columns <code>datetime</code>, <code>open</code>, <code>high</code>,
 <code>low</code>, <code>close</code>, <code>volume</code>.</p>
@@ -235,18 +242,25 @@ in TypeScript:</p>
 <span><span class="op">}</span></span>
 <span><span class="va">results</span><span class="op">$</span><span class="va">ticker</span></span>
 <span><span class="va">results</span><span class="op">$</span><span class="va">candles</span></span></code></pre></div>
-<pre><code><span><span class="co">#&gt;         ask      bid   volume   trade_id    price    size                time</span></span>
-<span><span class="co">#&gt;       &lt;num&gt;    &lt;num&gt;    &lt;num&gt;      &lt;int&gt;    &lt;num&gt;   &lt;num&gt;              &lt;POSc&gt;</span></span>
-<span><span class="co">#&gt; 1: 74101.53 74101.52 3600.231 1026942323 74101.53 5.2e-07 2026-05-31 04:58:29</span></span>
-<span><span class="co">#&gt;    rfq_volume</span></span>
-<span><span class="co">#&gt;         &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:    10.7929</span></span>
-<span><span class="co">#&gt;               datetime     open     high      low    close volume</span></span>
-<span><span class="co">#&gt;                 &lt;POSc&gt;    &lt;num&gt;    &lt;num&gt;    &lt;num&gt;    &lt;num&gt;  &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1: 2026-05-31 04:53:00 74055.40 74070.12 74050.00 74067.15 1.4820</span></span>
-<span><span class="co">#&gt; 2: 2026-05-31 04:54:00 74113.49 74113.49 74067.15 74068.26 3.0535</span></span>
-<span><span class="co">#&gt; 3: 2026-05-31 04:55:00 74068.26 74093.61 74068.26 74093.60 0.9691</span></span>
-<span><span class="co">#&gt; 4: 2026-05-31 04:56:00 74093.60 74099.83 74093.59 74099.83 0.1151</span></span></code></pre>
+<pre><code><span><span class="co">#&gt;         ask      bid   volume   trade_id    price    size rfq_volume</span></span>
+<span><span class="co">#&gt;       &lt;num&gt;    &lt;num&gt;    &lt;num&gt;      &lt;int&gt;    &lt;num&gt;   &lt;num&gt;      &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1: 60481.65 60481.64 5973.761 1045278653 60479.56 1.3e-07   67.01332</span></span>
+<span><span class="co">#&gt;              timestamp</span></span>
+<span><span class="co">#&gt;                 &lt;POSc&gt;</span></span>
+<span><span class="co">#&gt; 1: 2026-06-27 17:45:15</span></span>
+<span><span class="co">#&gt;                 datetime     open     high      low    close    volume</span></span>
+<span><span class="co">#&gt;                   &lt;POSc&gt;    &lt;num&gt;    &lt;num&gt;    &lt;num&gt;    &lt;num&gt;     &lt;num&gt;</span></span>
+<span><span class="co">#&gt;   1: 2026-06-27 11:53:00 60239.24 60259.03 60237.18 60254.55 0.5974811</span></span>
+<span><span class="co">#&gt;   2: 2026-06-27 11:54:00 60254.55 60259.22 60245.28 60253.71 1.3447478</span></span>
+<span><span class="co">#&gt;   3: 2026-06-27 11:55:00 60253.71 60277.48 60253.35 60261.37 1.9928412</span></span>
+<span><span class="co">#&gt;   4: 2026-06-27 11:56:00 60261.37 60271.22 60261.37 60267.93 0.5881228</span></span>
+<span><span class="co">#&gt;   5: 2026-06-27 11:57:00 60267.94 60275.14 60267.93 60275.14 1.4672205</span></span>
+<span><span class="co">#&gt;  ---                                                                  </span></span>
+<span><span class="co">#&gt; 346: 2026-06-27 17:38:00 60488.71 60542.10 60486.43 60531.97 0.8154508</span></span>
+<span><span class="co">#&gt; 347: 2026-06-27 17:39:00 60531.98 60557.40 60490.84 60498.00 3.7195266</span></span>
+<span><span class="co">#&gt; 348: 2026-06-27 17:40:00 60499.25 60510.05 60490.08 60506.00 0.6947636</span></span>
+<span><span class="co">#&gt; 349: 2026-06-27 17:41:00 60506.00 60509.35 60494.01 60500.51 0.9226553</span></span>
+<span><span class="co">#&gt; 350: 2026-06-27 17:42:00 60500.51 60510.05 60500.51 60510.04 0.0020467</span></span></code></pre>
 <hr>
 </div>
 <div class="section level2">
@@ -282,20 +296,116 @@ async mode, all requests fly in parallel rather than sequentially:</p>
 <span><span class="co"># Each element is the parsed data.table for one endpoint</span></span>
 <span><span class="va">snapshot</span><span class="op">$</span><span class="va">ticker</span></span>
 <span><span class="va">snapshot</span><span class="op">$</span><span class="va">orderbook</span></span></code></pre></div>
-<pre><code><span><span class="co">#&gt;         ask      bid   volume   trade_id    price    size                time</span></span>
-<span><span class="co">#&gt;       &lt;num&gt;    &lt;num&gt;    &lt;num&gt;      &lt;int&gt;    &lt;num&gt;   &lt;num&gt;              &lt;POSc&gt;</span></span>
-<span><span class="co">#&gt; 1: 74101.53 74101.52 3600.231 1026942323 74101.53 5.2e-07 2026-05-31 04:58:29</span></span>
-<span><span class="co">#&gt;    rfq_volume</span></span>
-<span><span class="co">#&gt;         &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:    10.7929</span></span>
-<span><span class="co">#&gt;      side    price       size num_orders</span></span>
-<span><span class="co">#&gt;    &lt;char&gt;    &lt;num&gt;      &lt;num&gt;      &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:    bid 74101.52 0.43541938          5</span></span>
-<span><span class="co">#&gt; 2:    bid 74101.38 0.00067474          1</span></span>
-<span><span class="co">#&gt; 3:    bid 74098.69 0.00266800          1</span></span>
-<span><span class="co">#&gt; 4:    ask 74101.53 0.08631688          7</span></span>
-<span><span class="co">#&gt; 5:    ask 74103.63 0.26058806          2</span></span>
-<span><span class="co">#&gt; 6:    ask 74103.66 0.00140588          2</span></span></code></pre>
+<pre><code><span><span class="co">#&gt;         ask      bid   volume   trade_id    price    size rfq_volume</span></span>
+<span><span class="co">#&gt;       &lt;num&gt;    &lt;num&gt;    &lt;num&gt;      &lt;int&gt;    &lt;num&gt;   &lt;num&gt;      &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1: 60481.65 60481.64 5973.761 1045278653 60479.56 1.3e-07   67.01332</span></span>
+<span><span class="co">#&gt;              timestamp</span></span>
+<span><span class="co">#&gt;                 &lt;POSc&gt;</span></span>
+<span><span class="co">#&gt; 1: 2026-06-27 17:45:15</span></span>
+<span><span class="co">#&gt;        side    price       size num_orders</span></span>
+<span><span class="co">#&gt;      &lt;char&gt;    &lt;num&gt;      &lt;num&gt;      &lt;num&gt;</span></span>
+<span><span class="co">#&gt;   1:    bid 60475.87 0.09089192          5</span></span>
+<span><span class="co">#&gt;   2:    bid 60475.43 0.04133910          1</span></span>
+<span><span class="co">#&gt;   3:    bid 60475.42 0.10519951          1</span></span>
+<span><span class="co">#&gt;   4:    bid 60475.36 0.01836163          3</span></span>
+<span><span class="co">#&gt;   5:    bid 60475.06 0.00429929          1</span></span>
+<span><span class="co">#&gt;   6:    bid 60474.78 0.00001900          1</span></span>
+<span><span class="co">#&gt;   7:    bid 60474.01 0.01564455          1</span></span>
+<span><span class="co">#&gt;   8:    bid 60474.00 0.00560000          1</span></span>
+<span><span class="co">#&gt;   9:    bid 60473.60 0.13228911          1</span></span>
+<span><span class="co">#&gt;  10:    bid 60472.66 0.15518089          1</span></span>
+<span><span class="co">#&gt;  11:    bid 60472.18 0.09926542          1</span></span>
+<span><span class="co">#&gt;  12:    bid 60472.00 0.00590000          1</span></span>
+<span><span class="co">#&gt;  13:    bid 60471.72 0.00001900          1</span></span>
+<span><span class="co">#&gt;  14:    bid 60471.51 0.04958465          1</span></span>
+<span><span class="co">#&gt;  15:    bid 60470.29 0.09926542          1</span></span>
+<span><span class="co">#&gt;  16:    bid 60470.00 0.00590000          1</span></span>
+<span><span class="co">#&gt;  17:    bid 60469.69 0.06628080          1</span></span>
+<span><span class="co">#&gt;  18:    bid 60469.68 0.81150667          2</span></span>
+<span><span class="co">#&gt;  19:    bid 60469.58 0.16553407          1</span></span>
+<span><span class="co">#&gt;  20:    bid 60469.50 1.00000000          1</span></span>
+<span><span class="co">#&gt;  21:    bid 60468.89 0.04166679          1</span></span>
+<span><span class="co">#&gt;  22:    bid 60468.66 0.00001900          1</span></span>
+<span><span class="co">#&gt;  23:    bid 60468.12 0.05563684          1</span></span>
+<span><span class="co">#&gt;  24:    bid 60468.09 0.09926542          1</span></span>
+<span><span class="co">#&gt;  25:    bid 60468.02 0.06799000          1</span></span>
+<span><span class="co">#&gt;  26:    bid 60466.62 0.00032994          1</span></span>
+<span><span class="co">#&gt;  27:    bid 60466.51 0.24033430          1</span></span>
+<span><span class="co">#&gt;  28:    bid 60466.26 0.09926542          1</span></span>
+<span><span class="co">#&gt;  29:    bid 60465.60 0.00001900          1</span></span>
+<span><span class="co">#&gt;  30:    bid 60465.39 0.00004639          1</span></span>
+<span><span class="co">#&gt;  31:    bid 60465.17 0.06144184          1</span></span>
+<span><span class="co">#&gt;  32:    bid 60465.00 0.01000000          1</span></span>
+<span><span class="co">#&gt;  33:    bid 60464.51 0.16553407          1</span></span>
+<span><span class="co">#&gt;  34:    bid 60464.20 0.00009277          1</span></span>
+<span><span class="co">#&gt;  35:    bid 60463.80 0.00001654          1</span></span>
+<span><span class="co">#&gt;  36:    bid 60463.54 0.14766813          1</span></span>
+<span><span class="co">#&gt;  37:    bid 60463.53 0.06628080          1</span></span>
+<span><span class="co">#&gt;  38:    bid 60463.52 0.09926542          1</span></span>
+<span><span class="co">#&gt;  39:    bid 60463.33 0.00908749          1</span></span>
+<span><span class="co">#&gt;  40:    bid 60462.92 0.07251205          1</span></span>
+<span><span class="co">#&gt;  41:    bid 60462.54 0.00001900          1</span></span>
+<span><span class="co">#&gt;  42:    bid 60461.84 0.00018554          1</span></span>
+<span><span class="co">#&gt;  43:    bid 60460.57 0.01817499          1</span></span>
+<span><span class="co">#&gt;  44:    bid 60460.41 0.00454375          1</span></span>
+<span><span class="co">#&gt;  45:    bid 60460.00 0.01000000          1</span></span>
+<span><span class="co">#&gt;  46:    bid 60459.48 0.00001900          1</span></span>
+<span><span class="co">#&gt;  47:    bid 60459.28 0.00583000          1</span></span>
+<span><span class="co">#&gt;  48:    bid 60459.27 0.19632383          1</span></span>
+<span><span class="co">#&gt;  49:    bid 60459.26 0.16553407          1</span></span>
+<span><span class="co">#&gt;  50:    bid 60459.16 0.09926542          1</span></span>
+<span><span class="co">#&gt;  51:    ask 60475.88 0.00248032          1</span></span>
+<span><span class="co">#&gt;  52:    ask 60476.05 0.00082678          1</span></span>
+<span><span class="co">#&gt;  53:    ask 60478.08 0.09926542          1</span></span>
+<span><span class="co">#&gt;  54:    ask 60478.29 0.06628080          1</span></span>
+<span><span class="co">#&gt;  55:    ask 60479.90 0.09926542          1</span></span>
+<span><span class="co">#&gt;  56:    ask 60480.00 0.00590000          1</span></span>
+<span><span class="co">#&gt;  57:    ask 60480.41 0.01564455          1</span></span>
+<span><span class="co">#&gt;  58:    ask 60480.42 0.00248032          1</span></span>
+<span><span class="co">#&gt;  59:    ask 60481.75 0.09926542          1</span></span>
+<span><span class="co">#&gt;  60:    ask 60481.96 0.35622262          2</span></span>
+<span><span class="co">#&gt;  61:    ask 60482.00 0.00590000          1</span></span>
+<span><span class="co">#&gt;  62:    ask 60482.03 0.13227071          1</span></span>
+<span><span class="co">#&gt;  63:    ask 60483.96 0.00001900          1</span></span>
+<span><span class="co">#&gt;  64:    ask 60484.00 0.00590000          1</span></span>
+<span><span class="co">#&gt;  65:    ask 60484.18 0.16553407          1</span></span>
+<span><span class="co">#&gt;  66:    ask 60484.19 0.09926542          1</span></span>
+<span><span class="co">#&gt;  67:    ask 60484.25 0.06628080          1</span></span>
+<span><span class="co">#&gt;  68:    ask 60484.43 0.16533181          1</span></span>
+<span><span class="co">#&gt;  69:    ask 60484.94 0.06613619          1</span></span>
+<span><span class="co">#&gt;  70:    ask 60485.00 0.01000000          1</span></span>
+<span><span class="co">#&gt;  71:    ask 60485.36 0.15718904          1</span></span>
+<span><span class="co">#&gt;  72:    ask 60486.00 0.00590000          1</span></span>
+<span><span class="co">#&gt;  73:    ask 60486.01 0.09926542          1</span></span>
+<span><span class="co">#&gt;  74:    ask 60486.82 0.01102322          1</span></span>
+<span><span class="co">#&gt;  75:    ask 60487.02 0.00001900          1</span></span>
+<span><span class="co">#&gt;  76:    ask 60487.16 0.00082678          1</span></span>
+<span><span class="co">#&gt;  77:    ask 60487.84 0.09926542          1</span></span>
+<span><span class="co">#&gt;  78:    ask 60487.99 0.20654011          1</span></span>
+<span><span class="co">#&gt;  79:    ask 60488.00 0.00590000          1</span></span>
+<span><span class="co">#&gt;  80:    ask 60488.05 0.04166679          1</span></span>
+<span><span class="co">#&gt;  81:    ask 60488.26 0.00132219          1</span></span>
+<span><span class="co">#&gt;  82:    ask 60488.41 0.00970000          1</span></span>
+<span><span class="co">#&gt;  83:    ask 60488.51 0.00310030          1</span></span>
+<span><span class="co">#&gt;  84:    ask 60489.14 0.00583000          1</span></span>
+<span><span class="co">#&gt;  85:    ask 60489.27 0.06828000          1</span></span>
+<span><span class="co">#&gt;  86:    ask 60489.67 0.00009700          1</span></span>
+<span><span class="co">#&gt;  87:    ask 60489.70 0.16553407          1</span></span>
+<span><span class="co">#&gt;  88:    ask 60489.71 0.06628080          1</span></span>
+<span><span class="co">#&gt;  89:    ask 60490.00 0.01000000          1</span></span>
+<span><span class="co">#&gt;  90:    ask 60490.08 0.00001900          1</span></span>
+<span><span class="co">#&gt;  91:    ask 60491.32 0.74961071          2</span></span>
+<span><span class="co">#&gt;  92:    ask 60491.39 0.06298625          1</span></span>
+<span><span class="co">#&gt;  93:    ask 60491.79 0.09926542          1</span></span>
+<span><span class="co">#&gt;  94:    ask 60492.00 1.00593167          3</span></span>
+<span><span class="co">#&gt;  95:    ask 60492.05 0.01940000          1</span></span>
+<span><span class="co">#&gt;  96:    ask 60492.56 0.00165071          1</span></span>
+<span><span class="co">#&gt;  97:    ask 60493.14 0.00001900          1</span></span>
+<span><span class="co">#&gt;  98:    ask 60493.27 0.00082648          1</span></span>
+<span><span class="co">#&gt;  99:    ask 60493.28 0.00019400          1</span></span>
+<span><span class="co">#&gt; 100:    ask 60493.74 0.09926542          1</span></span>
+<span><span class="co">#&gt;        side    price       size num_orders</span></span>
+<span><span class="co">#&gt;      &lt;char&gt;    &lt;num&gt;      &lt;num&gt;      &lt;num&gt;</span></span></code></pre>
 <p>The same <code>lapply</code> + <code>do.call(promise_all, ...)</code>
 shape scales to a watchlist: build one promise per product, name the
 list by product id, and await them together.</p>
@@ -326,12 +436,19 @@ resolve a promise with <code>then</code> and handle rejection with
 <span>  <span class="fu">run_now</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="op">}</span></span>
 <span><span class="va">chain_result</span></span></code></pre></div>
-<pre><code><span><span class="co">#&gt;               datetime     open     high      low    close volume</span></span>
-<span><span class="co">#&gt;                 &lt;POSc&gt;    &lt;num&gt;    &lt;num&gt;    &lt;num&gt;    &lt;num&gt;  &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1: 2026-05-31 04:53:00 74055.40 74070.12 74050.00 74067.15 1.4820</span></span>
-<span><span class="co">#&gt; 2: 2026-05-31 04:54:00 74113.49 74113.49 74067.15 74068.26 3.0535</span></span>
-<span><span class="co">#&gt; 3: 2026-05-31 04:55:00 74068.26 74093.61 74068.26 74093.60 0.9691</span></span>
-<span><span class="co">#&gt; 4: 2026-05-31 04:56:00 74093.60 74099.83 74093.59 74099.83 0.1151</span></span></code></pre>
+<pre><code><span><span class="co">#&gt;                 datetime     open     high      low    close    volume</span></span>
+<span><span class="co">#&gt;                   &lt;POSc&gt;    &lt;num&gt;    &lt;num&gt;    &lt;num&gt;    &lt;num&gt;     &lt;num&gt;</span></span>
+<span><span class="co">#&gt;   1: 2026-06-27 11:53:00 60239.24 60259.03 60237.18 60254.55 0.5974811</span></span>
+<span><span class="co">#&gt;   2: 2026-06-27 11:54:00 60254.55 60259.22 60245.28 60253.71 1.3447478</span></span>
+<span><span class="co">#&gt;   3: 2026-06-27 11:55:00 60253.71 60277.48 60253.35 60261.37 1.9928412</span></span>
+<span><span class="co">#&gt;   4: 2026-06-27 11:56:00 60261.37 60271.22 60261.37 60267.93 0.5881228</span></span>
+<span><span class="co">#&gt;   5: 2026-06-27 11:57:00 60267.94 60275.14 60267.93 60275.14 1.4672205</span></span>
+<span><span class="co">#&gt;  ---                                                                  </span></span>
+<span><span class="co">#&gt; 346: 2026-06-27 17:38:00 60488.71 60542.10 60486.43 60531.97 0.8154508</span></span>
+<span><span class="co">#&gt; 347: 2026-06-27 17:39:00 60531.98 60557.40 60490.84 60498.00 3.7195266</span></span>
+<span><span class="co">#&gt; 348: 2026-06-27 17:40:00 60499.25 60510.05 60490.08 60506.00 0.6947636</span></span>
+<span><span class="co">#&gt; 349: 2026-06-27 17:41:00 60506.00 60509.35 60494.01 60500.51 0.9226553</span></span>
+<span><span class="co">#&gt; 350: 2026-06-27 17:42:00 60500.51 60510.05 60500.51 60510.04 0.0020467</span></span></code></pre>
 <hr>
 </div>
 <div class="section level2">
@@ -372,14 +489,16 @@ flow readable.</p>
 <pre><code><span><span class="co">#&gt;    order_total commission_total base_size best_ask   errs</span></span>
 <span><span class="co">#&gt;          &lt;num&gt;            &lt;num&gt;     &lt;num&gt;    &lt;num&gt; &lt;char&gt;</span></span>
 <span><span class="co">#&gt; 1:       10.06             0.06  0.000135 74101.53   &lt;NA&gt;</span></span>
-<span><span class="co">#&gt;                                order_id product_id   side status order_type</span></span>
-<span><span class="co">#&gt;                                  &lt;char&gt;     &lt;char&gt; &lt;char&gt; &lt;char&gt;     &lt;char&gt;</span></span>
-<span><span class="co">#&gt; 1: 1111aaaa-2222-bbbb-3333-cccccccccccc    BTC-USD    BUY   OPEN      LIMIT</span></span>
-<span><span class="co">#&gt; 2: 4444dddd-5555-eeee-6666-ffffffffffff    ETH-USD   SELL FILLED     MARKET</span></span>
+<span><span class="co">#&gt;                                order_id product_id   side    status order_type</span></span>
+<span><span class="co">#&gt;                                  &lt;char&gt;     &lt;char&gt; &lt;char&gt;    &lt;char&gt;     &lt;char&gt;</span></span>
+<span><span class="co">#&gt; 1: 00000000-0000-4000-8000-00000000001c    LTC-USD    BUY CANCELLED      LIMIT</span></span>
+<span><span class="co">#&gt; 2: 00000000-0000-4000-8000-00000000001e    LTC-USD    BUY CANCELLED      LIMIT</span></span>
+<span><span class="co">#&gt; 3: 00000000-0000-4000-8000-000000000020   LTC-USDC    BUY CANCELLED      LIMIT</span></span>
 <span><span class="co">#&gt;    filled_size</span></span>
 <span><span class="co">#&gt;          &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:         0.0</span></span>
-<span><span class="co">#&gt; 2:         0.5</span></span></code></pre>
+<span><span class="co">#&gt; 1:           0</span></span>
+<span><span class="co">#&gt; 2:           0</span></span>
+<span><span class="co">#&gt; 3:           0</span></span></code></pre>
 <p>To place a live order, call <code>add_order()</code> instead of
 <code>preview_order()</code>. It takes the same <code>product_id</code>,
 <code>side</code>, and <code>order_configuration</code>, plus optional

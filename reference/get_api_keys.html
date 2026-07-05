@@ -13,7 +13,7 @@ containing a name and a privateKey."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">coinbase</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -41,7 +41,7 @@ containing a name and a privateKey."></head><body>
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Retrieve Coinbase API Credentials</h1>
-      <small class="dont-index">Source: <a href="https://github.com/dereckscompany/coinbase/blob/v0.0.1/R/utils.R" class="external-link"><code>R/utils.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/dereckscompany/coinbase/blob/master/R/utils.R" class="external-link"><code>R/utils.R</code></a></small>
       <div class="d-none name"><code>get_api_keys.Rd</code></div>
     </div>
 
@@ -65,21 +65,21 @@ containing a <code>name</code> and a <code>privateKey</code>.</p>
 
 
 <dl><dt id="arg-api-key-name">api_key_name<a class="anchor" aria-label="anchor" href="#arg-api-key-name"></a></dt>
-<dd><p>Character string; the credential <code>name</code>, e.g.
+<dd><p>(scalar&lt;character&gt;) the credential <code>name</code>, e.g.
 <code>"organizations/&lt;org-uuid&gt;/apiKeys/&lt;key-uuid&gt;"</code>. Defaults to
 <code>Sys.getenv("COINBASE_API_KEY_NAME")</code>.</p></dd>
 
 
 <dt id="arg-api-private-key">api_private_key<a class="anchor" aria-label="anchor" href="#arg-api-private-key"></a></dt>
-<dd><p>Character string; the credential <code>privateKey</code>.
+<dd><p>(scalar&lt;character&gt;) the credential <code>privateKey</code>.
 Defaults to <code>Sys.getenv("COINBASE_API_PRIVATE_KEY")</code>.</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>Named list with <code>api_key_name</code> and <code>api_private_key</code> (newlines
-unescaped).</p>
-    </div>
+    <p>(list) named credentials, with newlines unescaped:</p><ul><li><p>api_key_name (scalar&lt;character&gt;) the credential <code>name</code>.</p></li>
+<li><p>api_private_key (scalar&lt;character&gt;) the credential <code>privateKey</code>.</p></li>
+</ul></div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>Required environment variables: <code>COINBASE_API_KEY_NAME</code>,

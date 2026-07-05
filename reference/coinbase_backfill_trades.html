@@ -17,7 +17,7 @@ timeframe."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">coinbase</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -45,7 +45,7 @@ timeframe."></head><body>
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Backfill Coinbase Trade History to CSV</h1>
-      <small class="dont-index">Source: <a href="https://github.com/dereckscompany/coinbase/blob/v0.0.1/R/backfill.R" class="external-link"><code>R/backfill.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/dereckscompany/coinbase/blob/master/R/backfill.R" class="external-link"><code>R/backfill.R</code></a></small>
       <div class="d-none name"><code>coinbase_backfill_trades.Rd</code></div>
     </div>
 
@@ -78,49 +78,52 @@ timeframe.</p>
 
 
 <dl><dt id="arg-symbols">symbols<a class="anchor" aria-label="anchor" href="#arg-symbols"></a></dt>
-<dd><p>Character vector of product symbols (e.g.
-<code>c("BTC-USD", "ETH-USD")</code>). Must not be NULL or empty.</p></dd>
+<dd><p>(character) product symbols (e.g. <code>c("BTC-USD", "ETH-USD")</code>).
+Must not be NULL or empty.</p></dd>
 
 
 <dt id="arg-from">from<a class="anchor" aria-label="anchor" href="#arg-from"></a></dt>
-<dd><p>POSIXct or numeric; start of the backfill window. Defaults to one
+<dd><p>(POSIXct | numeric) start of the backfill window. Defaults to one
 week ago. Tick volume is large, so widen this deliberately.</p></dd>
 
 
 <dt id="arg-to">to<a class="anchor" aria-label="anchor" href="#arg-to"></a></dt>
-<dd><p>POSIXct or numeric; end of the window. Defaults to the current time.</p></dd>
+<dd><p>(POSIXct | numeric) end of the window. Defaults to the current time.</p></dd>
 
 
 <dt id="arg-file">file<a class="anchor" aria-label="anchor" href="#arg-file"></a></dt>
-<dd><p>Character; path to the output CSV. Data is appended incrementally
-so progress survives interruption.</p></dd>
+<dd><p>(scalar&lt;character&gt;) path to the output CSV. Data is appended
+incrementally so progress survives interruption.</p></dd>
 
 
 <dt id="arg-base-url">base_url<a class="anchor" aria-label="anchor" href="#arg-base-url"></a></dt>
-<dd><p>Character; Advanced Trade API base URL.</p></dd>
+<dd><p>(scalar&lt;character&gt;) Advanced Trade API base URL.</p></dd>
 
 
 <dt id="arg-exchange-base-url">exchange_base_url<a class="anchor" aria-label="anchor" href="#arg-exchange-base-url"></a></dt>
-<dd><p>Character; Exchange API base URL.</p></dd>
+<dd><p>(scalar&lt;character&gt;) Exchange API base URL.</p></dd>
 
 
 <dt id="arg-max-pages">max_pages<a class="anchor" aria-label="anchor" href="#arg-max-pages"></a></dt>
-<dd><p>Numeric; per-symbol cap on pages fetched. Default <code>Inf</code>.</p></dd>
+<dd><p>(scalar&lt;numeric in [1, Inf]&gt;) per-symbol cap on pages
+fetched. Default <code>Inf</code>.</p></dd>
 
 
 <dt id="arg-sleep">sleep<a class="anchor" aria-label="anchor" href="#arg-sleep"></a></dt>
-<dd><p>Numeric; seconds to sleep between symbols to respect rate limits.</p></dd>
+<dd><p>(scalar&lt;numeric in [0, Inf[&gt;) seconds to sleep between symbols to
+respect rate limits.</p></dd>
 
 
 <dt id="arg-verbose">verbose<a class="anchor" aria-label="anchor" href="#arg-verbose"></a></dt>
-<dd><p>Logical; if <code>TRUE</code>, prints progress via <code><a href="https://rlang.r-lib.org/reference/abort.html" class="external-link">rlang::inform()</a></code>.</p></dd>
+<dd><p>(scalar&lt;logical&gt;) if <code>TRUE</code>, prints progress via
+<code><a href="https://rlang.r-lib.org/reference/abort.html" class="external-link">rlang::inform()</a></code>.</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>The file path (invisibly). If any symbols failed, a <code>"failures"</code>
-attribute is attached: a <a href="https://rdrr.io/pkg/data.table/man/data.table.html" class="external-link">data.table::data.table</a> with columns <code>symbol</code>
-and <code>error</code>.</p>
+    <p>(scalar&lt;character&gt;) the file path (invisibly). If any symbols failed, a
+<code>"failures"</code> attribute is attached: a <a href="https://rdrr.io/pkg/data.table/man/data.table.html" class="external-link">data.table::data.table</a> with columns
+<code>symbol</code> and <code>error</code>.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
