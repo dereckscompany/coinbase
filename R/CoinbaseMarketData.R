@@ -1,7 +1,11 @@
 # File: R/CoinbaseMarketData.R
-# Public market-data client for Coinbase. Uses the Exchange host
+# Public market-data client for Coinbase. Most endpoints use the Exchange host
 # (api.exchange.coinbase.com), whose endpoints require no authentication and
-# expose deep trade history.
+# expose deep trade history. The product catalogue (get_products / get_product)
+# sources from the Advanced Trade public market host (api.coinbase.com,
+# /api/v3/brokerage/market/products), which — unlike the Exchange /products
+# payload — carries the per-product order-size limits (base/quote min/max) and
+# increments.
 
 # Maps human-readable timeframes to Coinbase Exchange candle granularities
 # (seconds). These are the only granularities the /candles endpoint accepts.
@@ -16,10 +20,12 @@
 
 #' CoinbaseMarketData: Public Market Data Retrieval
 #'
-#' Retrieves public market data from the Coinbase Exchange API: products,
-#' candles (OHLCV), tick trades, order books, tickers, and server time. These
-#' are unauthenticated, with one exception: `get_best_bid_ask()` hits the
-#' Advanced Trade host and requires credentials.
+#' Retrieves public market data from Coinbase: products, candles (OHLCV), tick
+#' trades, order books, tickers, and server time. These are unauthenticated. The
+#' product catalogue (`get_products()` / `get_product()`) is served by the
+#' Advanced Trade public market host (it carries the per-product order-size
+#' limits the Exchange payload omits); the rest use the Exchange host. One method
+#' needs credentials: `get_best_bid_ask()`.
 #'
 #' Inherits from [CoinbaseBase]. All methods support both synchronous and
 #' asynchronous execution depending on the `async` argument at construction.
@@ -33,8 +39,8 @@
 #' ### Endpoints Covered
 #' | Method | Endpoint | Auth |
 #' |--------|----------|------|
-#' | get_products | GET /products | No |
-#' | get_product | GET /products/\{id\} | No |
+#' | get_products | GET /api/v3/brokerage/market/products | No |
+#' | get_product | GET /api/v3/brokerage/market/products/\{id\} | No |
 #' | get_ohlcv | GET /products/\{id\}/candles | No |
 #' | get_trades | GET /products/\{id\}/trades | No |
 #' | get_trades_history | GET /products/\{id\}/trades (paged) | No |
@@ -67,15 +73,18 @@ CoinbaseMarketData <- R6::R6Class(
   "CoinbaseMarketData",
   inherit = CoinbaseBase,
   public = list(
-    #' @description Retrieve all available trading products (currency pairs).
+    #' @description Retrieve all available trading products (currency pairs),
+    #'   including each product's order-size limits (`base_min_size` /
+    #'   `base_max_size` / `quote_min_size` / `quote_max_size`) and increments.
+    #'   Sourced from the Advanced Trade public market host, which — unlike the
+    #'   Exchange `/products` payload — carries those size limits.
     #' @return (Products | promise<Products>) one row per tradable product, or a
     #'   promise thereof.
     get_products = function() {
       res <- private$.request(
-        endpoint = "/products",
+        endpoint = "/api/v3/brokerage/market/products",
         auth = FALSE,
-        base_url = private$.exchange_base_url,
-        .parser = parse_products
+        .parser = function(body) parse_products(body$products)
       )
       return(connectcore::then_or_now(
         res,
@@ -84,7 +93,9 @@ CoinbaseMarketData <- R6::R6Class(
       ))
     },
 
-    #' @description Retrieve metadata for a single product.
+    #' @description Retrieve metadata for a single product, including its
+    #'   order-size limits and increments. The single-row form of the
+    #'   `get_products()` shape, from the same Advanced Trade public market host.
     #' @param product_id (scalar<character>) the pair symbol, e.g. `"BTC-USD"`.
     #' @return (Products | promise<Products>) a single-row table of product
     #'   metadata, or a promise thereof.
@@ -92,10 +103,9 @@ CoinbaseMarketData <- R6::R6Class(
     get_product = function(product_id) {
       validate_symbol(product_id)
       res <- private$.request(
-        endpoint = paste0("/products/", product_id),
+        endpoint = paste0("/api/v3/brokerage/market/products/", product_id),
         auth = FALSE,
-        base_url = private$.exchange_base_url,
-        .parser = as_dt_row
+        .parser = function(body) parse_products(list(body))
       )
       return(connectcore::then_or_now(
         res,
@@ -321,9 +331,9 @@ CoinbaseMarketData <- R6::R6Class(
     },
 
     #' @description Retrieve the best bid/ask for many products in one call.
-    #'   Unlike the other `CoinbaseMarketData` methods, this hits the **Advanced
-    #'   Trade** host and therefore **requires credentials** (construct the client
-    #'   with `keys`).
+    #'   Unlike the other `CoinbaseMarketData` methods, this endpoint **requires
+    #'   credentials** (construct the client with `keys`); it hits the
+    #'   authenticated Advanced Trade `best_bid_ask` route.
     #' @param product_ids (character | NULL) products to fetch. `NULL` returns the
     #'   best bid/ask for all products.
     #' @return (BestBidAsk | promise<BestBidAsk>) one row per product, or a promise

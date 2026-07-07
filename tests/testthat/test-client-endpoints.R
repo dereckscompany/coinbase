@@ -20,10 +20,27 @@ test_that("CoinbaseMarketData public methods round-trip through the router", {
 
   products <- market$get_products()
   expect_true(data.table::is.data.table(products))
-  expect_true(all(c("id", "base_currency", "quote_currency", "status") %in% names(products)))
-  expect_type(products$id, "character")
-  expect_type(products$margin_enabled, "logical")
-  expect_equal(nrow(market$get_product("BTC-USD")), 1L)
+  expect_true(all(
+    c(
+      "product_id",
+      "base_currency_id",
+      "quote_currency_id",
+      "status",
+      "base_min_size",
+      "base_max_size",
+      "quote_min_size",
+      "quote_max_size"
+    ) %in%
+      names(products)
+  ))
+  expect_type(products$product_id, "character")
+  expect_type(products$base_min_size, "character")
+  expect_type(products$base_max_size, "character")
+  expect_type(products$trading_disabled, "logical")
+  # The single product is the same shape, one row, with the size limits.
+  product <- market$get_product("BTC-USD")
+  expect_equal(nrow(product), 1L)
+  expect_true(all(c("base_min_size", "base_max_size") %in% names(product)))
 
   ohlcv <- market$get_ohlcv("BTC-USD", granularity = "1day")
   expect_true(all(c("datetime", "open", "high", "low", "close", "volume") %in% names(ohlcv)))

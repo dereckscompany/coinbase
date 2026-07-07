@@ -65,6 +65,14 @@ box::use(
 #' connectcore::mock_response); a few are a thunk returning a built response.
 #' @export
 .mock_routes <- list(
+  # ---- Product catalogue (api.coinbase.com Advanced Trade public market) ----
+  # get_products / get_product source their per-product order-size limits from
+  # the Advanced Trade market host. Matched before the Exchange `/products`
+  # sub-resource routes below because those patterns are substrings of this URL.
+  # Single product (before the product list).
+  list(pattern = "/api/v3/brokerage/market/products/BTC-USD", fixture = .fixtures$product),
+  list(pattern = "/api/v3/brokerage/market/products", fixture = .fixtures$products),
+
   # ---- Public Market Data (api.exchange.coinbase.com) ----
 
   # Product sub-resources (before single product, before product list)
@@ -78,17 +86,11 @@ box::use(
   list(pattern = "/products/BTC-USD/book", fixture = .fixtures$book_l2),
   list(pattern = "/products/BTC-USD/ticker", fixture = .fixtures$ticker),
 
-  # Per-product stats (before single product, before the bulk stats + list)
+  # Per-product stats (before the bulk stats)
   list(pattern = "/products/BTC-USD/stats", fixture = .fixtures$product_stats),
 
-  # Single product (before the product list)
-  list(pattern = "/products/BTC-USD", fixture = .fixtures$product),
-
-  # Bulk all-product stats (before the product list)
+  # Bulk all-product stats
   list(pattern = "/products/stats", fixture = .fixtures$stats),
-
-  # Product list
-  list(pattern = "/products", fixture = .fixtures$products),
 
   # Server time
   list(pattern = "/time", fixture = .fixtures$time),

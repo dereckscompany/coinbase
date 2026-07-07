@@ -295,24 +295,29 @@ as_dt_list <- function(items) {
 #' @noassert
 empty_dt_products <- function() {
   return(data.table::data.table(
-    id = character(0),
-    base_currency = character(0),
-    quote_currency = character(0),
-    quote_increment = character(0),
-    base_increment = character(0),
+    product_id = character(0),
+    product_type = character(0),
+    base_currency_id = character(0),
+    quote_currency_id = character(0),
+    base_name = character(0),
+    quote_name = character(0),
     display_name = character(0),
-    min_market_funds = character(0),
-    margin_enabled = logical(0),
-    post_only = logical(0),
-    limit_only = logical(0),
-    cancel_only = logical(0),
+    base_increment = character(0),
+    quote_increment = character(0),
+    price_increment = character(0),
+    base_min_size = character(0),
+    base_max_size = character(0),
+    quote_min_size = character(0),
+    quote_max_size = character(0),
     status = character(0),
-    status_message = character(0),
     trading_disabled = logical(0),
-    fx_stablecoin = logical(0),
-    max_slippage_percentage = character(0),
+    is_disabled = logical(0),
+    new = logical(0),
+    cancel_only = logical(0),
+    limit_only = logical(0),
+    post_only = logical(0),
     auction_mode = logical(0),
-    high_bid_limit_percentage = character(0)
+    view_only = logical(0)
   ))
 }
 
@@ -632,12 +637,19 @@ empty_dt_portfolio_summary <- function() {
   ))
 }
 
-#' Parse Coinbase Exchange Products into a data.table
+#' Parse Coinbase Advanced Trade Products into a data.table
 #'
-#' Flattens each product object from the Exchange `/products` array into the
-#' fixed `Products` shape (one row per tradable product), coalescing any absent
-#' field to `NA` and coercing each column to its declared type, so the result is
-#' list-column-free and satisfies the column contract its method enforces.
+#' Flattens each product object from the Advanced Trade
+#' `/api/v3/brokerage/market/products` array into the fixed `Products` shape (one
+#' row per tradable product), coalescing any absent field to `NA` and coercing
+#' each column to its declared type, so the result is list-column-free and
+#' satisfies the column contract its method enforces. The per-product order-size
+#' limits (`base_min_size` / `base_max_size` / `quote_min_size` /
+#' `quote_max_size`) and increments (`base_increment` / `quote_increment` /
+#' `price_increment`) are the reason this method sources from the Advanced Trade
+#' host: the Exchange `/products` payload omits them. Numeric-looking fields are
+#' kept as the verbatim strings Coinbase sends (the package convention), to be
+#' cast at the point of use.
 #'
 #' @param items (list | NULL) a list of product objects, or NULL.
 #' @return (class<data.table>) one row per product. Empty if `items` is NULL or
@@ -653,24 +665,29 @@ parse_products <- function(items) {
   }
   rows <- lapply(items, function(p) {
     return(data.table::data.table(
-      id = coalesce_null(p$id, NA_character_),
-      base_currency = coalesce_null(p$base_currency, NA_character_),
-      quote_currency = coalesce_null(p$quote_currency, NA_character_),
-      quote_increment = coalesce_null(p$quote_increment, NA_character_),
-      base_increment = coalesce_null(p$base_increment, NA_character_),
+      product_id = coalesce_null(p$product_id, NA_character_),
+      product_type = coalesce_null(p$product_type, NA_character_),
+      base_currency_id = coalesce_null(p$base_currency_id, NA_character_),
+      quote_currency_id = coalesce_null(p$quote_currency_id, NA_character_),
+      base_name = coalesce_null(p$base_name, NA_character_),
+      quote_name = coalesce_null(p$quote_name, NA_character_),
       display_name = coalesce_null(p$display_name, NA_character_),
-      min_market_funds = coalesce_null(p$min_market_funds, NA_character_),
-      margin_enabled = coalesce_null(p$margin_enabled, NA),
-      post_only = coalesce_null(p$post_only, NA),
-      limit_only = coalesce_null(p$limit_only, NA),
-      cancel_only = coalesce_null(p$cancel_only, NA),
+      base_increment = coalesce_null(p$base_increment, NA_character_),
+      quote_increment = coalesce_null(p$quote_increment, NA_character_),
+      price_increment = coalesce_null(p$price_increment, NA_character_),
+      base_min_size = coalesce_null(p$base_min_size, NA_character_),
+      base_max_size = coalesce_null(p$base_max_size, NA_character_),
+      quote_min_size = coalesce_null(p$quote_min_size, NA_character_),
+      quote_max_size = coalesce_null(p$quote_max_size, NA_character_),
       status = coalesce_null(p$status, NA_character_),
-      status_message = coalesce_null(p$status_message, NA_character_),
       trading_disabled = coalesce_null(p$trading_disabled, NA),
-      fx_stablecoin = coalesce_null(p$fx_stablecoin, NA),
-      max_slippage_percentage = coalesce_null(p$max_slippage_percentage, NA_character_),
+      is_disabled = coalesce_null(p$is_disabled, NA),
+      new = coalesce_null(p$new, NA),
+      cancel_only = coalesce_null(p$cancel_only, NA),
+      limit_only = coalesce_null(p$limit_only, NA),
+      post_only = coalesce_null(p$post_only, NA),
       auction_mode = coalesce_null(p$auction_mode, NA),
-      high_bid_limit_percentage = coalesce_null(p$high_bid_limit_percentage, NA_character_)
+      view_only = coalesce_null(p$view_only, NA)
     ))
   })
   return(assert_return_parse_products(data.table::rbindlist(rows, fill = TRUE)[]))

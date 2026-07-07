@@ -154,8 +154,8 @@ aggregate with `trades_to_ohlcv()`.
 
 | Method | Endpoint | Shape |
 |---|---|---|
-| `get_products()` | `GET /products` | one row per product |
-| `get_product(product_id)` | `GET /products/{id}` | single row |
+| `get_products()` | `GET /api/v3/brokerage/market/products` | one row per product |
+| `get_product(product_id)` | `GET /api/v3/brokerage/market/products/{id}` | single row |
 | `get_ohlcv(product_id, granularity, start, end)` | `GET /products/{id}/candles` | one row per candle |
 | `get_trades(product_id, limit, after)` | `GET /products/{id}/trades` | one row per trade |
 | `get_trades_history(product_id, start, end, max_pages)` | `GET /products/{id}/trades` (paged) | one row per trade, sorted ascending, de-duplicated |
@@ -171,12 +171,16 @@ market <- CoinbaseMarketData$new()
 
 ### Products
 
-`get_products()` and `get_product()` go through the generic
-`as_dt_list` / `as_dt_row` flatteners: every scalar field becomes a
-column, and any nested object or multi-element value the API returns
-is collapsed to a single JSON string (never a list column). Field names
-are snake_case. Numeric-looking fields are returned as the character
-strings Coinbase sends — cast at the point of use.
+`get_products()` and `get_product()` source the product catalogue from
+the Advanced Trade public market host
+(`/api/v3/brokerage/market/products`), which — unlike the Exchange
+`/products` payload — carries each product's order-size limits
+(`base_min_size` / `base_max_size` / `quote_min_size` / `quote_max_size`)
+and increments (`base_increment` / `quote_increment` / `price_increment`).
+The parser (`parse_products`) selects a curated, typed set of columns (one
+row per product); `get_product()` is the single-row form of the same
+shape. Numeric-looking fields are returned as the character strings
+Coinbase sends — cast at the point of use.
 
 ```{r products}
 products <- market$get_products()
@@ -931,10 +935,10 @@ Where it's used: `errs` on `preview_order`; `failure_reason` on
 
 ## The generic fallback
 
-Methods without a hand-written parser (`get_products`, `get_product`,
-`get_ticker`, `get_portfolios`, `get_key_permissions`,
-`get_server_time`, `schedule_sweep`, `cancel_sweep`,
-`get_intraday_margin_setting`) go through `as_dt_row` / `as_dt_list`.
+Methods without a hand-written parser (`get_ticker`, `get_portfolios`,
+`get_key_permissions`, `get_server_time`, `schedule_sweep`,
+`cancel_sweep`, `get_intraday_margin_setting`) go through `as_dt_row` /
+`as_dt_list`.
 These flatten every scalar field into a column and, crucially, collapse
 any unexpected nested object/array or multi-element value to a single
 JSON string — so even an endpoint the package doesn't model in detail

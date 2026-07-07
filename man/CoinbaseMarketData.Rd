@@ -9,10 +9,12 @@ CoinbaseMarketData: Public Market Data Retrieval
 CoinbaseMarketData: Public Market Data Retrieval
 }
 \details{
-Retrieves public market data from the Coinbase Exchange API: products,
-candles (OHLCV), tick trades, order books, tickers, and server time. These
-are unauthenticated, with one exception: \code{get_best_bid_ask()} hits the
-Advanced Trade host and requires credentials.
+Retrieves public market data from Coinbase: products, candles (OHLCV), tick
+trades, order books, tickers, and server time. These are unauthenticated. The
+product catalogue (\code{get_products()} / \code{get_product()}) is served by the
+Advanced Trade public market host (it carries the per-product order-size
+limits the Exchange payload omits); the rest use the Exchange host. One method
+needs credentials: \code{get_best_bid_ask()}.
 
 Inherits from \link{CoinbaseBase}. All methods support both synchronous and
 asynchronous execution depending on the \code{async} argument at construction.
@@ -26,8 +28,8 @@ then aggregate with \code{\link[=trades_to_ohlcv]{trades_to_ohlcv()}}.
 
 \subsection{Endpoints Covered}{\tabular{lll}{
    Method \tab Endpoint \tab Auth \cr
-   get_products \tab GET /products \tab No \cr
-   get_product \tab GET /products/\{id\} \tab No \cr
+   get_products \tab GET /api/v3/brokerage/market/products \tab No \cr
+   get_product \tab GET /api/v3/brokerage/market/products/\{id\} \tab No \cr
    get_ohlcv \tab GET /products/\{id\}/candles \tab No \cr
    get_trades \tab GET /products/\{id\}/trades \tab No \cr
    get_trades_history \tab GET /products/\{id\}/trades (paged) \tab No \cr
@@ -89,7 +91,11 @@ while (!later::loop_empty()) later::run_now()
 \if{html}{\out{<a id="method-CoinbaseMarketData-get_products"></a>}}
 \if{latex}{\out{\hypertarget{method-CoinbaseMarketData-get_products}{}}}
 \subsection{Method \code{get_products()}}{
-Retrieve all available trading products (currency pairs).
+Retrieve all available trading products (currency pairs),
+including each product's order-size limits (\code{base_min_size} /
+\code{base_max_size} / \code{quote_min_size} / \code{quote_max_size}) and increments.
+Sourced from the Advanced Trade public market host, which — unlike the
+Exchange \verb{/products} payload — carries those size limits.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{CoinbaseMarketData$get_products()}\if{html}{\out{</div>}}
 }
@@ -103,7 +109,9 @@ promise thereof.
 \if{html}{\out{<a id="method-CoinbaseMarketData-get_product"></a>}}
 \if{latex}{\out{\hypertarget{method-CoinbaseMarketData-get_product}{}}}
 \subsection{Method \code{get_product()}}{
-Retrieve metadata for a single product.
+Retrieve metadata for a single product, including its
+order-size limits and increments. The single-row form of the
+\code{get_products()} shape, from the same Advanced Trade public market host.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{CoinbaseMarketData$get_product(product_id)}\if{html}{\out{</div>}}
 }
@@ -320,9 +328,9 @@ promise thereof.
 \if{latex}{\out{\hypertarget{method-CoinbaseMarketData-get_best_bid_ask}{}}}
 \subsection{Method \code{get_best_bid_ask()}}{
 Retrieve the best bid/ask for many products in one call.
-Unlike the other \code{CoinbaseMarketData} methods, this hits the \strong{Advanced
-Trade} host and therefore \strong{requires credentials} (construct the client
-with \code{keys}).
+Unlike the other \code{CoinbaseMarketData} methods, this endpoint \strong{requires
+credentials} (construct the client with \code{keys}); it hits the
+authenticated Advanced Trade \code{best_bid_ask} route.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{CoinbaseMarketData$get_best_bid_ask(product_ids = NULL)}\if{html}{\out{</div>}}
 }
