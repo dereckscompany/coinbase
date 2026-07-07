@@ -229,7 +229,7 @@ products and pick out the expiring CFM contracts — their IDs carry an expiry
 
 ```{r products}
 products <- market$get_products()
-products[, .(id, status)]
+products[, .(product_id, product_type, status)]
 ```
 
 Inspect a single contract's metadata before trading it. The same `get_product()`

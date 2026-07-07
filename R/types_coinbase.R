@@ -39,25 +39,30 @@
 #' `@exportassert` (nothing to export).
 #' @name coinbase_shapes
 #'
-#' @type Products (data.table) one row per tradable product (Exchange `/products`):
-#' - id (character | NA) the product id, e.g. `"BTC-USD"`.
-#' - base_currency (character | NA) the base asset.
-#' - quote_currency (character | NA) the quote asset.
-#' - quote_increment (character | NA) quote price increment (verbatim string).
+#' @type Products (data.table) one row per tradable product (Advanced Trade `/api/v3/brokerage/market/products`):
+#' - product_id (character | NA) the product id, e.g. `"BTC-USD"`.
+#' - product_type (character | NA) product family, e.g. `"SPOT"` or `"FUTURE"`.
+#' - base_currency_id (character | NA) the base asset, e.g. `"BTC"`.
+#' - quote_currency_id (character | NA) the quote asset, e.g. `"USD"`.
+#' - base_name (character | NA) human-readable base-asset name.
+#' - quote_name (character | NA) human-readable quote-asset name.
+#' - display_name (character | NA) human-readable product name.
 #' - base_increment (character | NA) base size increment (verbatim string).
-#' - display_name (character | NA) human-readable name.
-#' - min_market_funds (character | NA) minimum order value in the quote asset.
-#' - margin_enabled (logical | NA) whether margin trading is enabled.
-#' - post_only (logical | NA) whether the book is post-only.
-#' - limit_only (logical | NA) whether the book is limit-only.
-#' - cancel_only (logical | NA) whether the book is cancel-only.
+#' - quote_increment (character | NA) quote price increment (verbatim string).
+#' - price_increment (character | NA) price increment (verbatim string).
+#' - base_min_size (character | NA) minimum order size in the base asset (verbatim string).
+#' - base_max_size (character | NA) maximum order size in the base asset (verbatim string).
+#' - quote_min_size (character | NA) minimum order value in the quote asset (verbatim string).
+#' - quote_max_size (character | NA) maximum order value in the quote asset (verbatim string).
 #' - status (character | NA) listing status, e.g. `"online"`.
-#' - status_message (character | NA) free-text status note (`""` when none).
 #' - trading_disabled (logical | NA) whether trading is disabled.
-#' - fx_stablecoin (logical | NA) whether the pair is an FX stablecoin pair.
-#' - max_slippage_percentage (character | NA) max slippage (verbatim string).
+#' - is_disabled (logical | NA) whether the product is disabled.
+#' - new (logical | NA) whether the product is newly listed.
+#' - cancel_only (logical | NA) whether the book is cancel-only.
+#' - limit_only (logical | NA) whether the book is limit-only.
+#' - post_only (logical | NA) whether the book is post-only.
 #' - auction_mode (logical | NA) whether the book is in auction mode.
-#' - high_bid_limit_percentage (character | NA) high-bid limit (`""` when none).
+#' - view_only (logical | NA) whether the product is view-only.
 #'
 #' @type Ohlcv (data.table) one row per candle, ascending by `datetime`:
 #' - datetime (POSIXct | NA) candle open time (UTC).
