@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">coinbase</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -63,7 +63,7 @@
 Mezquita</h4>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/dereckscompany/coinbase/blob/v0.3.0/vignettes/getting-started.Rmd" class="external-link"><code>vignettes/getting-started.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/dereckscompany/coinbase/blob/master/vignettes/getting-started.Rmd" class="external-link"><code>vignettes/getting-started.Rmd</code></a></small>
       <div class="d-none name"><code>getting-started.Rmd</code></div>
     </div>
 
@@ -150,142 +150,46 @@ trade history.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">products</span> <span class="op">&lt;-</span> <span class="va">market</span><span class="op">$</span><span class="fu">get_products</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">products</span><span class="op">[</span><span class="op">]</span></span></code></pre></div>
-<pre><code><span><span class="co">#&gt;               id base_currency quote_currency quote_increment base_increment</span></span>
-<span><span class="co">#&gt;           &lt;char&gt;        &lt;char&gt;         &lt;char&gt;          &lt;char&gt;         &lt;char&gt;</span></span>
-<span><span class="co">#&gt;  1:      SOL-USD           SOL            USD            0.01     0.00000001</span></span>
-<span><span class="co">#&gt;  2:      BTC-USD           BTC            USD            0.01     0.00000001</span></span>
-<span><span class="co">#&gt;  3:      ETH-USD           ETH            USD            0.01     0.00000001</span></span>
-<span><span class="co">#&gt;  4:      AVT-USD           AVT            USD            0.01           0.01</span></span>
-<span><span class="co">#&gt;  5:      XYO-BTC           XYO            BTC      0.00000001            0.1</span></span>
-<span><span class="co">#&gt;  6:     SHIB-GBP          SHIB            GBP      0.00000001              1</span></span>
-<span><span class="co">#&gt;  7:     TREE-USD          TREE            USD          0.0001           0.01</span></span>
-<span><span class="co">#&gt;  8:     BLUR-USD          BLUR            USD          0.0001            0.1</span></span>
-<span><span class="co">#&gt;  9:     FLOW-USD          FLOW            USD         0.00001          0.001</span></span>
-<span><span class="co">#&gt; 10:       B3-USD            B3            USD        0.000001              1</span></span>
-<span><span class="co">#&gt; 11:    SUSHI-EUR         SUSHI            EUR          0.0001           0.01</span></span>
-<span><span class="co">#&gt; 12:      FET-USD           FET            USD          0.0001            0.1</span></span>
-<span><span class="co">#&gt; 13:    LINK-USDT          LINK           USDT            0.01          0.001</span></span>
-<span><span class="co">#&gt; 14:     WCFG-BTC          WCFG            BTC      0.00000001           0.01</span></span>
-<span><span class="co">#&gt; 15:      DOT-EUR           DOT            EUR            0.01          0.001</span></span>
-<span><span class="co">#&gt; 16:      OMG-GBP           OMG            GBP          0.0001            0.1</span></span>
-<span><span class="co">#&gt; 17:     LRC-USDT           LRC           USDT          0.0001           0.01</span></span>
-<span><span class="co">#&gt; 18:     BOBA-USD          BOBA            USD          0.0001            0.1</span></span>
-<span><span class="co">#&gt; 19:    SUKU-USDT          SUKU           USDT          0.0001            0.1</span></span>
-<span><span class="co">#&gt; 20:     DYP-USDT           DYP           USDT         0.00001            0.1</span></span>
-<span><span class="co">#&gt; 21:    MASK-USDT          MASK           USDT            0.01           0.01</span></span>
-<span><span class="co">#&gt; 22:     USDC-CAD          USDC            CAD          0.0001           0.01</span></span>
-<span><span class="co">#&gt; 23: FARTCOIN-USD      FARTCOIN            USD          0.0001           0.01</span></span>
-<span><span class="co">#&gt; 24:     OMNI-USD          OMNI            USD           0.001           0.01</span></span>
-<span><span class="co">#&gt; 25:      PNG-USD           PNG            USD         0.00001              1</span></span>
-<span><span class="co">#&gt; 26:     APE-USDT           APE           USDT           0.001           0.01</span></span>
-<span><span class="co">#&gt; 27:    WLUNA-GBP         WLUNA            GBP      0.00000001          0.001</span></span>
-<span><span class="co">#&gt; 28:    DOGE-USDT          DOGE           USDT          0.0001            0.1</span></span>
-<span><span class="co">#&gt; 29:     GEOD-USD          GEOD            USD          0.0001            0.1</span></span>
-<span><span class="co">#&gt; 30:      REQ-BTC           REQ            BTC      0.00000001              1</span></span>
-<span><span class="co">#&gt;               id base_currency quote_currency quote_increment base_increment</span></span>
-<span><span class="co">#&gt;           &lt;char&gt;        &lt;char&gt;         &lt;char&gt;          &lt;char&gt;         &lt;char&gt;</span></span>
-<span><span class="co">#&gt;     display_name min_market_funds margin_enabled post_only limit_only</span></span>
-<span><span class="co">#&gt;           &lt;char&gt;           &lt;char&gt;         &lt;lgcl&gt;    &lt;lgcl&gt;     &lt;lgcl&gt;</span></span>
-<span><span class="co">#&gt;  1:      SOL-USD                1          FALSE     FALSE      FALSE</span></span>
-<span><span class="co">#&gt;  2:      BTC-USD                1          FALSE     FALSE      FALSE</span></span>
-<span><span class="co">#&gt;  3:      ETH-USD                1          FALSE     FALSE      FALSE</span></span>
-<span><span class="co">#&gt;  4:      AVT-USD                1          FALSE     FALSE      FALSE</span></span>
-<span><span class="co">#&gt;  5:      XYO-BTC         0.000016          FALSE     FALSE      FALSE</span></span>
-<span><span class="co">#&gt;  6:     SHIB-GBP             0.72          FALSE     FALSE      FALSE</span></span>
-<span><span class="co">#&gt;  7:     TREE/USD                1          FALSE     FALSE      FALSE</span></span>
-<span><span class="co">#&gt;  8:     BLUR-USD                1          FALSE     FALSE      FALSE</span></span>
-<span><span class="co">#&gt;  9:     FLOW-USD                1          FALSE     FALSE      FALSE</span></span>
-<span><span class="co">#&gt; 10:       B3/USD                1          FALSE     FALSE      FALSE</span></span>
-<span><span class="co">#&gt; 11:    SUSHI-EUR             0.84          FALSE     FALSE      FALSE</span></span>
-<span><span class="co">#&gt; 12:      FET-USD                1          FALSE     FALSE      FALSE</span></span>
-<span><span class="co">#&gt; 13:    LINK-USDT                1          FALSE     FALSE      FALSE</span></span>
-<span><span class="co">#&gt; 14:     WCFG-BTC         0.000016          FALSE     FALSE      FALSE</span></span>
-<span><span class="co">#&gt; 15:      DOT-EUR             0.84          FALSE     FALSE      FALSE</span></span>
-<span><span class="co">#&gt; 16:      OMG-GBP             0.72          FALSE     FALSE      FALSE</span></span>
-<span><span class="co">#&gt; 17:     LRC-USDT                1          FALSE     FALSE      FALSE</span></span>
-<span><span class="co">#&gt; 18:     BOBA-USD                1          FALSE     FALSE      FALSE</span></span>
-<span><span class="co">#&gt; 19:    SUKU-USDT                1          FALSE     FALSE      FALSE</span></span>
-<span><span class="co">#&gt; 20:     DYP-USDT                1          FALSE     FALSE      FALSE</span></span>
-<span><span class="co">#&gt; 21:    MASK-USDT                1          FALSE     FALSE      FALSE</span></span>
-<span><span class="co">#&gt; 22:     USDC/CAD                1          FALSE     FALSE      FALSE</span></span>
-<span><span class="co">#&gt; 23: FARTCOIN/USD                1          FALSE     FALSE      FALSE</span></span>
-<span><span class="co">#&gt; 24:     OMNI/USD                1          FALSE     FALSE      FALSE</span></span>
-<span><span class="co">#&gt; 25:      PNG-USD                1          FALSE     FALSE      FALSE</span></span>
-<span><span class="co">#&gt; 26:     APE-USDT                1          FALSE     FALSE      FALSE</span></span>
-<span><span class="co">#&gt; 27:    WLUNA-GBP             0.72          FALSE     FALSE      FALSE</span></span>
-<span><span class="co">#&gt; 28:    DOGE-USDT                1          FALSE     FALSE      FALSE</span></span>
-<span><span class="co">#&gt; 29:     GEOD/USD                1          FALSE     FALSE      FALSE</span></span>
-<span><span class="co">#&gt; 30:      REQ-BTC         0.000016          FALSE     FALSE      FALSE</span></span>
-<span><span class="co">#&gt;     display_name min_market_funds margin_enabled post_only limit_only</span></span>
-<span><span class="co">#&gt;           &lt;char&gt;           &lt;char&gt;         &lt;lgcl&gt;    &lt;lgcl&gt;     &lt;lgcl&gt;</span></span>
-<span><span class="co">#&gt;     cancel_only   status status_message trading_disabled fx_stablecoin</span></span>
-<span><span class="co">#&gt;          &lt;lgcl&gt;   &lt;char&gt;         &lt;char&gt;           &lt;lgcl&gt;        &lt;lgcl&gt;</span></span>
-<span><span class="co">#&gt;  1:       FALSE   online                           FALSE         FALSE</span></span>
-<span><span class="co">#&gt;  2:       FALSE   online                           FALSE         FALSE</span></span>
-<span><span class="co">#&gt;  3:       FALSE   online                           FALSE         FALSE</span></span>
-<span><span class="co">#&gt;  4:       FALSE   online                           FALSE         FALSE</span></span>
-<span><span class="co">#&gt;  5:       FALSE delisted                            TRUE         FALSE</span></span>
-<span><span class="co">#&gt;  6:       FALSE   online                           FALSE         FALSE</span></span>
-<span><span class="co">#&gt;  7:       FALSE   online                           FALSE         FALSE</span></span>
-<span><span class="co">#&gt;  8:       FALSE   online                           FALSE         FALSE</span></span>
-<span><span class="co">#&gt;  9:       FALSE   online                           FALSE         FALSE</span></span>
-<span><span class="co">#&gt; 10:       FALSE   online                           FALSE         FALSE</span></span>
-<span><span class="co">#&gt; 11:       FALSE delisted                            TRUE         FALSE</span></span>
-<span><span class="co">#&gt; 12:       FALSE   online                           FALSE         FALSE</span></span>
-<span><span class="co">#&gt; 13:       FALSE   online                           FALSE         FALSE</span></span>
-<span><span class="co">#&gt; 14:       FALSE delisted                            TRUE         FALSE</span></span>
-<span><span class="co">#&gt; 15:       FALSE   online                           FALSE         FALSE</span></span>
-<span><span class="co">#&gt; 16:       FALSE delisted                            TRUE         FALSE</span></span>
-<span><span class="co">#&gt; 17:       FALSE delisted                            TRUE         FALSE</span></span>
-<span><span class="co">#&gt; 18:       FALSE   online                           FALSE         FALSE</span></span>
-<span><span class="co">#&gt; 19:       FALSE delisted                            TRUE         FALSE</span></span>
-<span><span class="co">#&gt; 20:       FALSE delisted                            TRUE         FALSE</span></span>
-<span><span class="co">#&gt; 21:       FALSE delisted                            TRUE         FALSE</span></span>
-<span><span class="co">#&gt; 22:       FALSE   online                           FALSE          TRUE</span></span>
-<span><span class="co">#&gt; 23:       FALSE   online                           FALSE         FALSE</span></span>
-<span><span class="co">#&gt; 24:       FALSE   online                           FALSE         FALSE</span></span>
-<span><span class="co">#&gt; 25:       FALSE   online                           FALSE         FALSE</span></span>
-<span><span class="co">#&gt; 26:       FALSE   online                           FALSE         FALSE</span></span>
-<span><span class="co">#&gt; 27:       FALSE delisted                            TRUE         FALSE</span></span>
-<span><span class="co">#&gt; 28:       FALSE   online                           FALSE         FALSE</span></span>
-<span><span class="co">#&gt; 29:       FALSE   online                           FALSE         FALSE</span></span>
-<span><span class="co">#&gt; 30:       FALSE delisted                            TRUE         FALSE</span></span>
-<span><span class="co">#&gt;     cancel_only   status status_message trading_disabled fx_stablecoin</span></span>
-<span><span class="co">#&gt;          &lt;lgcl&gt;   &lt;char&gt;         &lt;char&gt;           &lt;lgcl&gt;        &lt;lgcl&gt;</span></span>
-<span><span class="co">#&gt;     max_slippage_percentage auction_mode high_bid_limit_percentage</span></span>
-<span><span class="co">#&gt;                      &lt;char&gt;       &lt;lgcl&gt;                    &lt;char&gt;</span></span>
-<span><span class="co">#&gt;  1:              0.03000000        FALSE                          </span></span>
-<span><span class="co">#&gt;  2:              0.02000000        FALSE                          </span></span>
-<span><span class="co">#&gt;  3:              0.02000000        FALSE                          </span></span>
-<span><span class="co">#&gt;  4:              0.05000000        FALSE                          </span></span>
-<span><span class="co">#&gt;  5:              0.03000000        FALSE                          </span></span>
-<span><span class="co">#&gt;  6:              0.03000000        FALSE                          </span></span>
-<span><span class="co">#&gt;  7:              0.03000000        FALSE                          </span></span>
-<span><span class="co">#&gt;  8:              0.03000000        FALSE                          </span></span>
-<span><span class="co">#&gt;  9:              0.03000000        FALSE                          </span></span>
-<span><span class="co">#&gt; 10:              0.03000000        FALSE                          </span></span>
-<span><span class="co">#&gt; 11:              0.03000000        FALSE                          </span></span>
-<span><span class="co">#&gt; 12:              0.03000000        FALSE                          </span></span>
-<span><span class="co">#&gt; 13:              0.03000000        FALSE                          </span></span>
-<span><span class="co">#&gt; 14:              0.03000000        FALSE                          </span></span>
-<span><span class="co">#&gt; 15:              0.03000000        FALSE                          </span></span>
-<span><span class="co">#&gt; 16:              0.03000000        FALSE                          </span></span>
-<span><span class="co">#&gt; 17:              0.03000000        FALSE                          </span></span>
-<span><span class="co">#&gt; 18:              0.03000000        FALSE                          </span></span>
-<span><span class="co">#&gt; 19:              0.03000000        FALSE                          </span></span>
-<span><span class="co">#&gt; 20:              0.03000000        FALSE                          </span></span>
-<span><span class="co">#&gt; 21:              0.05000000        FALSE                          </span></span>
-<span><span class="co">#&gt; 22:              0.01000000        FALSE                0.03000000</span></span>
-<span><span class="co">#&gt; 23:              0.03000000        FALSE                          </span></span>
-<span><span class="co">#&gt; 24:              0.03000000        FALSE                          </span></span>
-<span><span class="co">#&gt; 25:              0.05000000        FALSE                          </span></span>
-<span><span class="co">#&gt; 26:              0.03000000        FALSE                          </span></span>
-<span><span class="co">#&gt; 27:              0.10000000        FALSE                          </span></span>
-<span><span class="co">#&gt; 28:              0.03000000        FALSE                          </span></span>
-<span><span class="co">#&gt; 29:              0.03000000        FALSE                          </span></span>
-<span><span class="co">#&gt; 30:              0.03000000        FALSE                          </span></span>
-<span><span class="co">#&gt;     max_slippage_percentage auction_mode high_bid_limit_percentage</span></span>
-<span><span class="co">#&gt;                      &lt;char&gt;       &lt;lgcl&gt;                    &lt;char&gt;</span></span></code></pre>
+<pre><code><span><span class="co">#&gt;         product_id product_type base_currency_id quote_currency_id base_name</span></span>
+<span><span class="co">#&gt;             &lt;char&gt;       &lt;char&gt;           &lt;char&gt;            &lt;char&gt;    &lt;char&gt;</span></span>
+<span><span class="co">#&gt; 1:         BTC-USD         SPOT              BTC               USD   Bitcoin</span></span>
+<span><span class="co">#&gt; 2:         ETH-USD         SPOT              ETH               USD  Ethereum</span></span>
+<span><span class="co">#&gt; 3:         SOL-USD         SPOT              SOL               USD    Solana</span></span>
+<span><span class="co">#&gt; 4:        USDC-EUR         SPOT             USDC               EUR  USD Coin</span></span>
+<span><span class="co">#&gt; 5:     OLDCOIN-USD         SPOT          OLDCOIN               USD  Old Coin</span></span>
+<span><span class="co">#&gt; 6: BIT-31OCT26-CDE       FUTURE              BIT               USD   Bitcoin</span></span>
+<span><span class="co">#&gt;    quote_name  display_name base_increment quote_increment price_increment</span></span>
+<span><span class="co">#&gt;        &lt;char&gt;        &lt;char&gt;         &lt;char&gt;          &lt;char&gt;          &lt;char&gt;</span></span>
+<span><span class="co">#&gt; 1:  US Dollar       BTC-USD     0.00000001            0.01            0.01</span></span>
+<span><span class="co">#&gt; 2:  US Dollar       ETH-USD     0.00000001            0.01            0.01</span></span>
+<span><span class="co">#&gt; 3:  US Dollar       SOL-USD          0.001            0.01            0.01</span></span>
+<span><span class="co">#&gt; 4:       Euro      USDC-EUR           0.01          0.0001          0.0001</span></span>
+<span><span class="co">#&gt; 5:  US Dollar   OLDCOIN-USD           0.01          0.0001          0.0001</span></span>
+<span><span class="co">#&gt; 6:  US Dollar BTC 31 OCT 26              1               1               1</span></span>
+<span><span class="co">#&gt;    base_min_size base_max_size quote_min_size quote_max_size   status</span></span>
+<span><span class="co">#&gt;           &lt;char&gt;        &lt;char&gt;         &lt;char&gt;         &lt;char&gt;   &lt;char&gt;</span></span>
+<span><span class="co">#&gt; 1:    0.00000001          3400              1      150000000   online</span></span>
+<span><span class="co">#&gt; 2:    0.00000001         27000              1       50000000   online</span></span>
+<span><span class="co">#&gt; 3:         0.001         66000              1       10000000   online</span></span>
+<span><span class="co">#&gt; 4:          0.01      22000000           0.84       20000000   online</span></span>
+<span><span class="co">#&gt; 5:          0.01     100000000              1        1000000 delisted</span></span>
+<span><span class="co">#&gt; 6:             1        100000              1       10000000   online</span></span>
+<span><span class="co">#&gt;    trading_disabled is_disabled    new cancel_only limit_only post_only</span></span>
+<span><span class="co">#&gt;              &lt;lgcl&gt;      &lt;lgcl&gt; &lt;lgcl&gt;      &lt;lgcl&gt;     &lt;lgcl&gt;    &lt;lgcl&gt;</span></span>
+<span><span class="co">#&gt; 1:            FALSE       FALSE  FALSE       FALSE      FALSE     FALSE</span></span>
+<span><span class="co">#&gt; 2:            FALSE       FALSE  FALSE       FALSE      FALSE     FALSE</span></span>
+<span><span class="co">#&gt; 3:            FALSE       FALSE  FALSE       FALSE      FALSE     FALSE</span></span>
+<span><span class="co">#&gt; 4:            FALSE       FALSE  FALSE       FALSE       TRUE     FALSE</span></span>
+<span><span class="co">#&gt; 5:             TRUE        TRUE  FALSE        TRUE      FALSE     FALSE</span></span>
+<span><span class="co">#&gt; 6:            FALSE       FALSE  FALSE       FALSE      FALSE     FALSE</span></span>
+<span><span class="co">#&gt;    auction_mode view_only</span></span>
+<span><span class="co">#&gt;          &lt;lgcl&gt;    &lt;lgcl&gt;</span></span>
+<span><span class="co">#&gt; 1:        FALSE     FALSE</span></span>
+<span><span class="co">#&gt; 2:        FALSE     FALSE</span></span>
+<span><span class="co">#&gt; 3:        FALSE     FALSE</span></span>
+<span><span class="co">#&gt; 4:        FALSE     FALSE</span></span>
+<span><span class="co">#&gt; 5:        FALSE      TRUE</span></span>
+<span><span class="co">#&gt; 6:        FALSE     FALSE</span></span></code></pre>
 </div>
 <div class="section level3">
 <h3 id="ticker">Ticker<a class="anchor" aria-label="anchor" href="#ticker"></a>

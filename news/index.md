@@ -1,5 +1,44 @@
 # Changelog
 
+## coinbase 0.4.0
+
+### Breaking: `get_products()` / `get_product()` now source the Advanced Trade product catalogue (with per-product order-size limits)
+
+- `CoinbaseMarketData$get_products()` and `get_product()` previously
+  sourced the product list from the unauthenticated Exchange host
+  (`GET /products`), whose payload omits every per-product order-size
+  limit. They now source the Advanced Trade public market host
+  (`GET /api/v3/brokerage/market/products` and
+  `/api/v3/brokerage/market/products/{id}`), which carries them — so the
+  returned `Products` shape now exposes `base_min_size`,
+  `base_max_size`, `quote_min_size`, `quote_max_size`, and
+  `price_increment` alongside the existing `base_increment` /
+  `quote_increment`. Both endpoints remain unauthenticated (public data,
+  no credentials required). A faithful wrapper should surface what the
+  venue offers, and these order-size limits are what a caller needs to
+  size and validate an order.
+- This is a breaking rename of the `Products` column set, because the
+  two hosts name the same product with different fields. The identity
+  columns move to their Advanced Trade names: `id` -\> `product_id`,
+  `base_currency` -\> `base_currency_id`, `quote_currency` -\>
+  `quote_currency_id`, and a new `product_type` (`"SPOT"` / `"FUTURE"`),
+  `base_name`, and `quote_name` appear. The Exchange-only fields the new
+  host does not provide are dropped: `min_market_funds`,
+  `margin_enabled`, `status_message`, `fx_stablecoin`,
+  `max_slippage_percentage`, and `high_bid_limit_percentage`. The
+  trading-rule flags carry over (`status`, `trading_disabled`,
+  `cancel_only`, `limit_only`, `post_only`, `auction_mode`) and gain
+  `is_disabled`, `new`, and `view_only`. Numeric-looking fields (sizes
+  and increments) remain the verbatim strings Coinbase sends, per the
+  package convention — cast at the point of use.
+- `get_product()` is now the true single-row form of the `Products`
+  shape: it runs the same `parse_products` parser over the
+  single-product record rather than the generic `as_dt_row` flattener,
+  so its columns and types match `get_products()` exactly. The other
+  public market-data methods (candles, trades, order book, ticker,
+  per-product and bulk stats, server time) are unchanged and still use
+  the Exchange host for its deep history.
+
 ## coinbase 0.3.0
 
 ### Breaking: event-time columns renamed to `timestamp`

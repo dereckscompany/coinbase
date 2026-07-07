@@ -94,142 +94,46 @@ products <- market$get_products()
 products[]
 ```
 
-    #>               id base_currency quote_currency quote_increment base_increment
-    #>           <char>        <char>         <char>          <char>         <char>
-    #>  1:      SOL-USD           SOL            USD            0.01     0.00000001
-    #>  2:      BTC-USD           BTC            USD            0.01     0.00000001
-    #>  3:      ETH-USD           ETH            USD            0.01     0.00000001
-    #>  4:      AVT-USD           AVT            USD            0.01           0.01
-    #>  5:      XYO-BTC           XYO            BTC      0.00000001            0.1
-    #>  6:     SHIB-GBP          SHIB            GBP      0.00000001              1
-    #>  7:     TREE-USD          TREE            USD          0.0001           0.01
-    #>  8:     BLUR-USD          BLUR            USD          0.0001            0.1
-    #>  9:     FLOW-USD          FLOW            USD         0.00001          0.001
-    #> 10:       B3-USD            B3            USD        0.000001              1
-    #> 11:    SUSHI-EUR         SUSHI            EUR          0.0001           0.01
-    #> 12:      FET-USD           FET            USD          0.0001            0.1
-    #> 13:    LINK-USDT          LINK           USDT            0.01          0.001
-    #> 14:     WCFG-BTC          WCFG            BTC      0.00000001           0.01
-    #> 15:      DOT-EUR           DOT            EUR            0.01          0.001
-    #> 16:      OMG-GBP           OMG            GBP          0.0001            0.1
-    #> 17:     LRC-USDT           LRC           USDT          0.0001           0.01
-    #> 18:     BOBA-USD          BOBA            USD          0.0001            0.1
-    #> 19:    SUKU-USDT          SUKU           USDT          0.0001            0.1
-    #> 20:     DYP-USDT           DYP           USDT         0.00001            0.1
-    #> 21:    MASK-USDT          MASK           USDT            0.01           0.01
-    #> 22:     USDC-CAD          USDC            CAD          0.0001           0.01
-    #> 23: FARTCOIN-USD      FARTCOIN            USD          0.0001           0.01
-    #> 24:     OMNI-USD          OMNI            USD           0.001           0.01
-    #> 25:      PNG-USD           PNG            USD         0.00001              1
-    #> 26:     APE-USDT           APE           USDT           0.001           0.01
-    #> 27:    WLUNA-GBP         WLUNA            GBP      0.00000001          0.001
-    #> 28:    DOGE-USDT          DOGE           USDT          0.0001            0.1
-    #> 29:     GEOD-USD          GEOD            USD          0.0001            0.1
-    #> 30:      REQ-BTC           REQ            BTC      0.00000001              1
-    #>               id base_currency quote_currency quote_increment base_increment
-    #>           <char>        <char>         <char>          <char>         <char>
-    #>     display_name min_market_funds margin_enabled post_only limit_only
-    #>           <char>           <char>         <lgcl>    <lgcl>     <lgcl>
-    #>  1:      SOL-USD                1          FALSE     FALSE      FALSE
-    #>  2:      BTC-USD                1          FALSE     FALSE      FALSE
-    #>  3:      ETH-USD                1          FALSE     FALSE      FALSE
-    #>  4:      AVT-USD                1          FALSE     FALSE      FALSE
-    #>  5:      XYO-BTC         0.000016          FALSE     FALSE      FALSE
-    #>  6:     SHIB-GBP             0.72          FALSE     FALSE      FALSE
-    #>  7:     TREE/USD                1          FALSE     FALSE      FALSE
-    #>  8:     BLUR-USD                1          FALSE     FALSE      FALSE
-    #>  9:     FLOW-USD                1          FALSE     FALSE      FALSE
-    #> 10:       B3/USD                1          FALSE     FALSE      FALSE
-    #> 11:    SUSHI-EUR             0.84          FALSE     FALSE      FALSE
-    #> 12:      FET-USD                1          FALSE     FALSE      FALSE
-    #> 13:    LINK-USDT                1          FALSE     FALSE      FALSE
-    #> 14:     WCFG-BTC         0.000016          FALSE     FALSE      FALSE
-    #> 15:      DOT-EUR             0.84          FALSE     FALSE      FALSE
-    #> 16:      OMG-GBP             0.72          FALSE     FALSE      FALSE
-    #> 17:     LRC-USDT                1          FALSE     FALSE      FALSE
-    #> 18:     BOBA-USD                1          FALSE     FALSE      FALSE
-    #> 19:    SUKU-USDT                1          FALSE     FALSE      FALSE
-    #> 20:     DYP-USDT                1          FALSE     FALSE      FALSE
-    #> 21:    MASK-USDT                1          FALSE     FALSE      FALSE
-    #> 22:     USDC/CAD                1          FALSE     FALSE      FALSE
-    #> 23: FARTCOIN/USD                1          FALSE     FALSE      FALSE
-    #> 24:     OMNI/USD                1          FALSE     FALSE      FALSE
-    #> 25:      PNG-USD                1          FALSE     FALSE      FALSE
-    #> 26:     APE-USDT                1          FALSE     FALSE      FALSE
-    #> 27:    WLUNA-GBP             0.72          FALSE     FALSE      FALSE
-    #> 28:    DOGE-USDT                1          FALSE     FALSE      FALSE
-    #> 29:     GEOD/USD                1          FALSE     FALSE      FALSE
-    #> 30:      REQ-BTC         0.000016          FALSE     FALSE      FALSE
-    #>     display_name min_market_funds margin_enabled post_only limit_only
-    #>           <char>           <char>         <lgcl>    <lgcl>     <lgcl>
-    #>     cancel_only   status status_message trading_disabled fx_stablecoin
-    #>          <lgcl>   <char>         <char>           <lgcl>        <lgcl>
-    #>  1:       FALSE   online                           FALSE         FALSE
-    #>  2:       FALSE   online                           FALSE         FALSE
-    #>  3:       FALSE   online                           FALSE         FALSE
-    #>  4:       FALSE   online                           FALSE         FALSE
-    #>  5:       FALSE delisted                            TRUE         FALSE
-    #>  6:       FALSE   online                           FALSE         FALSE
-    #>  7:       FALSE   online                           FALSE         FALSE
-    #>  8:       FALSE   online                           FALSE         FALSE
-    #>  9:       FALSE   online                           FALSE         FALSE
-    #> 10:       FALSE   online                           FALSE         FALSE
-    #> 11:       FALSE delisted                            TRUE         FALSE
-    #> 12:       FALSE   online                           FALSE         FALSE
-    #> 13:       FALSE   online                           FALSE         FALSE
-    #> 14:       FALSE delisted                            TRUE         FALSE
-    #> 15:       FALSE   online                           FALSE         FALSE
-    #> 16:       FALSE delisted                            TRUE         FALSE
-    #> 17:       FALSE delisted                            TRUE         FALSE
-    #> 18:       FALSE   online                           FALSE         FALSE
-    #> 19:       FALSE delisted                            TRUE         FALSE
-    #> 20:       FALSE delisted                            TRUE         FALSE
-    #> 21:       FALSE delisted                            TRUE         FALSE
-    #> 22:       FALSE   online                           FALSE          TRUE
-    #> 23:       FALSE   online                           FALSE         FALSE
-    #> 24:       FALSE   online                           FALSE         FALSE
-    #> 25:       FALSE   online                           FALSE         FALSE
-    #> 26:       FALSE   online                           FALSE         FALSE
-    #> 27:       FALSE delisted                            TRUE         FALSE
-    #> 28:       FALSE   online                           FALSE         FALSE
-    #> 29:       FALSE   online                           FALSE         FALSE
-    #> 30:       FALSE delisted                            TRUE         FALSE
-    #>     cancel_only   status status_message trading_disabled fx_stablecoin
-    #>          <lgcl>   <char>         <char>           <lgcl>        <lgcl>
-    #>     max_slippage_percentage auction_mode high_bid_limit_percentage
-    #>                      <char>       <lgcl>                    <char>
-    #>  1:              0.03000000        FALSE                          
-    #>  2:              0.02000000        FALSE                          
-    #>  3:              0.02000000        FALSE                          
-    #>  4:              0.05000000        FALSE                          
-    #>  5:              0.03000000        FALSE                          
-    #>  6:              0.03000000        FALSE                          
-    #>  7:              0.03000000        FALSE                          
-    #>  8:              0.03000000        FALSE                          
-    #>  9:              0.03000000        FALSE                          
-    #> 10:              0.03000000        FALSE                          
-    #> 11:              0.03000000        FALSE                          
-    #> 12:              0.03000000        FALSE                          
-    #> 13:              0.03000000        FALSE                          
-    #> 14:              0.03000000        FALSE                          
-    #> 15:              0.03000000        FALSE                          
-    #> 16:              0.03000000        FALSE                          
-    #> 17:              0.03000000        FALSE                          
-    #> 18:              0.03000000        FALSE                          
-    #> 19:              0.03000000        FALSE                          
-    #> 20:              0.03000000        FALSE                          
-    #> 21:              0.05000000        FALSE                          
-    #> 22:              0.01000000        FALSE                0.03000000
-    #> 23:              0.03000000        FALSE                          
-    #> 24:              0.03000000        FALSE                          
-    #> 25:              0.05000000        FALSE                          
-    #> 26:              0.03000000        FALSE                          
-    #> 27:              0.10000000        FALSE                          
-    #> 28:              0.03000000        FALSE                          
-    #> 29:              0.03000000        FALSE                          
-    #> 30:              0.03000000        FALSE                          
-    #>     max_slippage_percentage auction_mode high_bid_limit_percentage
-    #>                      <char>       <lgcl>                    <char>
+    #>         product_id product_type base_currency_id quote_currency_id base_name
+    #>             <char>       <char>           <char>            <char>    <char>
+    #> 1:         BTC-USD         SPOT              BTC               USD   Bitcoin
+    #> 2:         ETH-USD         SPOT              ETH               USD  Ethereum
+    #> 3:         SOL-USD         SPOT              SOL               USD    Solana
+    #> 4:        USDC-EUR         SPOT             USDC               EUR  USD Coin
+    #> 5:     OLDCOIN-USD         SPOT          OLDCOIN               USD  Old Coin
+    #> 6: BIT-31OCT26-CDE       FUTURE              BIT               USD   Bitcoin
+    #>    quote_name  display_name base_increment quote_increment price_increment
+    #>        <char>        <char>         <char>          <char>          <char>
+    #> 1:  US Dollar       BTC-USD     0.00000001            0.01            0.01
+    #> 2:  US Dollar       ETH-USD     0.00000001            0.01            0.01
+    #> 3:  US Dollar       SOL-USD          0.001            0.01            0.01
+    #> 4:       Euro      USDC-EUR           0.01          0.0001          0.0001
+    #> 5:  US Dollar   OLDCOIN-USD           0.01          0.0001          0.0001
+    #> 6:  US Dollar BTC 31 OCT 26              1               1               1
+    #>    base_min_size base_max_size quote_min_size quote_max_size   status
+    #>           <char>        <char>         <char>         <char>   <char>
+    #> 1:    0.00000001          3400              1      150000000   online
+    #> 2:    0.00000001         27000              1       50000000   online
+    #> 3:         0.001         66000              1       10000000   online
+    #> 4:          0.01      22000000           0.84       20000000   online
+    #> 5:          0.01     100000000              1        1000000 delisted
+    #> 6:             1        100000              1       10000000   online
+    #>    trading_disabled is_disabled    new cancel_only limit_only post_only
+    #>              <lgcl>      <lgcl> <lgcl>      <lgcl>     <lgcl>    <lgcl>
+    #> 1:            FALSE       FALSE  FALSE       FALSE      FALSE     FALSE
+    #> 2:            FALSE       FALSE  FALSE       FALSE      FALSE     FALSE
+    #> 3:            FALSE       FALSE  FALSE       FALSE      FALSE     FALSE
+    #> 4:            FALSE       FALSE  FALSE       FALSE       TRUE     FALSE
+    #> 5:             TRUE        TRUE  FALSE        TRUE      FALSE     FALSE
+    #> 6:            FALSE       FALSE  FALSE       FALSE      FALSE     FALSE
+    #>    auction_mode view_only
+    #>          <lgcl>    <lgcl>
+    #> 1:        FALSE     FALSE
+    #> 2:        FALSE     FALSE
+    #> 3:        FALSE     FALSE
+    #> 4:        FALSE     FALSE
+    #> 5:        FALSE      TRUE
+    #> 6:        FALSE     FALSE
 
 ### Ticker
 

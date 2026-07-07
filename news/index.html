@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">coinbase</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -35,9 +35,20 @@
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Changelog</h1>
-      <small>Source: <a href="https://github.com/dereckscompany/coinbase/blob/v0.3.0/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
+      <small>Source: <a href="https://github.com/dereckscompany/coinbase/blob/master/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.4.0" id="coinbase-040">coinbase 0.4.0<a class="anchor" aria-label="anchor" href="#coinbase-040"></a></h2>
+<div class="section level3">
+<h3 id="breaking-get_products--get_product-now-source-the-advanced-trade-product-catalogue-with-per-product-order-size-limits-0-4-0">Breaking: <code>get_products()</code> / <code>get_product()</code> now source the Advanced Trade product catalogue (with per-product order-size limits)<a class="anchor" aria-label="anchor" href="#breaking-get_products--get_product-now-source-the-advanced-trade-product-catalogue-with-per-product-order-size-limits-0-4-0"></a></h3>
+<ul><li>
+<code>CoinbaseMarketData$get_products()</code> and <code>get_product()</code> previously sourced the product list from the unauthenticated Exchange host (<code>GET /products</code>), whose payload omits every per-product order-size limit. They now source the Advanced Trade public market host (<code>GET /api/v3/brokerage/market/products</code> and <code>/api/v3/brokerage/market/products/{id}</code>), which carries them — so the returned <code>Products</code> shape now exposes <code>base_min_size</code>, <code>base_max_size</code>, <code>quote_min_size</code>, <code>quote_max_size</code>, and <code>price_increment</code> alongside the existing <code>base_increment</code> / <code>quote_increment</code>. Both endpoints remain unauthenticated (public data, no credentials required). A faithful wrapper should surface what the venue offers, and these order-size limits are what a caller needs to size and validate an order.</li>
+<li>This is a breaking rename of the <code>Products</code> column set, because the two hosts name the same product with different fields. The identity columns move to their Advanced Trade names: <code>id</code> -&gt; <code>product_id</code>, <code>base_currency</code> -&gt; <code>base_currency_id</code>, <code>quote_currency</code> -&gt; <code>quote_currency_id</code>, and a new <code>product_type</code> (<code>"SPOT"</code> / <code>"FUTURE"</code>), <code>base_name</code>, and <code>quote_name</code> appear. The Exchange-only fields the new host does not provide are dropped: <code>min_market_funds</code>, <code>margin_enabled</code>, <code>status_message</code>, <code>fx_stablecoin</code>, <code>max_slippage_percentage</code>, and <code>high_bid_limit_percentage</code>. The trading-rule flags carry over (<code>status</code>, <code>trading_disabled</code>, <code>cancel_only</code>, <code>limit_only</code>, <code>post_only</code>, <code>auction_mode</code>) and gain <code>is_disabled</code>, <code>new</code>, and <code>view_only</code>. Numeric-looking fields (sizes and increments) remain the verbatim strings Coinbase sends, per the package convention — cast at the point of use.</li>
+<li>
+<code>get_product()</code> is now the true single-row form of the <code>Products</code> shape: it runs the same <code>parse_products</code> parser over the single-product record rather than the generic <code>as_dt_row</code> flattener, so its columns and types match <code>get_products()</code> exactly. The other public market-data methods (candles, trades, order book, ticker, per-product and bulk stats, server time) are unchanged and still use the Exchange host for its deep history.</li>
+</ul></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.3.0" id="coinbase-030">coinbase 0.3.0<a class="anchor" aria-label="anchor" href="#coinbase-030"></a></h2>
 <div class="section level3">

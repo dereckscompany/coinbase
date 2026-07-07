@@ -6,10 +6,13 @@ CoinbaseMarketData: Public Market Data Retrieval
 
 ## Details
 
-Retrieves public market data from the Coinbase Exchange API: products,
-candles (OHLCV), tick trades, order books, tickers, and server time.
-These are unauthenticated, with one exception: `get_best_bid_ask()` hits
-the Advanced Trade host and requires credentials.
+Retrieves public market data from Coinbase: products, candles (OHLCV),
+tick trades, order books, tickers, and server time. These are
+unauthenticated. The product catalogue (`get_products()` /
+`get_product()`) is served by the Advanced Trade public market host (it
+carries the per-product order-size limits the Exchange payload omits);
+the rest use the Exchange host. One method needs credentials:
+`get_best_bid_ask()`.
 
 Inherits from
 [CoinbaseBase](https://dereckscompany.github.io/coinbase/reference/CoinbaseBase.md).
@@ -26,20 +29,20 @@ through history, then aggregate with
 
 ### Endpoints Covered
 
-|                    |                                    |      |
-|--------------------|------------------------------------|------|
-| Method             | Endpoint                           | Auth |
-| get_products       | GET /products                      | No   |
-| get_product        | GET /products/{id}                 | No   |
-| get_ohlcv          | GET /products/{id}/candles         | No   |
-| get_trades         | GET /products/{id}/trades          | No   |
-| get_trades_history | GET /products/{id}/trades (paged)  | No   |
-| get_orderbook      | GET /products/{id}/book            | No   |
-| get_ticker         | GET /products/{id}/ticker          | No   |
-| get_stats          | GET /products/stats                | No   |
-| get_product_stats  | GET /products/{id}/stats           | No   |
-| get_best_bid_ask   | GET /api/v3/brokerage/best_bid_ask | Yes  |
-| get_server_time    | GET /time                          | No   |
+|                    |                                            |      |
+|--------------------|--------------------------------------------|------|
+| Method             | Endpoint                                   | Auth |
+| get_products       | GET /api/v3/brokerage/market/products      | No   |
+| get_product        | GET /api/v3/brokerage/market/products/{id} | No   |
+| get_ohlcv          | GET /products/{id}/candles                 | No   |
+| get_trades         | GET /products/{id}/trades                  | No   |
+| get_trades_history | GET /products/{id}/trades (paged)          | No   |
+| get_orderbook      | GET /products/{id}/book                    | No   |
+| get_ticker         | GET /products/{id}/ticker                  | No   |
+| get_stats          | GET /products/stats                        | No   |
+| get_product_stats  | GET /products/{id}/stats                   | No   |
+| get_best_bid_ask   | GET /api/v3/brokerage/best_bid_ask         | Yes  |
+| get_server_time    | GET /time                                  | No   |
 
 ## Super classes
 
@@ -84,7 +87,11 @@ Inherited methods
 
 ### Method `get_products()`
 
-Retrieve all available trading products (currency pairs).
+Retrieve all available trading products (currency pairs), including each
+product's order-size limits (`base_min_size` / `base_max_size` /
+`quote_min_size` / `quote_max_size`) and increments. Sourced from the
+Advanced Trade public market host, which — unlike the Exchange
+`/products` payload — carries those size limits.
 
 #### Usage
 
@@ -99,7 +106,9 @@ promise thereof.
 
 ### Method `get_product()`
 
-Retrieve metadata for a single product.
+Retrieve metadata for a single product, including its order-size limits
+and increments. The single-row form of the `get_products()` shape, from
+the same Advanced Trade public market host.
 
 #### Usage
 
@@ -338,9 +347,9 @@ promise thereof.
 ### Method `get_best_bid_ask()`
 
 Retrieve the best bid/ask for many products in one call. Unlike the
-other `CoinbaseMarketData` methods, this hits the **Advanced Trade**
-host and therefore **requires credentials** (construct the client with
-`keys`).
+other `CoinbaseMarketData` methods, this endpoint **requires
+credentials** (construct the client with `keys`); it hits the
+authenticated Advanced Trade `best_bid_ask` route.
 
 #### Usage
 

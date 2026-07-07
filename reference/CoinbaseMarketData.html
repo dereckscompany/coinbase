@@ -9,7 +9,7 @@ CoinbaseMarketData: Public Market Data Retrieval"></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">coinbase</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -37,7 +37,7 @@ CoinbaseMarketData: Public Market Data Retrieval"></head><body>
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>CoinbaseMarketData: Public Market Data Retrieval</h1>
-      <small class="dont-index">Source: <a href="https://github.com/dereckscompany/coinbase/blob/v0.3.0/R/CoinbaseMarketData.R" class="external-link"><code>R/CoinbaseMarketData.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/dereckscompany/coinbase/blob/master/R/CoinbaseMarketData.R" class="external-link"><code>R/CoinbaseMarketData.R</code></a></small>
       <div class="d-none name"><code>CoinbaseMarketData.Rd</code></div>
     </div>
 
@@ -49,10 +49,12 @@ CoinbaseMarketData: Public Market Data Retrieval"></head><body>
 
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>Retrieves public market data from the Coinbase Exchange API: products,
-candles (OHLCV), tick trades, order books, tickers, and server time. These
-are unauthenticated, with one exception: <code>get_best_bid_ask()</code> hits the
-Advanced Trade host and requires credentials.</p>
+    <p>Retrieves public market data from Coinbase: products, candles (OHLCV), tick
+trades, order books, tickers, and server time. These are unauthenticated. The
+product catalogue (<code>get_products()</code> / <code>get_product()</code>) is served by the
+Advanced Trade public market host (it carries the per-product order-size
+limits the Exchange payload omits); the rest use the Exchange host. One method
+needs credentials: <code>get_best_bid_ask()</code>.</p>
 <p>Inherits from <a href="CoinbaseBase.html">CoinbaseBase</a>. All methods support both synchronous and
 asynchronous execution depending on the <code>async</code> argument at construction.</p><div class="section">
 <h3 id="deep-history">Deep history<a class="anchor" aria-label="anchor" href="#deep-history"></a></h3>
@@ -66,7 +68,7 @@ then aggregate with <code><a href="trades_to_ohlcv.html">trades_to_ohlcv()</a></
 
 <div class="section">
 <h3 id="endpoints-covered">Endpoints Covered<a class="anchor" aria-label="anchor" href="#endpoints-covered"></a></h3>
-<table class="table table"><tr><td>Method</td><td>Endpoint</td><td>Auth</td></tr><tr><td>get_products</td><td>GET /products</td><td>No</td></tr><tr><td>get_product</td><td>GET /products/{id}</td><td>No</td></tr><tr><td>get_ohlcv</td><td>GET /products/{id}/candles</td><td>No</td></tr><tr><td>get_trades</td><td>GET /products/{id}/trades</td><td>No</td></tr><tr><td>get_trades_history</td><td>GET /products/{id}/trades (paged)</td><td>No</td></tr><tr><td>get_orderbook</td><td>GET /products/{id}/book</td><td>No</td></tr><tr><td>get_ticker</td><td>GET /products/{id}/ticker</td><td>No</td></tr><tr><td>get_stats</td><td>GET /products/stats</td><td>No</td></tr><tr><td>get_product_stats</td><td>GET /products/{id}/stats</td><td>No</td></tr><tr><td>get_best_bid_ask</td><td>GET /api/v3/brokerage/best_bid_ask</td><td>Yes</td></tr><tr><td>get_server_time</td><td>GET /time</td><td>No</td></tr></table></div>
+<table class="table table"><tr><td>Method</td><td>Endpoint</td><td>Auth</td></tr><tr><td>get_products</td><td>GET /api/v3/brokerage/market/products</td><td>No</td></tr><tr><td>get_product</td><td>GET /api/v3/brokerage/market/products/{id}</td><td>No</td></tr><tr><td>get_ohlcv</td><td>GET /products/{id}/candles</td><td>No</td></tr><tr><td>get_trades</td><td>GET /products/{id}/trades</td><td>No</td></tr><tr><td>get_trades_history</td><td>GET /products/{id}/trades (paged)</td><td>No</td></tr><tr><td>get_orderbook</td><td>GET /products/{id}/book</td><td>No</td></tr><tr><td>get_ticker</td><td>GET /products/{id}/ticker</td><td>No</td></tr><tr><td>get_stats</td><td>GET /products/stats</td><td>No</td></tr><tr><td>get_product_stats</td><td>GET /products/{id}/stats</td><td>No</td></tr><tr><td>get_best_bid_ask</td><td>GET /api/v3/brokerage/best_bid_ask</td><td>Yes</td></tr><tr><td>get_server_time</td><td>GET /time</td><td>No</td></tr></table></div>
 
     </div>
     <div class="section level2">
@@ -94,7 +96,11 @@ then aggregate with <code><a href="trades_to_ohlcv.html">trades_to_ohlcv()</a></
 </ul></div><p><details open><summary>Inherited methods</summary><ul><li><span class="pkg-link" data-pkg="coinbase" data-topic="CoinbaseBase" data-id="initialize"><a href="CoinbaseBase.html#method-initialize"><code>coinbase::CoinbaseBase$initialize()</code></a></span></li>
 </ul></details></p><hr><a id="method-CoinbaseMarketData-get_products"></a><div class="section">
 <h3 id="method-get-products-">Method <code>get_products()</code><a class="anchor" aria-label="anchor" href="#method-get-products-"></a></h3>
-<p>Retrieve all available trading products (currency pairs).</p><div class="section">
+<p>Retrieve all available trading products (currency pairs),
+including each product's order-size limits (<code>base_min_size</code> /
+<code>base_max_size</code> / <code>quote_min_size</code> / <code>quote_max_size</code>) and increments.
+Sourced from the Advanced Trade public market host, which — unlike the
+Exchange <code>/products</code> payload — carries those size limits.</p><div class="section">
 <h4 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">CoinbaseMarketData</span><span class="op">$</span><span class="fu">get_products</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
@@ -107,7 +113,9 @@ promise thereof.</p>
 
 </div><p></p><hr><a id="method-CoinbaseMarketData-get_product"></a><div class="section">
 <h3 id="method-get-product-">Method <code>get_product()</code><a class="anchor" aria-label="anchor" href="#method-get-product-"></a></h3>
-<p>Retrieve metadata for a single product.</p><div class="section">
+<p>Retrieve metadata for a single product, including its
+order-size limits and increments. The single-row form of the
+<code>get_products()</code> shape, from the same Advanced Trade public market host.</p><div class="section">
 <h4 id="usage-1">Usage<a class="anchor" aria-label="anchor" href="#usage-1"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">CoinbaseMarketData</span><span class="op">$</span><span class="fu">get_product</span><span class="op">(</span><span class="va">product_id</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
@@ -338,9 +346,9 @@ promise thereof.</p>
 </div><p></p><hr><a id="method-CoinbaseMarketData-get_best_bid_ask"></a><div class="section">
 <h3 id="method-get-best-bid-ask-">Method <code>get_best_bid_ask()</code><a class="anchor" aria-label="anchor" href="#method-get-best-bid-ask-"></a></h3>
 <p>Retrieve the best bid/ask for many products in one call.
-Unlike the other <code>CoinbaseMarketData</code> methods, this hits the <strong>Advanced
-Trade</strong> host and therefore <strong>requires credentials</strong> (construct the client
-with <code>keys</code>).</p><div class="section">
+Unlike the other <code>CoinbaseMarketData</code> methods, this endpoint <strong>requires
+credentials</strong> (construct the client with <code>keys</code>); it hits the
+authenticated Advanced Trade <code>best_bid_ask</code> route.</p><div class="section">
 <h4 id="usage-9">Usage<a class="anchor" aria-label="anchor" href="#usage-9"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">CoinbaseMarketData</span><span class="op">$</span><span class="fu">get_best_bid_ask</span><span class="op">(</span>product_ids <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>

@@ -248,43 +248,17 @@ expiry (e.g. `BIT-31OCT26-CDE`):
 ``` r
 
 products <- market$get_products()
-products[, .(id, status)]
+products[, .(product_id, product_type, status)]
 ```
 
-    #>               id   status
-    #>           <char>   <char>
-    #>  1:      SOL-USD   online
-    #>  2:      BTC-USD   online
-    #>  3:      ETH-USD   online
-    #>  4:      AVT-USD   online
-    #>  5:      XYO-BTC delisted
-    #>  6:     SHIB-GBP   online
-    #>  7:     TREE-USD   online
-    #>  8:     BLUR-USD   online
-    #>  9:     FLOW-USD   online
-    #> 10:       B3-USD   online
-    #> 11:    SUSHI-EUR delisted
-    #> 12:      FET-USD   online
-    #> 13:    LINK-USDT   online
-    #> 14:     WCFG-BTC delisted
-    #> 15:      DOT-EUR   online
-    #> 16:      OMG-GBP delisted
-    #> 17:     LRC-USDT delisted
-    #> 18:     BOBA-USD   online
-    #> 19:    SUKU-USDT delisted
-    #> 20:     DYP-USDT delisted
-    #> 21:    MASK-USDT delisted
-    #> 22:     USDC-CAD   online
-    #> 23: FARTCOIN-USD   online
-    #> 24:     OMNI-USD   online
-    #> 25:      PNG-USD   online
-    #> 26:     APE-USDT   online
-    #> 27:    WLUNA-GBP delisted
-    #> 28:    DOGE-USDT   online
-    #> 29:     GEOD-USD   online
-    #> 30:      REQ-BTC delisted
-    #>               id   status
-    #>           <char>   <char>
+    #>         product_id product_type   status
+    #>             <char>       <char>   <char>
+    #> 1:         BTC-USD         SPOT   online
+    #> 2:         ETH-USD         SPOT   online
+    #> 3:         SOL-USD         SPOT   online
+    #> 4:        USDC-EUR         SPOT   online
+    #> 5:     OLDCOIN-USD         SPOT delisted
+    #> 6: BIT-31OCT26-CDE       FUTURE   online
 
 Inspect a single contract’s metadata before trading it. The same
 `get_product()` call works for an expiring CFM contract by passing its
