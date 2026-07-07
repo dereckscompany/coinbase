@@ -1441,7 +1441,7 @@ generate_client_order_id()        # fresh RFC-4122 v4 UUID
     #> [1] TRUE
     #> [1] TRUE
     #> [1] FALSE
-    #> [1] "5004c5b1-6251-4a2d-b0fc-d7093146dfbd"
+    #> [1] "21242763-b274-43a0-bd23-ef73f2683580"
 
 #### Async usage
 
