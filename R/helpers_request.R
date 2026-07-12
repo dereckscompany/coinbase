@@ -260,7 +260,7 @@ parse_coinbase_response <- function(resp) {
   )
 
   if (status >= 400L) {
-    rlang::abort(paste0("Coinbase HTTP error ", status, "\n", body_text))
+    abort_coinbase_error(status = status, url = resp$url, body = body_text)
   }
 
   # Some success responses carry an empty body (e.g. the intraday-margin setter
