@@ -75,6 +75,50 @@ test_that("parse_coinbase_response aborts on HTTP >= 400 with status and body", 
   expect_error(parse_coinbase_response(resp), "NOT_FOUND")
 })
 
+test_that("parse_coinbase_response raises a typed condition catchable at three levels", {
+  resp <- httr2::response(
+    status_code = 429L,
+    headers = list(`Content-Type` = "application/json"),
+    body = charToRaw('{"error":"RATE_LIMIT","message":"slow down"}')
+  )
+
+  # per-status: catch only 429 without catching the rest of the family
+  status_hit <- tryCatch(
+    parse_coinbase_response(resp),
+    coinbase_api_error_429 = function(e) e
+  )
+  expect_s3_class(status_hit, "coinbase_api_error_429")
+  expect_equal(status_hit$status, 429L)
+  expect_match(status_hit$body_snippet, "RATE_LIMIT")
+
+  # package family: any Coinbase HTTP failure
+  fam_hit <- tryCatch(parse_coinbase_response(resp), coinbase_api_error = function(e) e)
+  expect_s3_class(fam_hit, "coinbase_api_error")
+
+  # connectcore family: any HTTP failure fleet-wide, and any transport failure
+  cc_fam <- tryCatch(parse_coinbase_response(resp), connectcore_api_error = function(e) e)
+  expect_s3_class(cc_fam, "connectcore_api_error")
+  cc_root <- tryCatch(parse_coinbase_response(resp), connectcore_error = function(e) e)
+  expect_s3_class(cc_root, "connectcore_error")
+
+  # structured fields present and the class vector is ordered specific -> general
+  expect_s3_class(cc_root, "connectcore_api_error_429")
+  expect_equal(cc_root$status, 429L)
+  expect_true(!is.null(cc_root$url))
+  expect_match(cc_root$body_snippet, "slow down")
+})
+
+test_that("parse_coinbase_response error message is byte-identical to the legacy string", {
+  body_text <- '{"error":"NOT_FOUND","message":"no such order"}'
+  resp <- httr2::response(
+    status_code = 404L,
+    headers = list(`Content-Type` = "application/json"),
+    body = charToRaw(body_text)
+  )
+  err <- tryCatch(parse_coinbase_response(resp), error = function(e) e)
+  expect_equal(conditionMessage(err), paste0("Coinbase HTTP error 404\n", body_text))
+})
+
 test_that("coinbase_build_request omits NULL body fields (single-field edit) but keeps nested config", {
   captured <- NULL
   fake_perform <- function(req) {
