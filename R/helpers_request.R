@@ -34,7 +34,7 @@ load_private_key <- function(private_key) {
   # Ed25519 DER prefix and PEM-encode so openssl::read_key can parse it.
   raw <- openssl::base64_decode(gsub("\\s", "", private_key))
   if (!length(raw) %in% c(32L, 64L)) {
-    rlang::abort(paste0(
+    abort_coinbase_validation_error(paste0(
       "Invalid Ed25519 private key: expected 32 or 64 base64-decoded bytes, got ",
       length(raw),
       ". Check COINBASE_API_PRIVATE_KEY."
@@ -103,7 +103,7 @@ build_jwt <- function(keys, method, host, path) {
   assert::assert_nonempty_strings(host)
   assert::assert_nonempty_strings(path)
   if (is.null(keys$api_private_key) || !nzchar(keys$api_private_key) || !nzchar(coalesce_null(keys$api_key_name, ""))) {
-    rlang::abort(paste0(
+    abort_coinbase_validation_error(paste0(
       "Coinbase API credentials are not set. Provide them via get_api_keys() ",
       "or the COINBASE_API_KEY_NAME / COINBASE_API_PRIVATE_KEY environment variables."
     ))

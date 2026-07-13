@@ -363,7 +363,7 @@ CoinbaseTrading <- R6::R6Class(
       assert_args_CoinbaseTrading__edit_order(order_id)
       assert::assert_nonempty_strings(order_id)
       if (is.null(price) && is.null(size)) {
-        rlang::abort("edit_order requires at least one of `price` or `size`.")
+        abort_coinbase_validation_error("edit_order requires at least one of `price` or `size`.")
       }
       if (!is.null(price)) {
         price <- coerce_positive_string(price, "price")
@@ -397,7 +397,7 @@ CoinbaseTrading <- R6::R6Class(
       assert_args_CoinbaseTrading__preview_edit_order(order_id)
       assert::assert_nonempty_strings(order_id)
       if (is.null(price) && is.null(size)) {
-        rlang::abort("preview_edit_order requires at least one of `price` or `size`.")
+        abort_coinbase_validation_error("preview_edit_order requires at least one of `price` or `size`.")
       }
       if (!is.null(price)) {
         price <- coerce_positive_string(price, "price")
@@ -426,7 +426,7 @@ CoinbaseTrading <- R6::R6Class(
     cancel_orders = function(order_ids) {
       assert_args_CoinbaseTrading__cancel_orders(order_ids)
       if (length(order_ids) == 0L) {
-        rlang::abort("`order_ids` must contain at least one order id.")
+        abort_coinbase_validation_error("`order_ids` must contain at least one order id.")
       }
       assert::assert_nonempty_strings(order_ids)
       res <- private$.request(

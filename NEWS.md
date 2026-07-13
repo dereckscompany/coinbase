@@ -1,3 +1,12 @@
+# coinbase 0.6.0
+
+## Typed input-validation conditions (the non-transport half of the taxonomy)
+
+* The connector's 14 non-transport `rlang::abort()` sites — a method's argument, parameter, or credential setup is malformed or violates a rule *before* any request is made (a bad `product_id` or `side`, an edit with neither price nor size, missing API credentials, a malformed Ed25519 key) — now signal a **classed condition** through a new `abort_coinbase_validation_error()` raiser, so a caller branches on error *type* instead of grepping the message text. This completes the taxonomy alongside the request funnel's typed transport conditions (0.5.0).
+* The class vector is `c("coinbase_validation_error", "coinbase_error")`. `coinbase_error` is the connector's DOMAIN root, parallel to the transport `connectcore_error` root: a validation failure is not a transport failure, so the two roots never meet — exactly the `core_error` / `connectcore_error` split the fleet already uses. Catch `coinbase_validation_error` for input bugs specifically, or `coinbase_error` for any non-transport Coinbase failure.
+* The message strings are **byte-identical** to the bare `rlang::abort()` calls they replaced (a reverse-substitution proves all 14 reproduce master exactly; golden tests pin two representative sites), so existing tests and downstream message greps keep matching. The classes are purely additive; `conditionMessage()` and `inherits(e, "error")` are unchanged. No behaviour changes.
+* Follows the org convention (dereckscompany/tradebot-core#30; discussion "throw typed errors, not bare strings"). The transport/API funnel (`abort_coinbase_error`, rooted at `connectcore_error`) is untouched.
+
 # coinbase 0.5.0
 
 ## Typed API-error conditions

@@ -13,7 +13,7 @@
 validate_symbol <- function(product_id) {
   assert_args_validate_symbol(product_id)
   if (!verify_symbol(product_id)) {
-    rlang::abort(paste0(
+    abort_coinbase_validation_error(paste0(
       "Invalid product_id '",
       product_id,
       "'. Expected BASE-QUOTE form, e.g. \"BTC-USD\"."
@@ -35,7 +35,7 @@ validate_side <- function(side) {
   assert_args_validate_side(side)
   up <- toupper(side)
   if (!up %in% c("BUY", "SELL")) {
-    rlang::abort(paste0("Invalid side '", side, "'. Expected \"BUY\" or \"SELL\"."))
+    abort_coinbase_validation_error(paste0("Invalid side '", side, "'. Expected \"BUY\" or \"SELL\"."))
   }
   return(assert_return_validate_side(up))
 }
@@ -79,7 +79,7 @@ coerce_positive_string <- function(x, name) {
   v <- suppressWarnings(as.numeric(x))
   # is.finite rejects NA, NaN, Inf, -Inf, and overflow (e.g. "1e999" -> Inf).
   if (length(v) != 1L || !is.finite(v) || v <= 0) {
-    rlang::abort(sprintf("`%s` must be a single positive finite number.", name))
+    abort_coinbase_validation_error(sprintf("`%s` must be a single positive finite number.", name))
   }
   # Only a canonical plain-decimal character input is returned VERBATIM (so the
   # exact value the user typed is sent unchanged, preserving full precision).
@@ -112,7 +112,7 @@ validate_order_config <- function(order_configuration) {
     nzchar(nms[1]) &&
     is.list(order_configuration[[1]])
   if (!ok) {
-    rlang::abort(paste0(
+    abort_coinbase_validation_error(paste0(
       "`order_configuration` must be a single-key named list, e.g. ",
       "list(market_market_ioc = list(quote_size = \"10\"))."
     ))
