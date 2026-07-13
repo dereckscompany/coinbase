@@ -128,7 +128,7 @@ CoinbaseMarketData <- R6::R6Class(
       validate_symbol(product_id)
       assert_args_CoinbaseMarketData__get_ohlcv(start, end)
       if (!granularity %in% names(.COINBASE_GRANULARITY_MAP)) {
-        rlang::abort(paste0(
+        abort_coinbase_validation_error(paste0(
           "Invalid granularity '",
           granularity,
           "'. Valid: ",
@@ -235,7 +235,7 @@ CoinbaseMarketData <- R6::R6Class(
       assert_args_CoinbaseMarketData__get_orderbook(level)
       level <- as.integer(level)
       if (!level %in% c(1L, 2L, 3L)) {
-        rlang::abort("`level` must be 1, 2, or 3.")
+        abort_coinbase_validation_error("`level` must be 1, 2, or 3.")
       }
       res <- private$.request(
         endpoint = paste0("/products/", product_id, "/book"),
