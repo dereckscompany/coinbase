@@ -8,15 +8,15 @@
 ## Citation
 
 Source:
-[`inst/CITATION`](https://github.com/dereckscompany/coinbase/blob/v0.5.0/inst/CITATION)
+[`inst/CITATION`](https://github.com/dereckscompany/coinbase/blob/master/inst/CITATION)
 
 Mezquita D (2026). *coinbase: API Wrapper to Coinbase Advanced Trade*. R
-package version 0.5.0, <https://dereckscompany.github.io/coinbase>.
+package version 0.6.0, <https://dereckscompany.github.io/coinbase>.
 
     @Manual{coinbase-2026,
       title = {coinbase: API Wrapper to Coinbase Advanced Trade},
       author = {Dereck Mezquita},
       year = {2026},
-      note = {R package version 0.5.0},
+      note = {R package version 0.6.0},
       url = {https://dereckscompany.github.io/coinbase},
     }
