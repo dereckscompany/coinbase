@@ -36,6 +36,18 @@
 #' via the `base_url` argument of `private$.request()` (this class extends the
 #' connectcore funnel with that argument).
 #'
+#' ### Retries
+#' `max_tries > 1` opts every GET this client makes — single requests and
+#' cursor-paginated reads alike — into automatic retry on a transient failure
+#' (HTTP 408/429/5xx or a dropped connection) with jittered backoff, delegated to
+#' [connectcore::build_request()]. Retry is a hard **GET-only** carve-out: a
+#' non-idempotent verb (an order `POST`, a cancel `DELETE`) is never
+#' auto-retried, so a resend can never double-submit an order. Coinbase's own
+#' intermittent `401`s while a fresh API key propagates are *not* retried (a 401
+#' is not in the transient set). Leave it at the default `1` for live trading —
+#' there the trader layer is the single retry authority (it routes by typed error
+#' class and manages cooldowns); raise it only for research and backfill reads.
+#'
 #' ### Design
 #' This class is not meant to be instantiated directly. Subclasses (e.g.
 #' `CoinbaseMarketData`, `CoinbaseTrading`) inherit from it and define public
@@ -64,14 +76,19 @@ CoinbaseBase <- R6::R6Class(
     #'   Defaults to `get_exchange_base_url()`.
     #' @param async (scalar<logical>) if `TRUE`, methods return promises. Default
     #'   `FALSE`.
+    #' @param max_tries (scalar<integer in [1, 10]>) for idempotent GET requests
+    #'   only, retry up to this many times on a transient failure. Default `1`
+    #'   (no retry). See the class **Retries** section for the write-safety
+    #'   carve-out and why live trading should leave this at `1`.
     #' @return (class<CoinbaseBase>) invisibly, self.
     initialize = function(
       keys = get_api_keys(),
       base_url = get_base_url(),
       exchange_base_url = get_exchange_base_url(),
-      async = FALSE
+      async = FALSE,
+      max_tries = 1L
     ) {
-      assert_args_CoinbaseBase__initialize(keys, base_url, exchange_base_url, async)
+      assert_args_CoinbaseBase__initialize(keys, base_url, exchange_base_url, async, max_tries)
       assert::assert_nonempty_strings(base_url)
       assert::assert_nonempty_strings(exchange_base_url)
       super$initialize(
@@ -79,7 +96,8 @@ CoinbaseBase <- R6::R6Class(
         base_url = base_url,
         async = async,
         body_format = "json",
-        user_agent = "dereckscompany/coinbase"
+        user_agent = "dereckscompany/coinbase",
+        max_tries = max_tries
       )
       private$.exchange_base_url <- exchange_base_url
       return(invisible(assert_return_CoinbaseBase__initialize(self)))
