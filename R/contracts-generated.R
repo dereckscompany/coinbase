@@ -814,6 +814,48 @@ assert_return_coinbase_backfill_trades <- function(value) {
   return(value)
 }
 
+assert_args_coinbase_backfill_klines <- function(symbols, timeframes, from, to, base_url, exchange_base_url, max_bars, sleep, verbose) {
+  assert_character(symbols)
+  assert_no_missing_values(symbols)
+  assert_character(timeframes)
+  assert_no_missing_values(timeframes)
+  assert_any_of(
+    from,
+    function(.x) {
+      assert_datetime(.x)
+      assert_no_missing_values(.x)
+    },
+    function(.x) {
+      assert_double(.x)
+      assert_no_missing_values(.x)
+    }
+  )
+  assert_any_of(
+    to,
+    function(.x) {
+      assert_datetime(.x)
+      assert_no_missing_values(.x)
+    },
+    function(.x) {
+      assert_double(.x)
+      assert_no_missing_values(.x)
+    }
+  )
+  assert_scalar_character(base_url)
+  assert_scalar_character(exchange_base_url)
+  assert_scalar_count(max_bars)
+  assert_between(max_bars, lower = 1)
+  assert_scalar_double(sleep)
+  assert_between(sleep, lower = 0, upper = Inf, upper_inclusive = FALSE)
+  assert_scalar_logical(verbose)
+  return(invisible(NULL))
+}
+
+assert_return_coinbase_backfill_klines <- function(value) {
+  assert_scalar_character(value)
+  return(value)
+}
+
 assert_args_verify_symbol <- function(product_id) {
   assert_scalar_character(product_id)
   return(invisible(NULL))

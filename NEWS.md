@@ -1,3 +1,11 @@
+# coinbase 0.7.0
+
+## New: coinbase_backfill_klines() — full-history candle downloads in one call (closes #19)
+
+In plain English: Coinbase only hands out about 300 candles per request, so downloading years of history used to require the caller to stitch hundreds of requests together (our data collector did exactly that by hand). The connector now does it for you: one function walks the whole requested history window by window, removes the duplicates at the seams, drops the still-forming candle, resumes from where a previous run stopped, and appends to CSV — mirroring the kucoin and binance backfill functions so all three venues read the same way.
+
+Technically: a new instance-free window-pagination core (coinbase_candle_windows/coinbase_fetch_klines, epoch maths kept in double per the venue convention) under the exported coinbase_backfill_klines() with per-(symbol, timeframe) resume, boundary-duplicate collapse, closed-candles-only semantics, and the rlang::warn() failure convention for downstream ledgers. HTTP-mocked tests cover multi-window stitching, resume boundaries, and the still-forming-candle edge.
+
 # coinbase 0.6.0
 
 ## Typed input-validation conditions (the non-transport half of the taxonomy)

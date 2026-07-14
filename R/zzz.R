@@ -18,6 +18,7 @@ utils::globalVariables(c(
   "timestamp",
   # Backfill columns
   "symbol",
+  "timeframe",
   "max_time",
   # Order book columns (assigned via := in parse_orderbook)
   "num_orders",
