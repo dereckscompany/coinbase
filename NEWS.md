@@ -1,3 +1,9 @@
+# coinbase 0.8.0
+
+## Opt-in request retry at construction (`max_tries`), a hard GET-only carve-out
+
+Every client class constructor (via `CoinbaseBase`) gains a `max_tries` argument (`scalar<integer in [1, 10]>`, default `1` = no retry) threaded to `connectcore`'s retry machinery. Setting it above `1` opts every GET the client makes — single requests and cursor-paginated reads alike (pagination flows through the same `.request()` funnel) — into automatic retry on a transient failure (HTTP 408/429/5xx or a dropped connection) with jittered backoff. Retry is a hard **GET-only** carve-out: a non-idempotent verb (an order `POST`, a cancel `DELETE`) is never auto-retried, so a resend can never double-submit an order. The default `1` leaves live-trading behaviour unchanged — the trader layer stays the single retry authority there; raise `max_tries` only for research and backfill reads. Note that Coinbase's intermittent `401`s during fresh-key propagation are not retried (a 401 is not in the transient set). Implements the fleet retry-convergence ruling (2026-07-14). Requires `connectcore (>= 0.5.0)`, where the GET-only guard is enforced in the one shared request funnel.
+
 # coinbase 0.7.0
 
 ## New: coinbase_backfill_klines() — full-history candle downloads in one call (closes #19)

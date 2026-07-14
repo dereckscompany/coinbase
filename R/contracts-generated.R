@@ -133,13 +133,15 @@ assert_return_CoinbaseAccount__get_key_permissions <- function(value) {
   return(value)
 }
 
-assert_args_CoinbaseBase__initialize <- function(keys, base_url, exchange_base_url, async) {
+assert_args_CoinbaseBase__initialize <- function(keys, base_url, exchange_base_url, async, max_tries) {
   if (!is.null(keys)) {
     assert_list(keys)
   }
   assert_scalar_character(base_url)
   assert_scalar_character(exchange_base_url)
   assert_scalar_logical(async)
+  assert_scalar_integer(max_tries)
+  assert_between(max_tries, lower = 1, upper = 10)
   return(invisible(NULL))
 }
 
