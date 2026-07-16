@@ -51,6 +51,10 @@ KEYS <- list(
 
 # coinbase
 
+**In plain terms:** Coinbase is a large, US-based cryptocurrency exchange where people buy, sell and hold digital coins. This package is the R doorway to Coinbase's Advanced Trade service: you can pull market prices and history, look at your account and balances, and place, preview and manage buy and sell orders on both the spot market and Coinbase's US futures -- all from R scripts. Every request can run the ordinary way, where your code waits for the answer, or in the background so your program keeps working and collects the result later. It also bundles small conveniences such as turning a raw stream of individual trades into evenly spaced price candles and downloading long stretches of history in bulk. Because it can place real orders, it offers preview methods that check an order without sending it, so you can test your logic safely first.
+
+## Technical overview
+
 R API wrapper to the Coinbase Advanced Trade API supporting both synchronous and asynchronous (promise based) operations. Provides R6 classes for market data, spot trading, account management, and US futures (CFM), with helpers for tick-to-OHLCV aggregation.
 
 ## Disclaimer

@@ -1,6 +1,22 @@
 
 # coinbase
 
+**In plain terms:** Coinbase is a large, US-based cryptocurrency
+exchange where people buy, sell and hold digital coins. This package is
+the R doorway to Coinbase’s Advanced Trade service: you can pull market
+prices and history, look at your account and balances, and place,
+preview and manage buy and sell orders on both the spot market and
+Coinbase’s US futures – all from R scripts. Every request can run the
+ordinary way, where your code waits for the answer, or in the background
+so your program keeps working and collects the result later. It also
+bundles small conveniences such as turning a raw stream of individual
+trades into evenly spaced price candles and downloading long stretches
+of history in bulk. Because it can place real orders, it offers preview
+methods that check an order without sending it, so you can test your
+logic safely first.
+
+## Technical overview
+
 R API wrapper to the Coinbase Advanced Trade API supporting both
 synchronous and asynchronous (promise based) operations. Provides R6
 classes for market data, spot trading, account management, and US
@@ -66,12 +82,12 @@ market <- CoinbaseMarketData$new()
 market$get_ticker("BTC-USD")
 ```
 
-    #>         ask      bid   volume   trade_id    price    size                time
-    #>       <num>    <num>    <num>      <int>    <num>   <num>              <POSc>
-    #> 1: 60481.65 60481.64 5973.761 1045278653 60479.56 1.3e-07 2026-06-27 17:45:15
-    #>    rfq_volume
-    #>         <num>
-    #> 1:   67.01332
+    #>         ask      bid   volume   trade_id    price    size rfq_volume
+    #>       <num>    <num>    <num>      <int>    <num>   <num>      <num>
+    #> 1: 60481.65 60481.64 5973.761 1045278653 60479.56 1.3e-07   67.01332
+    #>              timestamp
+    #>                 <POSc>
+    #> 1: 2026-06-27 17:45:15
 
 ``` r
 # OHLCV candles
@@ -97,7 +113,7 @@ market$get_ohlcv("BTC-USD", granularity = "1min")
 market$get_trades("BTC-USD", limit = 100)
 ```
 
-    #>        trade_id   side    price       size                time
+    #>        trade_id   side    price       size           timestamp
     #>           <num> <char>    <num>      <num>              <POSc>
     #>   1: 1045278643    buy 60488.38 0.00856426 2026-06-27 17:45:13
     #>   2: 1045278642    buy 60488.38 0.02143574 2026-06-27 17:45:13
@@ -199,7 +215,7 @@ market$get_trades("BTC-USD", limit = 100)
     #>  98: 1045278546    buy 60502.78 0.00002820 2026-06-27 17:44:55
     #>  99: 1045278545    buy 60502.78 0.00184746 2026-06-27 17:44:55
     #> 100: 1045278544    buy 60502.78 0.01564371 2026-06-27 17:44:55
-    #>        trade_id   side    price       size                time
+    #>        trade_id   side    price       size           timestamp
     #>           <num> <char>    <num>      <num>              <POSc>
 
 ``` r
@@ -553,7 +569,7 @@ trading$get_orders(product_ids = "BTC-USD", limit = 10)
     #> 1:    LTC-USD    BUY CANCELLED      LIMIT limit_limit_gtc GOOD_UNTIL_CANCELLED
     #> 2:    LTC-USD    BUY CANCELLED      LIMIT limit_limit_gtc GOOD_UNTIL_CANCELLED
     #> 3:   LTC-USDC    BUY CANCELLED      LIMIT limit_limit_gtc GOOD_UNTIL_CANCELLED
-    #>           created_time completion_percentage filled_size average_filled_price
+    #>              timestamp completion_percentage filled_size average_filled_price
     #>                 <POSc>                 <num>       <num>                <num>
     #> 1: 2025-02-03 02:45:09                     0           0                    0
     #> 2: 2025-02-03 02:38:33                     0           0                    0
@@ -577,7 +593,7 @@ trading$get_fills(product_ids = "ETH-USD")
     #>        <char>     <char>                               <char>     <char> <char>
     #> 1: entry-0001 trade-0001 4444dddd-5555-eeee-6666-ffffffffffff    ETH-USD   SELL
     #> 2: entry-0002 trade-0002 4444dddd-5555-eeee-6666-ffffffffffff    ETH-USD   SELL
-    #>             trade_time trade_type  price  size commission size_in_quote
+    #>              timestamp trade_type  price  size commission size_in_quote
     #>                 <POSc>     <char>  <num> <num>      <num>        <lgcl>
     #> 1: 2026-05-30 18:31:02       FILL 3850.2   0.3       4.62         FALSE
     #> 2: 2026-05-30 18:31:03       FILL 3850.2   0.2       3.08         FALSE
@@ -653,9 +669,9 @@ futures$get_positions()
 futures$get_sweeps()
 ```
 
-    #>            id requested_amount should_sweep_all  status schedule_time
-    #>        <char>            <num>           <lgcl>  <char>        <POSc>
-    #> 1: sweep-0001              500            FALSE PENDING    2026-05-31
+    #>            id requested_amount should_sweep_all  status  timestamp
+    #>        <char>            <num>           <lgcl>  <char>     <POSc>
+    #> 1: sweep-0001              500            FALSE PENDING 2026-05-31
 
 ``` r
 # Open a short on a futures product (live -- placed through CoinbaseTrading)
@@ -704,12 +720,12 @@ while (!later$loop_empty()) {
 }
 ```
 
-    #>         ask      bid   volume   trade_id    price    size                time
-    #>       <num>    <num>    <num>      <int>    <num>   <num>              <POSc>
-    #> 1: 60481.65 60481.64 5973.761 1045278653 60479.56 1.3e-07 2026-06-27 17:45:15
-    #>    rfq_volume
-    #>         <num>
-    #> 1:   67.01332
+    #>         ask      bid   volume   trade_id    price    size rfq_volume
+    #>       <num>    <num>    <num>      <int>    <num>   <num>      <num>
+    #> 1: 60481.65 60481.64 5973.761 1045278653 60479.56 1.3e-07   67.01332
+    #>              timestamp
+    #>                 <POSc>
+    #> 1: 2026-06-27 17:45:15
     #>                 datetime     open     high      low    close    volume
     #>                   <POSc>    <num>    <num>    <num>    <num>     <num>
     #>   1: 2026-06-27 11:53:00 60239.24 60259.03 60237.18 60254.55 0.5974811
