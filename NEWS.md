@@ -1,3 +1,10 @@
+# coinbase 0.8.1
+
+**A regression test that guards against price data ever being truncated again.** In plain English: on 2026-09-13 the fleet discovered that every Hyperliquid candle in the data lake had been stored to four decimal places for months, so a coin priced below a cent lost almost all of its information, and a strategy that ranks coins by calmness ranked them wrongly as a result. The cause was traced and proved NOT to be in the venue connector packages — this package's parse path turns Coinbase's own JSON numbers into R numbers at full precision (candles), and correctly casts only the ticker's named price/quantity fields, leaving everything else (like the trade id) untouched — it was a re-serialisation default in the data scraper, since fixed. This release adds a test that pins that correctness in place for Coinbase: if anyone later introduces `round()`, `signif()`, `sprintf("%.4f")`, `format(nsmall = )`, or a narrowing cast into a parse helper, the test fails immediately.
+
+- Added `tests/testthat/test-parse-precision.R`: drives `get_ohlcv()` and `get_ticker()` through the real public client, via synthetic high-precision fixtures (raw JSON text, matching Coinbase's own wire format — bare numbers for candles, quoted decimal strings for the ticker) routed through the shared `connectcore` mock harness. Every returned numeric column is asserted `expect_identical()` (never tolerance-based) against `as.numeric()` of the fixture's own value, and a big-integer-looking `trade_id` is asserted to stay character and unchanged even though it sits outside the ticker parser's named numeric-coercion list.
+- No behaviour change: the parse path (`parse_candles()` / `nth_num()`, `get_ticker()`'s selective `as.numeric()` cast, `R/helpers_parse.R`) was already correct and is untouched.
+
 # coinbase 0.8.0
 
 ## Opt-in request retry at construction (`max_tries`), a hard GET-only carve-out
