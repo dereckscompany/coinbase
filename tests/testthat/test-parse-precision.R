@@ -67,7 +67,7 @@
 .precision_ticker_json <- sprintf(
   paste0(
     '{"ask":"%s","bid":"%s","volume":"%s","trade_id":"%s","price":"%s",',
-    '"size":"%s","time":"2026-06-27T17:45:15.935911839Z","rfq_volume":"%s"}'
+    '"size":"%s","time":"2026-01-05T09:30:00.123456789Z","rfq_volume":"%s"}'
   ),
   .precision_strings$a,
   .precision_strings$b,
@@ -80,8 +80,8 @@
 
 # A tiny URL-pattern route table covering exactly the two endpoints this test
 # drives, built the same way the shared mock_router.R does, but with a
-# synthetic high-precision fixture instead of the captured real-shaped
-# fixtures.
+# synthetic high-precision fixture instead of the shared route table's
+# ordinary authored fixtures.
 precision_routes <- function() {
   return(list(
     list(pattern = "/products/BTC-USD/candles", fixture = .precision_candles_json),

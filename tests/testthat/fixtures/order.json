@@ -1,7 +1,7 @@
 {
   "order": {
-    "order_id": "00000000-0000-4000-8000-00000000001c",
-    "product_id": "LTC-USD",
+    "order_id": "00000000-0000-4000-8000-000000000028",
+    "product_id": "ETH-USD",
     "user_id": "00000000-0000-4000-8000-000000000002",
     "order_configuration": {
       "limit_limit_gtc": {
@@ -13,10 +13,10 @@
       }
     },
     "side": "BUY",
-    "client_order_id": "00000000-0000-4000-8000-00000000001d",
+    "client_order_id": "00000000-0000-4000-8000-000000000029",
     "status": "CANCELLED",
     "time_in_force": "GOOD_UNTIL_CANCELLED",
-    "created_time": "2025-02-03T02:45:09.911478Z",
+    "created_time": "2026-01-05T09:31:00Z",
     "completion_percentage": "0",
     "filled_size": "0",
     "average_filled_price": "0",
@@ -63,7 +63,7 @@
     "displayed_order_config": "UNKNOWN_DISPLAYED_ORDER_CONFIG",
     "equity_trading_session": "UNKNOWN_EQUITY_TRADING_SESSION",
     "prediction_side": "PREDICTION_SIDE_UNKNOWN",
-    "last_update_time": "2025-02-03T02:45:09.911478Z",
+    "last_update_time": "2026-01-05T09:31:00Z",
     "order_data_source": "ORDER_DATA_SOURCE_UNKNOWN",
     "option_legs": [],
     "total_value_after_fees_native": null,

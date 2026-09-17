@@ -1,22 +1,22 @@
 {
   "account": {
     "uuid": "00000000-0000-4000-8000-000000000001",
-    "name": "DASH Wallet",
-    "currency": "DASH",
+    "name": "BTC Wallet",
+    "currency": "BTC",
     "available_balance": {
-      "value": "0",
-      "currency": "DASH"
+      "value": "0.5",
+      "currency": "BTC"
     },
     "default": true,
     "active": true,
-    "created_at": "2025-03-17T06:44:24.888Z",
-    "updated_at": "2025-04-23T16:57:19.381622Z",
+    "created_at": "2026-01-01T09:00:00Z",
+    "updated_at": "2026-01-05T09:00:00Z",
     "deleted_at": null,
     "type": "ACCOUNT_TYPE_CRYPTO",
     "ready": true,
     "hold": {
       "value": "0",
-      "currency": "DASH"
+      "currency": "BTC"
     },
     "retail_portfolio_id": "00000000-0000-4000-8000-000000000002",
     "platform": "ACCOUNT_PLATFORM_CONSUMER"

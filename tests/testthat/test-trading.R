@@ -5,7 +5,7 @@ test_that("close_position posts to the close-position endpoint and parses the re
   sk <- openssl::ec_keygen("P-256")
   keys <- list(api_key_name = "organizations/x/apiKeys/y", api_private_key = openssl::write_pem(sk))
   # An inline router that records the request URL/method (the thing under test)
-  # and serves the captured close-position fixture verbatim via connectcore.
+  # and serves the authored close-position fixture verbatim via connectcore.
   fixture <- paste(
     readLines(test_path("fixtures", "close_position.json"), warn = FALSE),
     collapse = "\n"

@@ -4,24 +4,31 @@
 # harness (connectcore::mock_router / with_mock_api / local_mock_api /
 # load_fixtures / mock_response). connectcore owns the response builder, the
 # dispatch loop, and the scoped-activation helpers; this file only declares the
-# route table — URL pattern + HTTP method -> the captured fixture for that
-# endpoint — and loads the fixtures from disk.
+# route table — URL pattern + HTTP method -> the fixture for that endpoint —
+# and loads the fixtures from disk.
 #
-# Each route's fixture is the REAL captured Coinbase JSON for that endpoint,
-# loaded verbatim from tests/testthat/fixtures/*.json by
-# connectcore::load_fixtures() (a named list keyed by file basename; each value
-# is the raw JSON string). connectcore::mock_response() serves a string body
-# verbatim, so the parsers and column contracts are exercised against genuine
-# exchange responses. The authenticated fixtures are scrubbed of the account's
-# real UUIDs and balances (synthetic, deterministic) while preserving the exact
-# JSON shape; the public market-data fixtures are verbatim.
+# Every fixture in tests/testthat/fixtures/*.json is AUTHORED SYNTHETIC DATA,
+# hand-written to be shape-faithful to Coinbase's own documented responses
+# (same keys, nesting, and value types as the real API) — it is never captured
+# from a live account, not even scrubbed. Ids follow a patterned scheme
+# (`00000000-0000-4000-8000-0000000000NN` for UUIDs, `10000NN` for trade ids,
+# short prefixed strings like `entry-000N` / `trade-000N` / `client-001`
+# elsewhere), timestamps sit on an invented clean grid (2026-01-05 onward,
+# stepping by seconds/minutes/hours), prices and sizes are round, and the
+# product set is a small invented trio (BTC-USD, ETH-USD, SOL-USD). Loaded
+# verbatim as raw JSON strings by connectcore::load_fixtures() (a named list
+# keyed by file basename) and served verbatim by connectcore::mock_response(),
+# so the parsers and column contracts still exercise the real wire shape —
+# just never real account data. This is a public repository; nothing under
+# tests/testthat/fixtures/ may ever be replaced with a live capture, scrubbed
+# or otherwise (fleet fixture-authoring rule, ratified 2026-07-05).
 #
-# A handful of fixtures are deliberately hand-written rather than captured:
-# the live test account holds no derivatives positions and a spot-only
-# portfolio, so its real responses are empty/degenerate. For those routes
-# (portfolio_breakdown, fills, futures_balance, futures_positions,
-# futures_sweeps) the fixture file carries a representative populated body so
-# the populated column contract stays exercised.
+# A handful of fixtures model a populated response the live test account could
+# never itself produce (holding no derivatives positions and a spot-only
+# portfolio, its real responses there would be empty/degenerate). For those
+# routes (portfolio_breakdown, fills, futures_balance, futures_positions,
+# futures_sweeps) the fixture file carries a representative populated body,
+# authored the same way, so the populated column contract stays exercised.
 #
 # httr2 exposes a native global mock hook: connectcore::with_mock_api(.mock_routes,
 # { ... }) (or local_mock_api(.mock_routes)) installs the dispatcher as the
@@ -40,7 +47,7 @@ box::use(
   connectcore[load_fixtures]
 )
 
-# Load every captured fixture as its raw JSON string, keyed by file basename
+# Load every authored fixture as its raw JSON string, keyed by file basename
 # (accounts.json -> "accounts"). Resolved relative to THIS module file so it
 # works from the package root (README), vignettes/, and tests/testthat alike.
 .fixtures <- load_fixtures(box::file("fixtures"))
@@ -55,7 +62,7 @@ box::use(
   ))
 }
 
-#' Route table: URL pattern (+ optional method) -> captured-fixture JSON string.
+#' Route table: URL pattern (+ optional method) -> authored-fixture JSON string.
 #'
 #' Order matters — more specific patterns first. Routes handle both Coinbase
 #' hosts:
