@@ -1,3 +1,11 @@
+# coinbase 0.8.2
+
+**Test data is now entirely made up.** In plain English: this package's test fixtures — the canned JSON responses that stand in for the real Coinbase API in tests, the README, and the vignettes — were, for the public market-data and account endpoints, genuine responses captured from the owner's live account. That meant this public repository shipped the owner's real wallet names (which coins he has held), the real dates those wallets were created and last touched, real trade and order-book data straight off the exchange at a real moment in time, and a real three-order cancellation with its real timestamps. None of that belongs in a public repository, however "scrubbed" the account UUIDs were. The fleet rule (ratified 2026-07-05, re-ratified 2026-09-17) is that fixtures are hand-authored and synthetic from the start — never captured, never scrubbed-and-shipped. This release brings coinbase into line: every fixture is now invented data on a clean, recognisable grid, and the shared mock router's documentation is corrected to stop claiming otherwise.
+
+- Rewrote every non-degenerate fixture in `tests/testthat/fixtures/*.json` (`account`, `accounts`, `best_bid_ask`, `book_l2`, `book_l3`, `candles`, `order`, `orders`, `product_stats`, `stats`, `ticker`, `time`, `trades`) as authored synthetic data: patterned ids (`00000000-0000-4000-8000-0000000000NN`, trade ids `10000NN`), timestamps on an invented clean grid from 2026-01-05 onward, round prices and sizes, a three-product universe (BTC-USD, ETH-USD, SOL-USD), and generic wallet names (`BTC Wallet`, `ETH Wallet`, ...) in place of the 26 real wallet names the live account actually holds. Array lengths were reduced where Coinbase's own limits made the original capture large (the order book from 50 to 10 levels per side, candles from 467 to 24 bars, trades from 100 to 30, the bulk stats table from ~40 real symbols to the package's synthetic 3) — no test or vignette asserted a specific count, id, price, or symbol from these files, so nothing downstream needed to change. The five fixtures that were already hand-written and populated (`portfolio_breakdown`, `fills`, `futures_balance`, `futures_positions`, `futures_sweeps`) and the already-synthetic write/trading fixtures were reviewed and are untouched.
+- Corrected `tests/testthat/mock_router.R`'s header, which had claimed fixtures were "the REAL captured Coinbase JSON ... verbatim" and only UUID/balance-scrubbed for authenticated routes: it now states plainly that every fixture is authored synthetic data, shape-faithful to Coinbase's documented responses but never captured from a live account. Matching comments in `test-trading.R` and `test-parse-precision.R` are corrected the same way. NEWS.md's 0.2.1 entry, which announced the now-reversed practice, is left as written for the historical record with a note appended underneath pointing here.
+- README.md re-rendered from README.Rmd and every vignette re-knit against the new fixtures; no code or column-contract changes, so every printed example now simply shows synthetic BTC/ETH/SOL data instead of the live account's real holdings.
+
 # coinbase 0.8.1
 
 **A regression test that guards against price data ever being truncated again.** In plain English: on 2026-09-13 the fleet discovered that every Hyperliquid candle in the data lake had been stored to four decimal places for months, so a coin priced below a cent lost almost all of its information, and a strategy that ranks coins by calmness ranked them wrongly as a result. The cause was traced and proved NOT to be in the venue connector packages — this package's parse path turns Coinbase's own JSON numbers into R numbers at full precision (candles), and correctly casts only the ticker's named price/quantity fields, leaving everything else (like the trade id) untouched — it was a re-serialisation default in the data scraper, since fixed. This release adds a test that pins that correctness in place for Coinbase: if anyone later introduces `round()`, `signif()`, `sprintf("%.4f")`, `format(nsmall = )`, or a narrowing cast into a parse helper, the test fails immediately.
@@ -94,6 +102,17 @@ Technically: a new instance-free window-pagination core (coinbase_candle_windows
   representative hand-written fixture so their populated column contracts stay
   covered. The full suite passes against the real data with no contract
   changes.
+
+  **NOTE (added in 0.8.2):** this entry describes what shipped in 0.2.1 at the
+  time, and is left as written for the historical record, but the practice it
+  describes was wrong and has been reversed. This is a public repository, and
+  "real captured Coinbase responses" meant the fixture files carried the live
+  test account's actual wallet names, real account-creation history, and real
+  trade/order/book data straight off the exchange — the "scrubbing" only
+  touched UUIDs and balances, never timestamps, wallet names, or market data.
+  As of 0.8.2, every fixture under `tests/testthat/fixtures/*.json` is authored
+  synthetic data, shape-faithful to Coinbase's documented responses but never
+  captured from a live account. See the 0.8.2 entry above.
 
 # coinbase 0.2.0
 
