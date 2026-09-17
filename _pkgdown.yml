@@ -48,6 +48,7 @@ reference:
     desc: Bulk data download, tick aggregation, and included datasets
     contents:
       - coinbase_backfill_trades
+      - coinbase_backfill_klines
       - trades_to_ohlcv
       - coinbase_ohlcv
 
