@@ -23,7 +23,7 @@ from connectcore."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">coinbase</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.8.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -59,7 +59,7 @@ from connectcore."></head><body>
     <p>Constructs an <a href="https://httr2.r-lib.org/reference/request.html" class="external-link">httr2::request</a>, optionally JWT-signs it, performs it (sync or
 async), and parses the Coinbase response envelope. This is the single point
 through which all Coinbase API calls flow; it is a thin Coinbase-specific
-wrapper over <code><a href="https://rdrr.io/pkg/connectcore/man/build_request.html" class="external-link">connectcore::build_request()</a></code> that injects the two seams that
+wrapper over <code><a href="https://dereckscompany.github.io/connectcore/reference/build_request.html" class="external-link">connectcore::build_request()</a></code> that injects the two seams that
 differ per venue — JWT signing (the internal <code>coinbase_jwt_sign()</code>) and the
 Coinbase error/empty-body envelope (the internal <code>parse_coinbase_response()</code>).
 Everything else (the

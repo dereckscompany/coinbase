@@ -5,7 +5,7 @@ Constructs an
 optionally JWT-signs it, performs it (sync or async), and parses the
 Coinbase response envelope. This is the single point through which all
 Coinbase API calls flow; it is a thin Coinbase-specific wrapper over
-[`connectcore::build_request()`](https://rdrr.io/pkg/connectcore/man/build_request.html)
+[`connectcore::build_request()`](https://dereckscompany.github.io/connectcore/reference/build_request.html)
 that injects the two seams that differ per venue — JWT signing (the
 internal `coinbase_jwt_sign()`) and the Coinbase error/empty-body
 envelope (the internal `parse_coinbase_response()`). Everything else

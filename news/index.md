@@ -1,5 +1,136 @@
 # Changelog
 
+## coinbase 0.8.2
+
+**Test data is now entirely made up.** In plain English: this package’s
+test fixtures — the canned JSON responses that stand in for the real
+Coinbase API in tests, the README, and the vignettes — were, for the
+public market-data and account endpoints, genuine responses captured
+from the owner’s live account. That meant this public repository shipped
+the owner’s real wallet names (which coins he has held), the real dates
+those wallets were created and last touched, real trade and order-book
+data straight off the exchange at a real moment in time, and a real
+three-order cancellation with its real timestamps. None of that belongs
+in a public repository, however “scrubbed” the account UUIDs were. The
+fleet rule (ratified 2026-07-05, re-ratified 2026-09-17) is that
+fixtures are hand-authored and synthetic from the start — never
+captured, never scrubbed-and-shipped. This release brings coinbase into
+line: every fixture is now invented data on a clean, recognisable grid,
+and the shared mock router’s documentation is corrected to stop claiming
+otherwise.
+
+- Rewrote every non-degenerate fixture in
+  `tests/testthat/fixtures/*.json` (`account`, `accounts`,
+  `best_bid_ask`, `book_l2`, `book_l3`, `candles`, `order`, `orders`,
+  `product_stats`, `stats`, `ticker`, `time`, `trades`) as authored
+  synthetic data: patterned ids (`00000000-0000-4000-8000-0000000000NN`,
+  trade ids `10000NN`), timestamps on an invented clean grid from
+  2026-01-05 onward, round prices and sizes, a three-product universe
+  (BTC-USD, ETH-USD, SOL-USD), and generic wallet names (`BTC Wallet`,
+  `ETH Wallet`, …) in place of the 26 real wallet names the live account
+  actually holds. Array lengths were reduced where Coinbase’s own limits
+  made the original capture large (the order book from 50 to 10 levels
+  per side, candles from 467 to 24 bars, trades from 100 to 30, the bulk
+  stats table from ~40 real symbols to the package’s synthetic 3) — no
+  test or vignette asserted a specific count, id, price, or symbol from
+  these files, so nothing downstream needed to change. The five fixtures
+  that were already hand-written and populated (`portfolio_breakdown`,
+  `fills`, `futures_balance`, `futures_positions`, `futures_sweeps`) and
+  the already-synthetic write/trading fixtures were reviewed and are
+  untouched.
+- Corrected `tests/testthat/mock_router.R`’s header, which had claimed
+  fixtures were “the REAL captured Coinbase JSON … verbatim” and only
+  UUID/balance-scrubbed for authenticated routes: it now states plainly
+  that every fixture is authored synthetic data, shape-faithful to
+  Coinbase’s documented responses but never captured from a live
+  account. Matching comments in `test-trading.R` and
+  `test-parse-precision.R` are corrected the same way. NEWS.md’s 0.2.1
+  entry, which announced the now-reversed practice, is left as written
+  for the historical record with a note appended underneath pointing
+  here.
+- README.md re-rendered from README.Rmd and every vignette re-knit
+  against the new fixtures; no code or column-contract changes, so every
+  printed example now simply shows synthetic BTC/ETH/SOL data instead of
+  the live account’s real holdings.
+
+## coinbase 0.8.1
+
+**A regression test that guards against price data ever being truncated
+again.** In plain English: on 2026-09-13 the fleet discovered that every
+Hyperliquid candle in the data lake had been stored to four decimal
+places for months, so a coin priced below a cent lost almost all of its
+information, and a strategy that ranks coins by calmness ranked them
+wrongly as a result. The cause was traced and proved NOT to be in the
+venue connector packages — this package’s parse path turns Coinbase’s
+own JSON numbers into R numbers at full precision (candles), and
+correctly casts only the ticker’s named price/quantity fields, leaving
+everything else (like the trade id) untouched — it was a
+re-serialisation default in the data scraper, since fixed. This release
+adds a test that pins that correctness in place for Coinbase: if anyone
+later introduces [`round()`](https://rdrr.io/r/base/Round.html),
+[`signif()`](https://rdrr.io/r/base/Round.html), `sprintf("%.4f")`,
+`format(nsmall = )`, or a narrowing cast into a parse helper, the test
+fails immediately.
+
+- Added `tests/testthat/test-parse-precision.R`: drives `get_ohlcv()`
+  and `get_ticker()` through the real public client, via synthetic
+  high-precision fixtures (raw JSON text, matching Coinbase’s own wire
+  format — bare numbers for candles, quoted decimal strings for the
+  ticker) routed through the shared `connectcore` mock harness. Every
+  returned numeric column is asserted `expect_identical()` (never
+  tolerance-based) against
+  [`as.numeric()`](https://rdrr.io/r/base/numeric.html) of the fixture’s
+  own value, and a big-integer-looking `trade_id` is asserted to stay
+  character and unchanged even though it sits outside the ticker
+  parser’s named numeric-coercion list.
+- No behaviour change: the parse path (`parse_candles()` / `nth_num()`,
+  `get_ticker()`’s selective
+  [`as.numeric()`](https://rdrr.io/r/base/numeric.html) cast,
+  `R/helpers_parse.R`) was already correct and is untouched.
+
+## coinbase 0.8.0
+
+### Opt-in request retry at construction (`max_tries`), a hard GET-only carve-out
+
+Every client class constructor (via `CoinbaseBase`) gains a `max_tries`
+argument (`scalar<integer in [1, 10]>`, default `1` = no retry) threaded
+to `connectcore`’s retry machinery. Setting it above `1` opts every GET
+the client makes — single requests and cursor-paginated reads alike
+(pagination flows through the same `.request()` funnel) — into automatic
+retry on a transient failure (HTTP 408/429/5xx or a dropped connection)
+with jittered backoff. Retry is a hard **GET-only** carve-out: a
+non-idempotent verb (an order `POST`, a cancel `DELETE`) is never
+auto-retried, so a resend can never double-submit an order. The default
+`1` leaves live-trading behaviour unchanged — the trader layer stays the
+single retry authority there; raise `max_tries` only for research and
+backfill reads. Note that Coinbase’s intermittent `401`s during
+fresh-key propagation are not retried (a 401 is not in the transient
+set). Implements the fleet retry-convergence ruling (2026-07-14).
+Requires `connectcore (>= 0.5.0)`, where the GET-only guard is enforced
+in the one shared request funnel.
+
+## coinbase 0.7.0
+
+### New: coinbase_backfill_klines() — full-history candle downloads in one call (closes [\#19](https://github.com/dereckscompany/coinbase/issues/19))
+
+In plain English: Coinbase only hands out about 300 candles per request,
+so downloading years of history used to require the caller to stitch
+hundreds of requests together (our data collector did exactly that by
+hand). The connector now does it for you: one function walks the whole
+requested history window by window, removes the duplicates at the seams,
+drops the still-forming candle, resumes from where a previous run
+stopped, and appends to CSV — mirroring the kucoin and binance backfill
+functions so all three venues read the same way.
+
+Technically: a new instance-free window-pagination core
+(coinbase_candle_windows/coinbase_fetch_klines, epoch maths kept in
+double per the venue convention) under the exported
+coinbase_backfill_klines() with per-(symbol, timeframe) resume,
+boundary-duplicate collapse, closed-candles-only semantics, and the
+rlang::warn() failure convention for downstream ledgers. HTTP-mocked
+tests cover multi-window stitching, resume boundaries, and the
+still-forming-candle edge.
+
 ## coinbase 0.6.0
 
 ### Typed input-validation conditions (the non-transport half of the taxonomy)
@@ -192,6 +323,7 @@
   `options(httr2_mock = ...)`. The hand-written fixture file
   `tests/testthat/helper-mockery.R` was deleted. Together this drops
   roughly 270 lines of duplicated mock machinery.
+
 - The test fixtures are now **real captured Coinbase responses**, stored
   as `tests/testthat/fixtures/*.json` and served verbatim, so the
   parsers and column contracts are validated against genuine exchange
@@ -207,6 +339,18 @@
   representative hand-written fixture so their populated column
   contracts stay covered. The full suite passes against the real data
   with no contract changes.
+
+  **NOTE (added in 0.8.2):** this entry describes what shipped in 0.2.1
+  at the time, and is left as written for the historical record, but the
+  practice it describes was wrong and has been reversed. This is a
+  public repository, and “real captured Coinbase responses” meant the
+  fixture files carried the live test account’s actual wallet names,
+  real account-creation history, and real trade/order/book data straight
+  off the exchange — the “scrubbing” only touched UUIDs and balances,
+  never timestamps, wallet names, or market data. As of 0.8.2, every
+  fixture under `tests/testthat/fixtures/*.json` is authored synthetic
+  data, shape-faithful to Coinbase’s documented responses but never
+  captured from a live account. See the 0.8.2 entry above.
 
 ## coinbase 0.2.0
 
@@ -338,7 +482,7 @@
   [connectcore](https://github.com/dereckscompany/connectcore)
   (`v0.1.0`), the shared transport base extracted from these connectors.
   `CoinbaseBase` inherits
-  [`connectcore::RestClient`](https://rdrr.io/pkg/connectcore/man/RestClient.html)
+  [`connectcore::RestClient`](https://dereckscompany.github.io/connectcore/reference/RestClient.html)
   and overrides only the two genuinely Coinbase-specific seams —
   `.sign()` (the ES256 / EdDSA JWT) and `.parse_envelope()` (the
   Coinbase error envelope and tolerated empty success bodies). The
@@ -348,7 +492,7 @@
 - [`coinbase_build_request()`](https://dereckscompany.github.io/coinbase/reference/coinbase_build_request.md)
   is retained, with its signature and behaviour unchanged, as a thin
   wrapper that wires the two Coinbase seams into
-  [`connectcore::build_request()`](https://rdrr.io/pkg/connectcore/man/build_request.html).
+  [`connectcore::build_request()`](https://dereckscompany.github.io/connectcore/reference/build_request.html).
   The hand-rolled httr2 request plumbing and the duplicated
   `then_or_now()` it used to carry are deleted.
 - The dual-host design (Advanced Trade vs. Exchange) is preserved:

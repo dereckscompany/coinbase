@@ -43,6 +43,8 @@ Bulk data download, tick aggregation, and included datasets
 
 - [`coinbase_backfill_trades()`](https://dereckscompany.github.io/coinbase/reference/coinbase_backfill_trades.md)
   : Backfill Coinbase Trade History to CSV
+- [`coinbase_backfill_klines()`](https://dereckscompany.github.io/coinbase/reference/coinbase_backfill_klines.md)
+  : Backfill Coinbase OHLCV Candles to CSV
 - [`trades_to_ohlcv()`](https://dereckscompany.github.io/coinbase/reference/trades_to_ohlcv.md)
   : Aggregate Tick Trades into OHLCV Bars
 - [`coinbase_ohlcv`](https://dereckscompany.github.io/coinbase/reference/coinbase_ohlcv.md)

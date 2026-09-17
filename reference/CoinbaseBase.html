@@ -9,7 +9,7 @@ CoinbaseBase: Abstract Base Class for Coinbase API Clients"></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">coinbase</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.8.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -50,7 +50,7 @@ CoinbaseBase: Abstract Base Class for Coinbase API Clients"></head><body>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>Provides shared infrastructure for all Coinbase R6 classes by extending
-<a href="https://rdrr.io/pkg/connectcore/man/RestClient.html" class="external-link">connectcore::RestClient</a>. It inherits the single <code>private$.request()</code> funnel
+<a href="https://dereckscompany.github.io/connectcore/reference/RestClient.html" class="external-link">connectcore::RestClient</a>. It inherits the single <code>private$.request()</code> funnel
 (mode-transparent sync/async, NULL-field stripping, retry/throttle) and
 customises only the two venue-specific seams:</p><ul><li><p><code>.sign()</code> — attaches a Coinbase JWT (ES256 / EdDSA) to each authenticated
 request (via the internal <code>coinbase_jwt_sign()</code>).</p></li>
@@ -84,6 +84,22 @@ connectcore funnel with that argument).</p>
 </div>
 
 <div class="section">
+<h3 id="retries">Retries<a class="anchor" aria-label="anchor" href="#retries"></a></h3>
+
+
+<p><code>max_tries &gt; 1</code> opts every GET this client makes — single requests and
+cursor-paginated reads alike — into automatic retry on a transient failure
+(HTTP 408/429/5xx or a dropped connection) with jittered backoff, delegated to
+<code><a href="https://dereckscompany.github.io/connectcore/reference/build_request.html" class="external-link">connectcore::build_request()</a></code>. Retry is a hard <strong>GET-only</strong> carve-out: a
+non-idempotent verb (an order <code>POST</code>, a cancel <code>DELETE</code>) is never
+auto-retried, so a resend can never double-submit an order. Coinbase's own
+intermittent <code>401</code>s while a fresh API key propagates are <em>not</em> retried (a 401
+is not in the transient set). Leave it at the default <code>1</code> for live trading —
+there the trader layer is the single retry authority (it routes by typed error
+class and manages cooldowns); raise it only for research and backfill reads.</p>
+</div>
+
+<div class="section">
 <h3 id="design">Design<a class="anchor" aria-label="anchor" href="#design"></a></h3>
 
 
@@ -99,11 +115,11 @@ methods that delegate to <code>private$.request()</code>.</p>
 
 <p>All fields are private:</p><ul><li><p><code>.exchange_base_url</code>: Character; Exchange API base URL (the Advanced Trade
 base, credentials, async flag, and perform function are held by the
-<a href="https://rdrr.io/pkg/connectcore/man/RestClient.html" class="external-link">connectcore::RestClient</a> superclass).</p></li>
+<a href="https://dereckscompany.github.io/connectcore/reference/RestClient.html" class="external-link">connectcore::RestClient</a> superclass).</p></li>
 </ul></div>
     <div class="section level2">
     <h2 id="super-class">Super class<a class="anchor" aria-label="anchor" href="#super-class"></a></h2>
-    <p><code><a href="https://rdrr.io/pkg/connectcore/man/RestClient.html" class="external-link">connectcore::RestClient</a></code> -&gt; <code>CoinbaseBase</code></p>
+    <p><code><a href="https://dereckscompany.github.io/connectcore/reference/RestClient.html" class="external-link">connectcore::RestClient</a></code> -&gt; <code>CoinbaseBase</code></p>
     </div>
     <div class="section level2">
     <h2 id="methods">Methods<a class="anchor" aria-label="anchor" href="#methods"></a></h2>
@@ -121,7 +137,8 @@ base, credentials, async flag, and perform function are held by the
 <span>  keys <span class="op">=</span> <span class="fu"><a href="../reference/get_api_keys.html">get_api_keys</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  base_url <span class="op">=</span> <span class="fu"><a href="../reference/get_base_url.html">get_base_url</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  exchange_base_url <span class="op">=</span> <span class="fu"><a href="../reference/get_exchange_base_url.html">get_exchange_base_url</a></span><span class="op">(</span><span class="op">)</span>,</span>
-<span>  async <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span>  async <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  max_tries <span class="op">=</span> <span class="fl">1L</span></span>
 <span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
@@ -145,6 +162,13 @@ Defaults to <code><a href="get_exchange_base_url.html">get_exchange_base_url()</
 <dt><code>async</code></dt>
 <dd><p>(scalar&lt;logical&gt;) if <code>TRUE</code>, methods return promises. Default
 <code>FALSE</code>.</p></dd>
+
+
+<dt><code>max_tries</code></dt>
+<dd><p>(scalar&lt;integer in [1, 10]&gt;) for idempotent GET requests
+only, retry up to this many times on a transient failure. Default <code>1</code>
+(no retry). See the class <strong>Retries</strong> section for the write-safety
+carve-out and why live trading should leave this at <code>1</code>.</p></dd>
 
 
 </dl><p></p></div>

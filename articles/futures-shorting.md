@@ -383,14 +383,14 @@ open_shorts[, .(order_id, product_id, side, status, base_size, limit_price, time
 
     #>                                order_id product_id   side    status base_size
     #>                                  <char>     <char> <char>    <char>     <num>
-    #> 1: 00000000-0000-4000-8000-00000000001c    LTC-USD    BUY CANCELLED        10
-    #> 2: 00000000-0000-4000-8000-00000000001e    LTC-USD    BUY CANCELLED        10
-    #> 3: 00000000-0000-4000-8000-000000000020   LTC-USDC    BUY CANCELLED        10
+    #> 1: 00000000-0000-4000-8000-000000000028    ETH-USD    BUY CANCELLED        10
+    #> 2: 00000000-0000-4000-8000-000000000030    ETH-USD    BUY CANCELLED        10
+    #> 3: 00000000-0000-4000-8000-000000000032    SOL-USD    BUY CANCELLED        10
     #>    limit_price           timestamp
     #>          <num>              <POSc>
-    #> 1:          10 2025-02-03 02:45:09
-    #> 2:          10 2025-02-03 02:38:33
-    #> 3:          10 2025-02-03 02:33:31
+    #> 1:          10 2026-01-05 09:31:00
+    #> 2:          10 2026-01-05 09:32:00
+    #> 3:          10 2026-01-05 09:33:00
 
 ### Fills
 

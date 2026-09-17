@@ -7,7 +7,7 @@ CoinbaseBase: Abstract Base Class for Coinbase API Clients
 ## Details
 
 Provides shared infrastructure for all Coinbase R6 classes by extending
-[connectcore::RestClient](https://rdrr.io/pkg/connectcore/man/RestClient.html).
+[connectcore::RestClient](https://dereckscompany.github.io/connectcore/reference/RestClient.html).
 It inherits the single `private$.request()` funnel (mode-transparent
 sync/async, NULL-field stripping, retry/throttle) and customises only
 the two venue-specific seams:
@@ -49,6 +49,21 @@ history live on the Exchange host
 request via the `base_url` argument of `private$.request()` (this class
 extends the connectcore funnel with that argument).
 
+### Retries
+
+`max_tries > 1` opts every GET this client makes — single requests and
+cursor-paginated reads alike — into automatic retry on a transient
+failure (HTTP 408/429/5xx or a dropped connection) with jittered
+backoff, delegated to
+[`connectcore::build_request()`](https://dereckscompany.github.io/connectcore/reference/build_request.html).
+Retry is a hard **GET-only** carve-out: a non-idempotent verb (an order
+`POST`, a cancel `DELETE`) is never auto-retried, so a resend can never
+double-submit an order. Coinbase's own intermittent `401`s while a fresh
+API key propagates are *not* retried (a 401 is not in the transient
+set). Leave it at the default `1` for live trading — there the trader
+layer is the single retry authority (it routes by typed error class and
+manages cooldowns); raise it only for research and backfill reads.
+
 ### Design
 
 This class is not meant to be instantiated directly. Subclasses (e.g.
@@ -62,12 +77,12 @@ All fields are private:
 - `.exchange_base_url`: Character; Exchange API base URL (the Advanced
   Trade base, credentials, async flag, and perform function are held by
   the
-  [connectcore::RestClient](https://rdrr.io/pkg/connectcore/man/RestClient.html)
+  [connectcore::RestClient](https://dereckscompany.github.io/connectcore/reference/RestClient.html)
   superclass).
 
 ## Super class
 
-[`connectcore::RestClient`](https://rdrr.io/pkg/connectcore/man/RestClient.html)
+[`connectcore::RestClient`](https://dereckscompany.github.io/connectcore/reference/RestClient.html)
 -\> `CoinbaseBase`
 
 ## Methods
@@ -90,7 +105,8 @@ Initialise a CoinbaseBase object.
       keys = get_api_keys(),
       base_url = get_base_url(),
       exchange_base_url = get_exchange_base_url(),
-      async = FALSE
+      async = FALSE,
+      max_tries = 1L
     )
 
 #### Arguments
@@ -116,6 +132,13 @@ Initialise a CoinbaseBase object.
 
   (scalar\<logical\>) if `TRUE`, methods return promises. Default
   `FALSE`.
+
+- `max_tries`:
+
+  (scalar\<integer in \[1, 10\]\>) for idempotent GET requests only,
+  retry up to this many times on a transient failure. Default `1` (no
+  retry). See the class **Retries** section for the write-safety
+  carve-out and why live trading should leave this at `1`.
 
 #### Returns
 
