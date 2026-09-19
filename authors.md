@@ -8,7 +8,7 @@
 ## Citation
 
 Source:
-[`inst/CITATION`](https://github.com/dereckscompany/coinbase/blob/master/inst/CITATION)
+[`inst/CITATION`](https://github.com/dereckscompany/coinbase/blob/v0.8.3/inst/CITATION)
 
 Mezquita D (2026). *coinbase: API Wrapper to Coinbase Advanced Trade*. R
 package version 0.8.3, <https://dereckscompany.github.io/coinbase>.
