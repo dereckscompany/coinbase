@@ -51,31 +51,30 @@ KEYS <- list(
 
 # coinbase
 
-Coinbase is a large, US-based cryptocurrency exchange where people buy, sell and hold digital coins. This package is the R doorway to Coinbase's Advanced Trade service: you can pull market prices and history, look at your account and balances, and place, preview and manage buy and sell orders on both the spot market and Coinbase's US futures -- all from R scripts. Every request can run the ordinary way, where your code waits for the answer, or in the background so your program keeps working and collects the result later. It also bundles small conveniences such as turning a raw stream of individual trades into evenly spaced price candles and downloading long stretches of history in bulk. Because it can place real orders, it offers preview methods that check an order without sending it, so you can test your logic safely first.
+**Coinbase is a large, US-based cryptocurrency exchange where people buy, sell and hold digital coins.** This package is the R doorway to Coinbase's Advanced Trade service: you can pull market prices and history, look at your account and balances, and place, preview and manage buy and sell orders on both the spot market and Coinbase's US futures -- all from R scripts. Every request can run the ordinary way, where your code waits for the answer, or in the background so your program keeps working and collects the result later. It also bundles small conveniences such as turning a raw stream of individual trades into evenly spaced price candles and downloading long stretches of history in bulk. Because it can place real orders, it offers preview methods that check an order without sending it, so you can test your logic safely first.
 
 ## Technical overview
 
 R API wrapper to the Coinbase Advanced Trade API supporting both synchronous and asynchronous (promise based) operations. Provides R6 classes for market data, spot trading, account management, and US futures (CFM), with helpers for tick-to-OHLCV aggregation.
 
-## Disclaimer
-
-This software is provided for educational and research purposes. Trading cryptocurrency carries substantial risk. You are solely responsible for any orders placed through this package. Use the order **preview** methods (which execute nothing) before placing live orders.
-
-## Design Philosophy
+## Design philosophy
 
 - **`data.table` everywhere, no list columns.** Every method returns a flat `data.table`; nested API objects are flattened into scalar columns.
-- **Sync and async.** Every method works in both modes. `async = TRUE` returns a [promise][promises::promise]; otherwise results are returned directly. There is a single sync/async branch point.
+- **Sync and async.** Every method works in both modes. `async = TRUE` returns a [promise](https://rstudio.github.io/promises/); otherwise results are returned directly. There is a single sync/async branch point.
 - **Exact money values.** Prices, sizes, and amounts are transmitted with full precision (never rounded or in scientific notation).
 - **Two hosts.** Authenticated trading/account endpoints use the Advanced Trade host (`api.coinbase.com`); deep public market data uses the Exchange host (`api.exchange.coinbase.com`).
 
 ## Installation
 
 ```{r install, eval = FALSE}
+renv::install("dereckscompany/coinbase")
+
+# or, if you use remotes instead of renv:
 # install.packages("remotes")
-remotes::install_github("dereckscompany/coinbase")
+# remotes::install_github("dereckscompany/coinbase")
 ```
 
-## Setup
+## Quick start
 
 Create API credentials at <https://www.coinbase.com/settings/api> (download the JSON with a `name` and a `privateKey`). Store them as environment variables in `.Renviron` — the PEM newlines escaped as `\n` on a single line (see `.Renviron.example`):
 
@@ -94,7 +93,11 @@ keys <- get_api_keys()
 
 Public market data needs no credentials.
 
-## Quick Start — Market Data (no auth)
+## Disclaimer
+
+This software is provided for educational and research purposes. Trading cryptocurrency carries substantial risk. You are solely responsible for any orders placed through this package. Use the order **preview** methods (which execute nothing) before placing live orders.
+
+## Market Data (no auth)
 
 ```{r market}
 market <- CoinbaseMarketData$new()
@@ -248,11 +251,20 @@ coinbase_backfill_trades(
 )
 ```
 
-## Asynchronous Use
+## Available Classes
+
+| Class | Purpose | Auth |
+|-------|---------|------|
+| `CoinbaseMarketData` | products, OHLCV, trades, order book, ticker, deep history | No |
+| `CoinbaseAccount` | balances, fees, portfolios, permissions | Yes |
+| `CoinbaseTrading` | place / preview / edit / cancel / query orders and fills | Yes |
+| `CoinbaseFutures` | US futures (CFM) balances, positions, margin, sweeps | Yes |
+
+## Asynchronous usage
 
 The package is written around promises for non-blocking, event-loop use (à la
 JavaScript). Pass `async = TRUE` to any class and its methods return a
-[promise][promises::promise] instead of a `data.table`. Resolve it with
+[promise](https://rstudio.github.io/promises/) instead of a `data.table`. Resolve it with
 `$then()` chaining or, as recommended, `coro::async()` / `await()` for
 sequential-looking code, and drive the event loop with
 [later](https://r-lib.github.io/later/).
@@ -276,14 +288,38 @@ while (!later$loop_empty()) {
 }
 ```
 
-## Available Classes
+## Error handling
 
-| Class | Purpose | Auth |
-|-------|---------|------|
-| `CoinbaseMarketData` | products, OHLCV, trades, order book, ticker, deep history | No |
-| `CoinbaseAccount` | balances, fees, portfolios, permissions | Yes |
-| `CoinbaseTrading` | place / preview / edit / cancel / query orders and fills | Yes |
-| `CoinbaseFutures` | US futures (CFM) balances, positions, margin, sweeps | Yes |
+A bad argument is caught before any request as a `coinbase_validation_error` -- the connector's own domain root, raised for a malformed `product_id`, an edit with neither `price` nor `size`, or missing credentials, before any network call happens. An HTTP failure returned by Coinbase itself surfaces instead as a typed `coinbase_api_error_<status>`, rolling up to `coinbase_api_error` and then connectcore's fleet-wide `connectcore_api_error_<status>` / `connectcore_api_error` / `connectcore_error` classes, carrying the HTTP status, the request URL (credentials redacted), and a snippet of the response body as structured fields (`e$status`, `e$url`, `e$body_snippet`). Catch a specific class with `tryCatch()`, or a whole family by its root, instead of matching on message text.
+
+```{r errors}
+result <- tryCatch(
+  trading$edit_order(order$order_id),
+  coinbase_validation_error = function(e) paste("caught:", conditionMessage(e))
+)
+result
+```
+
+## Documentation
+
+The rendered reference site is at [dereckscompany.github.io/coinbase](https://dereckscompany.github.io/coinbase).
+
+Four vignettes take a reader from a first call to shorting through futures, in this reading order:
+
+1. `vignette("getting-started", package = "coinbase")` — constructing clients, reading public market data, checking authenticated account state, and safely previewing orders against the Coinbase Advanced Trade API, in synchronous mode.
+2. `vignette("async-usage", package = "coinbase")` — the same calls in asynchronous mode, consuming `promises` with `coro::async()` / `await()` and driving the event loop with `later::run_now()`.
+3. `vignette("data-shapes", package = "coinbase")` — a method-by-class catalogue of the exact `data.table` shape every call returns, and the data-shape conventions shared with the sister `alpaca`, `binance`, and `kucoin` packages.
+4. `vignette("futures-shorting", package = "coinbase")` — going short through Coinbase Financial Markets (CFM) US futures, since Coinbase spot is long-only.
+
+The full release history is in [`NEWS.md`](NEWS.md).
+
+## Citation
+
+Cite as:
+
+> Mezquita, D. (2026). coinbase: API Wrapper to Coinbase Advanced Trade. R package version 0.8.4. https://github.com/dereckscompany/coinbase.
+
+Author: Dereck Mezquita — [ORCID: 0000-0002-9307-6762](https://orcid.org/0000-0002-9307-6762)
 
 ## Licence
 
