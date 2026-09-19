@@ -1,3 +1,18 @@
+# coinbase 0.8.4
+
+**The README now follows the same layout as every other package in the fleet.** Nothing about how the package behaves changed; this release only moves and renames sections in `README.Rmd` so a reader who already knows one connector's documentation can find their way around this one without re-learning where things live.
+
+- Added a bold, unlabelled plain-English lead sentence in front of the existing overview paragraph (the first sentence of that paragraph, bolded in place).
+- Renamed `## Design Philosophy` to `## Design philosophy` and moved it directly after Technical overview, ahead of Installation.
+- `## Installation` now leads with `renv::install()`, with `remotes::install_github()` kept as a commented fallback in the same chunk.
+- Renamed `## Setup` to `## Quick start`; renamed `## Quick Start — Market Data (no auth)` to `## Market Data (no auth)` now that "Quick start" names its own section.
+- Moved `## Disclaimer` to immediately after Quick start, ahead of the per-surface usage sections.
+- Moved `## Available Classes` to immediately before Asynchronous usage; renamed `## Asynchronous Use` to `## Asynchronous usage`.
+- Added `## Error handling`, documenting the existing `coinbase_validation_error` and `coinbase_api_error` condition classes from `R/conditions.R` that no prose previously named.
+- Added `## Documentation`, naming the pkgdown site and listing all four vignettes in their `_pkgdown.yml` reading order.
+- Added `## Citation`, a "Cite as" line built from `DESCRIPTION`.
+- Fixed two Rd-style `[promise][promises::promise]` cross-references (Design philosophy, Asynchronous usage) that rendered as escaped brackets on GitHub; both are now plain markdown links.
+
 # coinbase 0.8.3
 
 **A prose tidy-up: no wording lost, just the scaffolding and the spelling.** This release touches only documentation and comments, not code. Five leftover "In plain terms:" / "In plain English:" / "Technically:" labels were stripped from the README and NEWS so each entry reads as one continuous explanation instead of a labelled worksheet, and three American spellings — the README's licence heading, and "enrollment" in a vignette and in a roxygen field description — were brought into line with the British spelling the rest of the fleet already uses.
