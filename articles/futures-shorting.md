@@ -213,7 +213,7 @@ futures$set_intraday_margin_setting(setting = "INTRADAY_MARGIN_SETTING_STANDARD"
 
 Check the current margin window — whether intraday margin is presently
 active and when it ends. The killswitch flags indicate whether Coinbase
-has disabled intraday margin or new enrollment:
+has disabled intraday margin or new enrolment:
 
 ``` r
 

@@ -1,22 +1,58 @@
 # Changelog
 
+## coinbase 0.8.3
+
+**A prose tidy-up: no wording lost, just the scaffolding and the
+spelling.** This release touches only documentation and comments, not
+code. Five leftover “In plain terms:” / “In plain English:” /
+“Technically:” labels were stripped from the README and NEWS so each
+entry reads as one continuous explanation instead of a labelled
+worksheet, and three American spellings — the README’s licence heading,
+and “enrollment” in a vignette and in a roxygen field description — were
+brought into line with the British spelling the rest of the fleet
+already uses.
+
+- Removed 5 scaffolding labels (`README.Rmd`: 1, `NEWS.md`: 4); the
+  sentence each one introduced is kept exactly, with capitalisation
+  repaired where a label had been sitting mid-sentence.
+- Changed 3 spellings: `README.Rmd`’s `## License` heading to
+  `## Licence` (matching the `alpaca`, `binance`, `hyperliquid`, and
+  `kucoin` connectors, which already made this change), “enrollment” to
+  “enrolment” in `vignettes/futures-shorting.Rmd`’s prose, and the same
+  in the `MarginWindow` field description in `R/types_coinbase.R` (the
+  `is_intraday_margin_enrollment_killswitch_enabled` field name on that
+  line is an identifier and is left exactly as it is).
+- Left deliberately untouched: “artifact(s)” in `scripts/BUILD.sh` and
+  `scripts/CLEANUP.sh`, and the comment in
+  `.github/workflows/test-coverage.yaml` (all three are template-managed
+  files, never hand-edited inside a package; the workflow comment also
+  mirrors the `color` variable and the shields.io `"color"` JSON key
+  beside it); and the `test_that()` description string in
+  `tests/testthat/test-auth-utils.R` (“…honor args, env, then
+  defaults”), a string literal rather than a comment or doc line.
+- Files touched: `README.Rmd` (regenerated to `README.md`), `NEWS.md`,
+  `DESCRIPTION`, `vignettes/futures-shorting.Rmd`, `R/types_coinbase.R`.
+  `man/` was regenerated and produced no diff, since none of the edited
+  roxygen prose is echoed into a rendered page. No code identifiers,
+  column names, or API field names were changed.
+
 ## coinbase 0.8.2
 
-**Test data is now entirely made up.** In plain English: this package’s
-test fixtures — the canned JSON responses that stand in for the real
-Coinbase API in tests, the README, and the vignettes — were, for the
-public market-data and account endpoints, genuine responses captured
-from the owner’s live account. That meant this public repository shipped
-the owner’s real wallet names (which coins he has held), the real dates
-those wallets were created and last touched, real trade and order-book
-data straight off the exchange at a real moment in time, and a real
-three-order cancellation with its real timestamps. None of that belongs
-in a public repository, however “scrubbed” the account UUIDs were. The
-fleet rule (ratified 2026-07-05, re-ratified 2026-09-17) is that
-fixtures are hand-authored and synthetic from the start — never
-captured, never scrubbed-and-shipped. This release brings coinbase into
-line: every fixture is now invented data on a clean, recognisable grid,
-and the shared mock router’s documentation is corrected to stop claiming
+**Test data is now entirely made up.** This package’s test fixtures —
+the canned JSON responses that stand in for the real Coinbase API in
+tests, the README, and the vignettes — were, for the public market-data
+and account endpoints, genuine responses captured from the owner’s live
+account. That meant this public repository shipped the owner’s real
+wallet names (which coins he has held), the real dates those wallets
+were created and last touched, real trade and order-book data straight
+off the exchange at a real moment in time, and a real three-order
+cancellation with its real timestamps. None of that belongs in a public
+repository, however “scrubbed” the account UUIDs were. The fleet rule
+(ratified 2026-07-05, re-ratified 2026-09-17) is that fixtures are
+hand-authored and synthetic from the start — never captured, never
+scrubbed-and-shipped. This release brings coinbase into line: every
+fixture is now invented data on a clean, recognisable grid, and the
+shared mock router’s documentation is corrected to stop claiming
 otherwise.
 
 - Rewrote every non-degenerate fixture in
@@ -56,9 +92,9 @@ otherwise.
 ## coinbase 0.8.1
 
 **A regression test that guards against price data ever being truncated
-again.** In plain English: on 2026-09-13 the fleet discovered that every
-Hyperliquid candle in the data lake had been stored to four decimal
-places for months, so a coin priced below a cent lost almost all of its
+again.** On 2026-09-13 the fleet discovered that every Hyperliquid
+candle in the data lake had been stored to four decimal places for
+months, so a coin priced below a cent lost almost all of its
 information, and a strategy that ranks coins by calmness ranked them
 wrongly as a result. The cause was traced and proved NOT to be in the
 venue connector packages — this package’s parse path turns Coinbase’s
@@ -113,16 +149,16 @@ in the one shared request funnel.
 
 ### New: coinbase_backfill_klines() — full-history candle downloads in one call (closes [\#19](https://github.com/dereckscompany/coinbase/issues/19))
 
-In plain English: Coinbase only hands out about 300 candles per request,
-so downloading years of history used to require the caller to stitch
-hundreds of requests together (our data collector did exactly that by
-hand). The connector now does it for you: one function walks the whole
-requested history window by window, removes the duplicates at the seams,
-drops the still-forming candle, resumes from where a previous run
-stopped, and appends to CSV — mirroring the kucoin and binance backfill
-functions so all three venues read the same way.
+Coinbase only hands out about 300 candles per request, so downloading
+years of history used to require the caller to stitch hundreds of
+requests together (our data collector did exactly that by hand). The
+connector now does it for you: one function walks the whole requested
+history window by window, removes the duplicates at the seams, drops the
+still-forming candle, resumes from where a previous run stopped, and
+appends to CSV — mirroring the kucoin and binance backfill functions so
+all three venues read the same way.
 
-Technically: a new instance-free window-pagination core
+A new instance-free window-pagination core
 (coinbase_candle_windows/coinbase_fetch_klines, epoch maths kept in
 double per the venue convention) under the exported
 coinbase_backfill_klines() with per-(symbol, timeframe) resume,
