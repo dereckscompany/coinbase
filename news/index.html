@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">coinbase</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.8.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.8.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -35,9 +35,24 @@
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Changelog</h1>
-      <small>Source: <a href="https://github.com/dereckscompany/coinbase/blob/v0.8.3/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
+      <small>Source: <a href="https://github.com/dereckscompany/coinbase/blob/master/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.8.4" id="coinbase-084">coinbase 0.8.4<a class="anchor" aria-label="anchor" href="#coinbase-084"></a></h2>
+<p><strong>The README now follows the same layout as every other package in the fleet.</strong> Nothing about how the package behaves changed; this release only moves and renames sections in <code>README.Rmd</code> so a reader who already knows one connector’s documentation can find their way around this one without re-learning where things live.</p>
+<ul><li>Added a bold, unlabelled plain-English lead sentence in front of the existing overview paragraph (the first sentence of that paragraph, bolded in place).</li>
+<li>Renamed <code>## Design Philosophy</code> to <code>## Design philosophy</code> and moved it directly after Technical overview, ahead of Installation.</li>
+<li>
+<code>## Installation</code> now leads with <code><a href="https://rstudio.github.io/renv/reference/install.html" class="external-link">renv::install()</a></code>, with <code>remotes::install_github()</code> kept as a commented fallback in the same chunk.</li>
+<li>Renamed <code>## Setup</code> to <code>## Quick start</code>; renamed <code>## Quick Start — Market Data (no auth)</code> to <code>## Market Data (no auth)</code> now that “Quick start” names its own section.</li>
+<li>Moved <code>## Disclaimer</code> to immediately after Quick start, ahead of the per-surface usage sections.</li>
+<li>Moved <code>## Available Classes</code> to immediately before Asynchronous usage; renamed <code>## Asynchronous Use</code> to <code>## Asynchronous usage</code>.</li>
+<li>Added <code>## Error handling</code>, documenting the existing <code>coinbase_validation_error</code> and <code>coinbase_api_error</code> condition classes from <code>R/conditions.R</code> that no prose previously named.</li>
+<li>Added <code>## Documentation</code>, naming the pkgdown site and listing all four vignettes in their <code>_pkgdown.yml</code> reading order.</li>
+<li>Added <code>## Citation</code>, a “Cite as” line built from <code>DESCRIPTION</code>.</li>
+<li>Fixed two Rd-style <code>[promise][promises::promise]</code> cross-references (Design philosophy, Asynchronous usage) that rendered as escaped brackets on GitHub; both are now plain markdown links.</li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.8.3" id="coinbase-083">coinbase 0.8.3<a class="anchor" aria-label="anchor" href="#coinbase-083"></a></h2>
 <p><strong>A prose tidy-up: no wording lost, just the scaffolding and the spelling.</strong> This release touches only documentation and comments, not code. Five leftover “In plain terms:” / “In plain English:” / “Technically:” labels were stripped from the README and NEWS so each entry reads as one continuous explanation instead of a labelled worksheet, and three American spellings — the README’s licence heading, and “enrollment” in a vignette and in a roxygen field description — were brought into line with the British spelling the rest of the fleet already uses.</p>

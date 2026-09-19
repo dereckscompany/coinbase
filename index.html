@@ -22,7 +22,7 @@
 
     <a class="navbar-brand me-2" href="index.html">coinbase</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.8.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.8.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -57,25 +57,20 @@
   <main id="main" class="col-md-9"><div class="section level1">
 <div class="page-header"><h1 id="coinbase">coinbase<a class="anchor" aria-label="anchor" href="#coinbase"></a>
 </h1></div>
-<p>Coinbase is a large, US-based cryptocurrency exchange where people buy, sell and hold digital coins. This package is the R doorway to Coinbase’s Advanced Trade service: you can pull market prices and history, look at your account and balances, and place, preview and manage buy and sell orders on both the spot market and Coinbase’s US futures – all from R scripts. Every request can run the ordinary way, where your code waits for the answer, or in the background so your program keeps working and collects the result later. It also bundles small conveniences such as turning a raw stream of individual trades into evenly spaced price candles and downloading long stretches of history in bulk. Because it can place real orders, it offers preview methods that check an order without sending it, so you can test your logic safely first.</p>
+<p><strong>Coinbase is a large, US-based cryptocurrency exchange where people buy, sell and hold digital coins.</strong> This package is the R doorway to Coinbase’s Advanced Trade service: you can pull market prices and history, look at your account and balances, and place, preview and manage buy and sell orders on both the spot market and Coinbase’s US futures – all from R scripts. Every request can run the ordinary way, where your code waits for the answer, or in the background so your program keeps working and collects the result later. It also bundles small conveniences such as turning a raw stream of individual trades into evenly spaced price candles and downloading long stretches of history in bulk. Because it can place real orders, it offers preview methods that check an order without sending it, so you can test your logic safely first.</p>
 <div class="section level2">
 <h2 id="technical-overview">Technical overview<a class="anchor" aria-label="anchor" href="#technical-overview"></a>
 </h2>
 <p>R API wrapper to the Coinbase Advanced Trade API supporting both synchronous and asynchronous (promise based) operations. Provides R6 classes for market data, spot trading, account management, and US futures (CFM), with helpers for tick-to-OHLCV aggregation.</p>
 </div>
 <div class="section level2">
-<h2 id="disclaimer">Disclaimer<a class="anchor" aria-label="anchor" href="#disclaimer"></a>
-</h2>
-<p>This software is provided for educational and research purposes. Trading cryptocurrency carries substantial risk. You are solely responsible for any orders placed through this package. Use the order <strong>preview</strong> methods (which execute nothing) before placing live orders.</p>
-</div>
-<div class="section level2">
-<h2 id="design-philosophy">Design Philosophy<a class="anchor" aria-label="anchor" href="#design-philosophy"></a>
+<h2 id="design-philosophy">Design philosophy<a class="anchor" aria-label="anchor" href="#design-philosophy"></a>
 </h2>
 <ul>
 <li>
 <strong><code>data.table</code> everywhere, no list columns.</strong> Every method returns a flat <code>data.table</code>; nested API objects are flattened into scalar columns.</li>
 <li>
-<strong>Sync and async.</strong> Every method works in both modes. <code>async = TRUE</code> returns a [promise][promises::promise]; otherwise results are returned directly. There is a single sync/async branch point.</li>
+<strong>Sync and async.</strong> Every method works in both modes. <code>async = TRUE</code> returns a <a href="https://rstudio.github.io/promises/" class="external-link">promise</a>; otherwise results are returned directly. There is a single sync/async branch point.</li>
 <li>
 <strong>Exact money values.</strong> Prices, sizes, and amounts are transmitted with full precision (never rounded or in scientific notation).</li>
 <li>
@@ -86,11 +81,14 @@
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># install.packages("remotes")</span></span>
-<span><span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"dereckscompany/coinbase"</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu">renv</span><span class="fu">::</span><span class="fu"><a href="https://rstudio.github.io/renv/reference/install.html" class="external-link">install</a></span><span class="op">(</span><span class="st">"dereckscompany/coinbase"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># or, if you use remotes instead of renv:</span></span>
+<span><span class="co"># install.packages("remotes")</span></span>
+<span><span class="co"># remotes::install_github("dereckscompany/coinbase")</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="setup">Setup<a class="anchor" aria-label="anchor" href="#setup"></a>
+<h2 id="quick-start">Quick start<a class="anchor" aria-label="anchor" href="#quick-start"></a>
 </h2>
 <p>Create API credentials at <a href="https://www.coinbase.com/settings/api" class="external-link uri">https://www.coinbase.com/settings/api</a> (download the JSON with a <code>name</code> and a <code>privateKey</code>). Store them as environment variables in <code>.Renviron</code> — the PEM newlines escaped as <code>\n</code> on a single line (see <code>.Renviron.example</code>):</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="va">COINBASE_API_KEY_NAME</span><span class="op">=</span><span class="st">"organizations/&lt;org-uuid&gt;/apiKeys/&lt;key-uuid&gt;"</span></span>
@@ -103,7 +101,12 @@
 <p>Public market data needs no credentials.</p>
 </div>
 <div class="section level2">
-<h2 id="quick-start--market-data-no-auth">Quick Start — Market Data (no auth)<a class="anchor" aria-label="anchor" href="#quick-start--market-data-no-auth"></a>
+<h2 id="disclaimer">Disclaimer<a class="anchor" aria-label="anchor" href="#disclaimer"></a>
+</h2>
+<p>This software is provided for educational and research purposes. Trading cryptocurrency carries substantial risk. You are solely responsible for any orders placed through this package. Use the order <strong>preview</strong> methods (which execute nothing) before placing live orders.</p>
+</div>
+<div class="section level2">
+<h2 id="market-data-no-auth">Market Data (no auth)<a class="anchor" aria-label="anchor" href="#market-data-no-auth"></a>
 </h2>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">market</span> <span class="op">&lt;-</span> <span class="va"><a href="reference/CoinbaseMarketData.html">CoinbaseMarketData</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="op">)</span></span>
@@ -426,9 +429,47 @@
 <span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="asynchronous-use">Asynchronous Use<a class="anchor" aria-label="anchor" href="#asynchronous-use"></a>
+<h2 id="available-classes">Available Classes<a class="anchor" aria-label="anchor" href="#available-classes"></a>
 </h2>
-<p>The package is written around promises for non-blocking, event-loop use (à la JavaScript). Pass <code>async = TRUE</code> to any class and its methods return a [promise][promises::promise] instead of a <code>data.table</code>. Resolve it with <code>$then()</code> chaining or, as recommended, <code><a href="https://coro.r-lib.org/reference/async.html" class="external-link">coro::async()</a></code> / <code>await()</code> for sequential-looking code, and drive the event loop with <a href="https://r-lib.github.io/later/" class="external-link">later</a>.</p>
+<table class="table">
+<colgroup>
+<col width="33%">
+<col width="33%">
+<col width="33%">
+</colgroup>
+<thead><tr>
+<th>Class</th>
+<th>Purpose</th>
+<th>Auth</th>
+</tr></thead>
+<tbody>
+<tr>
+<td><code>CoinbaseMarketData</code></td>
+<td>products, OHLCV, trades, order book, ticker, deep history</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>CoinbaseAccount</code></td>
+<td>balances, fees, portfolios, permissions</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>CoinbaseTrading</code></td>
+<td>place / preview / edit / cancel / query orders and fills</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>CoinbaseFutures</code></td>
+<td>US futures (CFM) balances, positions, margin, sweeps</td>
+<td>Yes</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section level2">
+<h2 id="asynchronous-usage">Asynchronous usage<a class="anchor" aria-label="anchor" href="#asynchronous-usage"></a>
+</h2>
+<p>The package is written around promises for non-blocking, event-loop use (à la JavaScript). Pass <code>async = TRUE</code> to any class and its methods return a <a href="https://rstudio.github.io/promises/" class="external-link">promise</a> instead of a <code>data.table</code>. Resolve it with <code>$then()</code> chaining or, as recommended, <code><a href="https://coro.r-lib.org/reference/async.html" class="external-link">coro::async()</a></code> / <code>await()</code> for sequential-looking code, and drive the event loop with <a href="https://r-lib.github.io/later/" class="external-link">later</a>.</p>
 <div class="sourceCode" id="cb45"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">market_async</span> <span class="op">&lt;-</span> <span class="va"><a href="reference/CoinbaseMarketData.html">CoinbaseMarketData</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span>async <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span></span>
@@ -479,42 +520,42 @@
 <span id="cb46-31"><a href="#cb46-31" tabindex="-1"></a><span class="co">#&gt;                  &lt;POSc&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt;  &lt;num&gt;</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="available-classes">Available Classes<a class="anchor" aria-label="anchor" href="#available-classes"></a>
+<h2 id="error-handling">Error handling<a class="anchor" aria-label="anchor" href="#error-handling"></a>
 </h2>
-<table class="table">
-<colgroup>
-<col width="33%">
-<col width="33%">
-<col width="33%">
-</colgroup>
-<thead><tr>
-<th>Class</th>
-<th>Purpose</th>
-<th>Auth</th>
-</tr></thead>
-<tbody>
-<tr>
-<td><code>CoinbaseMarketData</code></td>
-<td>products, OHLCV, trades, order book, ticker, deep history</td>
-<td>No</td>
-</tr>
-<tr>
-<td><code>CoinbaseAccount</code></td>
-<td>balances, fees, portfolios, permissions</td>
-<td>Yes</td>
-</tr>
-<tr>
-<td><code>CoinbaseTrading</code></td>
-<td>place / preview / edit / cancel / query orders and fills</td>
-<td>Yes</td>
-</tr>
-<tr>
-<td><code>CoinbaseFutures</code></td>
-<td>US futures (CFM) balances, positions, margin, sweeps</td>
-<td>Yes</td>
-</tr>
-</tbody>
-</table>
+<p>A bad argument is caught before any request as a <code>coinbase_validation_error</code> – the connector’s own domain root, raised for a malformed <code>product_id</code>, an edit with neither <code>price</code> nor <code>size</code>, or missing credentials, before any network call happens. An HTTP failure returned by Coinbase itself surfaces instead as a typed <code>coinbase_api_error_&lt;status&gt;</code>, rolling up to <code>coinbase_api_error</code> and then connectcore’s fleet-wide <code>connectcore_api_error_&lt;status&gt;</code> / <code>connectcore_api_error</code> / <code>connectcore_error</code> classes, carrying the HTTP status, the request URL (credentials redacted), and a snippet of the response body as structured fields (<code>e$status</code>, <code>e$url</code>, <code>e$body_snippet</code>). Catch a specific class with <code><a href="https://rdrr.io/r/base/conditions.html" class="external-link">tryCatch()</a></code>, or a whole family by its root, instead of matching on message text.</p>
+<div class="sourceCode" id="cb47"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="kw"><a href="https://rdrr.io/r/base/conditions.html" class="external-link">tryCatch</a></span><span class="op">(</span></span>
+<span>  <span class="va">trading</span><span class="op">$</span><span class="fu">edit_order</span><span class="op">(</span><span class="va">order</span><span class="op">$</span><span class="va">order_id</span><span class="op">)</span>,</span>
+<span>  coinbase_validation_error <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">e</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="st">"caught:"</span>, <span class="fu"><a href="https://rdrr.io/r/base/conditions.html" class="external-link">conditionMessage</a></span><span class="op">(</span><span class="va">e</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">result</span></span></code></pre></div>
+<div class="sourceCode" id="cb48"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" tabindex="-1"></a><span class="co">#&gt; [1] "caught: edit_order requires at least one of `price` or `size`."</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="documentation">Documentation<a class="anchor" aria-label="anchor" href="#documentation"></a>
+</h2>
+<p>The rendered reference site is at <a href="https://dereckscompany.github.io/coinbase">dereckscompany.github.io/coinbase</a>.</p>
+<p>Four vignettes take a reader from a first call to shorting through futures, in this reading order:</p>
+<ol style="list-style-type: decimal">
+<li>
+<code><a href="articles/getting-started.html">vignette("getting-started", package = "coinbase")</a></code> — constructing clients, reading public market data, checking authenticated account state, and safely previewing orders against the Coinbase Advanced Trade API, in synchronous mode.</li>
+<li>
+<code><a href="articles/async-usage.html">vignette("async-usage", package = "coinbase")</a></code> — the same calls in asynchronous mode, consuming <code>promises</code> with <code><a href="https://coro.r-lib.org/reference/async.html" class="external-link">coro::async()</a></code> / <code>await()</code> and driving the event loop with <code><a href="https://later.r-lib.org/reference/run_now.html" class="external-link">later::run_now()</a></code>.</li>
+<li>
+<code><a href="articles/data-shapes.html">vignette("data-shapes", package = "coinbase")</a></code> — a method-by-class catalogue of the exact <code>data.table</code> shape every call returns, and the data-shape conventions shared with the sister <code>alpaca</code>, <code>binance</code>, and <code>kucoin</code> packages.</li>
+<li>
+<code><a href="articles/futures-shorting.html">vignette("futures-shorting", package = "coinbase")</a></code> — going short through Coinbase Financial Markets (CFM) US futures, since Coinbase spot is long-only.</li>
+</ol>
+<p>The full release history is in <a href="NEWS.html"><code>NEWS.md</code></a>.</p>
+</div>
+<div class="section level2">
+<h2 id="citation">Citation<a class="anchor" aria-label="anchor" href="#citation"></a>
+</h2>
+<p>Cite as:</p>
+<blockquote>
+<p>Mezquita, D. (2026). coinbase: API Wrapper to Coinbase Advanced Trade. R package version 0.8.4. <a href="https://github.com/dereckscompany/coinbase" class="external-link uri">https://github.com/dereckscompany/coinbase</a>.</p>
+</blockquote>
+<p>Author: Dereck Mezquita — <a href="https://orcid.org/0000-0002-9307-6762" class="external-link">ORCID: 0000-0002-9307-6762</a></p>
 </div>
 <div class="section level2">
 <h2 id="licence">Licence<a class="anchor" aria-label="anchor" href="#licence"></a>
