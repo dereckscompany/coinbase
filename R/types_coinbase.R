@@ -241,7 +241,7 @@
 #' - margin_window_type (character | NA) the window type.
 #' - end_time (POSIXct | NA) when the window ends (UTC).
 #' - is_intraday_margin_killswitch_enabled (logical | NA) killswitch flag.
-#' - is_intraday_margin_enrollment_killswitch_enabled (logical | NA) enrollment
+#' - is_intraday_margin_enrollment_killswitch_enabled (logical | NA) enrolment
 #'   killswitch flag.
 #'
 #' @type FuturesBalance (data.table) one row, the CFM futures balance summary:

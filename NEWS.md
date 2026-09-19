@@ -1,10 +1,11 @@
 # coinbase 0.8.3
 
-**A prose tidy-up: no wording lost, just the scaffolding and the spelling.** This release touches only documentation and comments, not code. Five leftover "In plain terms:" / "In plain English:" / "Technically:" labels were stripped from the README and NEWS so each entry reads as one continuous explanation instead of a labelled worksheet, and the README's licence heading was brought into line with the British spelling the rest of the fleet already uses.
+**A prose tidy-up: no wording lost, just the scaffolding and the spelling.** This release touches only documentation and comments, not code. Five leftover "In plain terms:" / "In plain English:" / "Technically:" labels were stripped from the README and NEWS so each entry reads as one continuous explanation instead of a labelled worksheet, and three American spellings — the README's licence heading, and "enrollment" in a vignette and in a roxygen field description — were brought into line with the British spelling the rest of the fleet already uses.
 
 - Removed 5 scaffolding labels (`README.Rmd`: 1, `NEWS.md`: 4); the sentence each one introduced is kept exactly, with capitalisation repaired where a label had been sitting mid-sentence.
-- Changed 1 spelling (`README.Rmd`'s `## License` heading to `## Licence`), matching the `alpaca`, `binance`, `hyperliquid`, and `kucoin` connectors, which already made this change.
-- Files touched: `README.Rmd` (regenerated to `README.md`), `NEWS.md`. No code, identifiers, column names, or API field names were changed.
+- Changed 3 spellings: `README.Rmd`'s `## License` heading to `## Licence` (matching the `alpaca`, `binance`, `hyperliquid`, and `kucoin` connectors, which already made this change), "enrollment" to "enrolment" in `vignettes/futures-shorting.Rmd`'s prose, and the same in the `MarginWindow` field description in `R/types_coinbase.R` (the `is_intraday_margin_enrollment_killswitch_enabled` field name on that line is an identifier and is left exactly as it is).
+- Left deliberately untouched: "artifact(s)" in `scripts/BUILD.sh` and `scripts/CLEANUP.sh`, and the comment in `.github/workflows/test-coverage.yaml` (all three are template-managed files, never hand-edited inside a package; the workflow comment also mirrors the `color` variable and the shields.io `"color"` JSON key beside it); and the `test_that()` description string in `tests/testthat/test-auth-utils.R` ("...honor args, env, then defaults"), a string literal rather than a comment or doc line.
+- Files touched: `README.Rmd` (regenerated to `README.md`), `NEWS.md`, `DESCRIPTION`, `vignettes/futures-shorting.Rmd`, `R/types_coinbase.R`. `man/` was regenerated and produced no diff, since none of the edited roxygen prose is echoed into a rendered page. No code identifiers, column names, or API field names were changed.
 
 # coinbase 0.8.2
 
