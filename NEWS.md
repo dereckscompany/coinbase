@@ -1,3 +1,12 @@
+# coinbase 0.8.5
+
+**A resident process that asks Coinbase for its positions or open orders can no longer freeze for ten minutes because a single earlier request got stuck.** This package depends on `connectcore` for the shared transport layer underneath every API call, and a bug in that shared layer meant one stalled asynchronous request could silently block every later asynchronous request sharing the same connection pool, because httr2's own pool poller mis-measured elapsed time and never gave up on the stuck one. `connectcore` 0.6.0 fixes this at the source: coinbase only needs its dependency floor raised and its lockfile re-locked to pick up the fix, since the fix lives entirely inside `connectcore`'s request machinery and no coinbase code calls that machinery differently.
+
+- Raised the `connectcore` floor in `DESCRIPTION` from `(>= 0.5.0)` to `(>= 0.6.0)`.
+- `connectcore`'s `build_request()` now gives every asynchronous request its own `curl::new_pool()` and races it against a `later::later()` timer set to the request's timeout plus a 5 second margin; if the timer wins, that request's handles are cancelled and it rejects with a new classed, credential-free condition, `connectcore_request_deadline`, instead of hanging and starving every other asynchronous call sharing the pool.
+- Re-locked `renv.lock` against `connectcore` v0.6.0 (`renv::record()` + `renv::restore()`); no other dependency changed.
+- No production behaviour change in coinbase itself: no R source file under `R/` was edited, and the full test suite passes unchanged.
+
 # coinbase 0.8.4
 
 **The README now follows the same layout as every other package in the fleet.** Nothing about how the package behaves changed; this release only moves and renames sections in `README.Rmd` so a reader who already knows one connector's documentation can find their way around this one without re-learning where things live.
