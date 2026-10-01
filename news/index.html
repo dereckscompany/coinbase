@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">coinbase</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.8.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.8.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -35,9 +35,18 @@
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Changelog</h1>
-      <small>Source: <a href="https://github.com/dereckscompany/coinbase/blob/v0.8.4/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
+      <small>Source: <a href="https://github.com/dereckscompany/coinbase/blob/master/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.8.5" id="coinbase-085">coinbase 0.8.5<a class="anchor" aria-label="anchor" href="#coinbase-085"></a></h2>
+<p><strong>A resident process that asks Coinbase for its positions or open orders can no longer freeze for ten minutes because a single earlier request got stuck.</strong> This package depends on <code>connectcore</code> for the shared transport layer underneath every API call, and a bug in that shared layer meant one stalled asynchronous request could silently block every later asynchronous request sharing the same connection pool, because httr2’s own pool poller mis-measured elapsed time and never gave up on the stuck one. <code>connectcore</code> 0.6.0 fixes this at the source: coinbase only needs its dependency floor raised and its lockfile re-locked to pick up the fix, since the fix lives entirely inside <code>connectcore</code>’s request machinery and no coinbase code calls that machinery differently.</p>
+<ul><li>Raised the <code>connectcore</code> floor in <code>DESCRIPTION</code> from <code>(&gt;= 0.5.0)</code> to <code>(&gt;= 0.6.0)</code>.</li>
+<li>
+<code>connectcore</code>’s <code>build_request()</code> now gives every asynchronous request its own <code><a href="https://jeroen.r-universe.dev/curl/reference/multi.html" class="external-link">curl::new_pool()</a></code> and races it against a <code><a href="https://later.r-lib.org/reference/later.html" class="external-link">later::later()</a></code> timer set to the request’s timeout plus a 5 second margin; if the timer wins, that request’s handles are cancelled and it rejects with a new classed, credential-free condition, <code>connectcore_request_deadline</code>, instead of hanging and starving every other asynchronous call sharing the pool.</li>
+<li>Re-locked <code>renv.lock</code> against <code>connectcore</code> v0.6.0 (<code><a href="https://rstudio.github.io/renv/reference/record.html" class="external-link">renv::record()</a></code> + <code><a href="https://rstudio.github.io/renv/reference/restore.html" class="external-link">renv::restore()</a></code>); no other dependency changed.</li>
+<li>No production behaviour change in coinbase itself: no R source file under <code>R/</code> was edited, and the full test suite passes unchanged.</li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.8.4" id="coinbase-084">coinbase 0.8.4<a class="anchor" aria-label="anchor" href="#coinbase-084"></a></h2>
 <p><strong>The README now follows the same layout as every other package in the fleet.</strong> Nothing about how the package behaves changed; this release only moves and renames sections in <code>README.Rmd</code> so a reader who already knows one connector’s documentation can find their way around this one without re-learning where things live.</p>
