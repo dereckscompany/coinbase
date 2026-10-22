@@ -659,7 +659,7 @@ The full release history is in
 Cite as:
 
 > Mezquita, D. (2026). coinbase: API Wrapper to Coinbase Advanced Trade.
-> R package version 0.8.4. <https://github.com/dereckscompany/coinbase>.
+> R package version 0.8.6. <https://github.com/dereckscompany/coinbase>.
 
 Author: Dereck Mezquita — [ORCID:
 0000-0002-9307-6762](https://orcid.org/0000-0002-9307-6762)

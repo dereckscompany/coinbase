@@ -1,5 +1,16 @@
 # Changelog
 
+## coinbase 0.8.6
+
+**The README’s “Cite as” line named an old version; it now names the
+current one.** This is a documentation-only release: the line is typed
+by hand in `README.Rmd` and was left at 0.8.4 when the connectcore 0.6.0
+re-lock release was cut. Nothing the package does has changed.
+
+- `README.Rmd` / `README.md`: citation 0.8.4 -\> 0.8.6 (fleet clean-up
+  plan G.2-14); `README.md` re-rendered.
+- `DESCRIPTION`: version bumped 0.8.5 -\> 0.8.6.
+
 ## coinbase 0.8.5
 
 **A resident process that asks Coinbase for its positions or open orders
