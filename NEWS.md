@@ -1,3 +1,10 @@
+# coinbase 0.8.6
+
+**The README's "Cite as" line named an old version; it now names the current one.** This is a documentation-only release: the line is typed by hand in `README.Rmd` and was left at 0.8.4 when the connectcore 0.6.0 re-lock release was cut. Nothing the package does has changed.
+
+- `README.Rmd` / `README.md`: citation 0.8.4 -> 0.8.6 (fleet clean-up plan G.2-14); `README.md` re-rendered.
+- `DESCRIPTION`: version bumped 0.8.5 -> 0.8.6.
+
 # coinbase 0.8.5
 
 **A resident process that asks Coinbase for its positions or open orders can no longer freeze for ten minutes because a single earlier request got stuck.** This package depends on `connectcore` for the shared transport layer underneath every API call, and a bug in that shared layer meant one stalled asynchronous request could silently block every later asynchronous request sharing the same connection pool, because httr2's own pool poller mis-measured elapsed time and never gave up on the stuck one. `connectcore` 0.6.0 fixes this at the source: coinbase only needs its dependency floor raised and its lockfile re-locked to pick up the fix, since the fix lives entirely inside `connectcore`'s request machinery and no coinbase code calls that machinery differently.
