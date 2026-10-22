@@ -21,5 +21,5 @@ generate_client_order_id()
 
 ``` r
 generate_client_order_id()
-#> [1] "dafbe1d1-e56f-44ba-9d7a-65ac5152d6f6"
+#> [1] "55c9741c-c06b-4a9e-8a24-672d11a88ec6"
 ```
